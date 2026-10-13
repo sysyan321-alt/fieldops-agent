@@ -409,54 +409,59 @@ async def list_service_items(site_id: str, tenant_id: str = DEFAULT_TENANT) -> l
 # 生产形态下这份配置在机构业务系统（按护理等级组织），
 # 本地配置只为让 demo 能独立跑通"评估等级 → 该等级服务项"这条链路。
 DEFAULT_LEVEL_CONFIGS: list[dict] = [
-    # 三级：巡视 + 健康监测为主
-    {"risk_tier": "三级", "project_name": "每日巡视", "frequency_name": "2次/日",
+    # 说明：模板只列**日频**作业项，因为本地展开器按天生成当日计划
+    # （周/月/季度的保养与检验由业务系统的排程规则负责，本服务不重复实现）。
+    # 风险等级越高，同一点位的巡检与检查频次越密——这是分级服务的核心体现。
+    #
+    # 三级（低风险）：常规巡检为主
+    {"risk_tier": "三级", "project_name": "日常巡检", "frequency_name": "2次/日",
      "times_per_day": 2, "nurse_time_slots": [{"startTime": "09:00", "endTime": "11:00"},
                                               {"startTime": "15:00", "endTime": "17:00"}],
      "is_required": True, "sort_order": 1},
-    {"risk_tier": "三级", "project_name": "健康监测", "frequency_name": "1次/日",
+    {"risk_tier": "三级", "project_name": "环境检查", "frequency_name": "1次/日",
      "times_per_day": 1, "nurse_time_slots": [{"startTime": "08:00", "endTime": "09:00"}],
      "is_required": True, "sort_order": 2},
-    {"risk_tier": "三级", "project_name": "康复训练", "frequency_name": "1次/日",
+    {"risk_tier": "三级", "project_name": "设备状态抽查", "frequency_name": "1次/日",
      "times_per_day": 1, "nurse_time_slots": [{"startTime": "14:00", "endTime": "15:00"}],
      "is_required": False, "sort_order": 3},
-    # 二级：生活照护为主
-    {"risk_tier": "二级", "project_name": "协助进食", "frequency_name": "3次/日",
-     "times_per_day": 3, "nurse_time_slots": [{"startTime": "07:00", "endTime": "08:00"},
-                                              {"startTime": "11:30", "endTime": "12:30"},
-                                              {"startTime": "17:30", "endTime": "18:30"}],
+    # 二级（中风险）：巡检 + 设备与消防检查
+    {"risk_tier": "二级", "project_name": "日常巡检", "frequency_name": "3次/日",
+     "times_per_day": 3, "nurse_time_slots": [{"startTime": "08:00", "endTime": "09:00"},
+                                              {"startTime": "13:00", "endTime": "14:00"},
+                                              {"startTime": "19:00", "endTime": "20:00"}],
      "is_required": True, "sort_order": 1},
-    {"risk_tier": "二级", "project_name": "协助翻身", "frequency_name": "每2小时",
-     "times_per_day": 6, "nurse_time_slots": [{"startTime": "08:00", "endTime": "20:00"}],
+    {"risk_tier": "二级", "project_name": "设备状态检查", "frequency_name": "2次/日",
+     "times_per_day": 2, "nurse_time_slots": [{"startTime": "09:00", "endTime": "11:00"},
+                                              {"startTime": "15:00", "endTime": "17:00"}],
      "is_required": True, "sort_order": 2},
-    {"risk_tier": "二级", "project_name": "用药协助", "frequency_name": "3次/日",
-     "times_per_day": 3, "nurse_time_slots": [{"startTime": "07:00", "endTime": "19:00"}],
+    {"risk_tier": "二级", "project_name": "环境检查", "frequency_name": "1次/日",
+     "times_per_day": 1, "nurse_time_slots": [{"startTime": "08:00", "endTime": "09:00"}],
      "is_required": True, "sort_order": 3},
-    {"risk_tier": "二级", "project_name": "口腔护理", "frequency_name": "2次/日",
-     "times_per_day": 2, "nurse_time_slots": [{"startTime": "07:00", "endTime": "09:00"}],
+    {"risk_tier": "二级", "project_name": "消防设施外观检查", "frequency_name": "1次/日",
+     "times_per_day": 1, "nurse_time_slots": [{"startTime": "08:30", "endTime": "09:30"}],
      "is_required": True, "sort_order": 4},
-    {"risk_tier": "二级", "project_name": "每日巡视", "frequency_name": "2次/日",
-     "times_per_day": 2, "nurse_time_slots": [{"startTime": "09:00", "endTime": "17:00"}],
+    {"risk_tier": "二级", "project_name": "用电安全检查", "frequency_name": "1次/日",
+     "times_per_day": 1, "nurse_time_slots": [{"startTime": "16:00", "endTime": "17:00"}],
      "is_required": True, "sort_order": 5},
-    {"risk_tier": "二级", "project_name": "康复训练", "frequency_name": "隔日1次",
+    {"risk_tier": "二级", "project_name": "专项巡检", "frequency_name": "1次/日",
      "times_per_day": 1, "nurse_time_slots": [{"startTime": "14:00", "endTime": "15:00"}],
      "is_required": False, "sort_order": 6},
-    # 一级：全天候照护为主
-    {"risk_tier": "一级", "project_name": "鼻饲护理", "frequency_name": "4次/日",
-     "times_per_day": 4, "nurse_time_slots": [{"startTime": "07:00", "endTime": "21:00"}],
-     "is_required": True, "sort_order": 1},
-    {"risk_tier": "一级", "project_name": "协助翻身", "frequency_name": "每1小时",
-     "times_per_day": 12, "nurse_time_slots": [{"startTime": "06:00", "endTime": "22:00"}],
-     "is_required": True, "sort_order": 2},
-    {"risk_tier": "一级", "project_name": "皮肤护理", "frequency_name": "3次/日",
-     "times_per_day": 3, "nurse_time_slots": [{"startTime": "08:00", "endTime": "20:00"}],
-     "is_required": True, "sort_order": 3},
-    {"risk_tier": "一级", "project_name": "口腔护理", "frequency_name": "2次/日",
-     "times_per_day": 2, "nurse_time_slots": [{"startTime": "07:00", "endTime": "09:00"}],
-     "is_required": True, "sort_order": 4},
-    {"risk_tier": "一级", "project_name": "全天巡视", "frequency_name": "6次/日",
+    # 一级（高风险）：高频巡检 + 用火用电 + 应急待命
+    {"risk_tier": "一级", "project_name": "日常巡检", "frequency_name": "6次/日",
      "times_per_day": 6, "nurse_time_slots": [{"startTime": "00:00", "endTime": "24:00"}],
-     "is_required": True, "sort_order": 5},
+     "is_required": True, "sort_order": 1},
+    {"risk_tier": "一级", "project_name": "设备状态检查", "frequency_name": "3次/日",
+     "times_per_day": 3, "nurse_time_slots": [{"startTime": "08:00", "endTime": "20:00"}],
+     "is_required": True, "sort_order": 2},
+    {"risk_tier": "一级", "project_name": "环境检查", "frequency_name": "2次/日",
+     "times_per_day": 2, "nurse_time_slots": [{"startTime": "08:00", "endTime": "17:00"}],
+     "is_required": True, "sort_order": 3},
+    {"risk_tier": "一级", "project_name": "用火用电检查", "frequency_name": "2次/日",
+     "times_per_day": 2, "nurse_time_slots": [{"startTime": "09:00", "endTime": "19:00"}],
+     "is_required": True, "sort_order": 4},
+    {"risk_tier": "一级", "project_name": "应急处置待命", "frequency_name": "1次/日",
+     "times_per_day": 1, "nurse_time_slots": [{"startTime": "07:00", "endTime": "08:00"}],
+     "is_required": False, "sort_order": 5},
 ]
 
 
@@ -769,7 +774,7 @@ async def list_service_history(site_id: str, tenant_id: str = DEFAULT_TENANT,
     return ordered[:limit]
 
 
-# ── 照护流程报告：work_flow_reports 表 ──────────────────────
+# ── 作业流程报告：work_flow_reports 表 ──────────────────────
 
 async def save_work_flow_report(
     session_id: str,

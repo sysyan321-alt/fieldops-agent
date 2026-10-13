@@ -178,7 +178,7 @@ async def test_saas_provider_normalizes_status(monkeypatch):
 
     monkeypatch.setattr(provider, "_post", _post)
 
-    plan = await provider.today_plan("e001", "tenant_default")
+    plan = await provider.today_plan("s001", "tenant_default")
 
     assert [p["status"] for p in plan] == ["done", "missed", "planned"]
 
@@ -242,7 +242,7 @@ class _FakeProvider:
         return self._today
 
 
-def _patch_session(monkeypatch, site_id="e001"):
+def _patch_session(monkeypatch, site_id="s001"):
     async def _get(session_id, tenant_id="tenant_default"):
         return {"session_id": session_id, "site_id": site_id}
     monkeypatch.setattr("backend.db.repositories.get_work_flow_session", _get)

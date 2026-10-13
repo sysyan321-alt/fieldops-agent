@@ -21,7 +21,7 @@ logger = get_logger(__name__)
 # ── 模拟告警初始状态 ──────────────────────────────────────────
 
 ALERT_ID = "alert-test-001"
-ELDER_ID = "e001"
+ELDER_ID = "s001"
 SESSION_ID = ALERT_ID  # 用 alert_id 同时做 session_id，保证 thread_id 一致
 
 INITIAL_STATE = {

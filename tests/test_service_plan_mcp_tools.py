@@ -27,7 +27,7 @@ async def test_service_items_tool_shape(monkeypatch):
 
     monkeypatch.setattr("backend.db.repositories.list_service_items", _items)
 
-    out = await service_data_server.list_site_service_items("e001", "tenant_default")
+    out = await service_data_server.list_site_service_items("s001", "tenant_default")
 
     assert out["found"] is True
     assert out["items"][0]["project_name"] == "协助翻身"
@@ -74,7 +74,7 @@ async def test_today_plan_tool_returns_progress(monkeypatch):
     monkeypatch.setattr("backend.core.service_plan_provider.get_service_plan_provider",
                         lambda: _Provider())
 
-    out = await service_data_server.get_today_service_plan("e001", "tenant_default")
+    out = await service_data_server.get_today_service_plan("s001", "tenant_default")
 
     assert out["progress"] == {"total": 2, "done": 1, "missed": 0, "pending": 1}
     assert len(out["plan"]) == 2

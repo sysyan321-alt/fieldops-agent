@@ -34,7 +34,7 @@ async def test_deliver_not_found(monkeypatch):
 @pytest.mark.asyncio
 async def test_deliver_rejects_finished_session(monkeypatch):
     """已结束的会话不再接收工单（要下发需开新会话）。"""
-    _patch_session(monkeypatch, {"session_id": "cf-x", "site_id": "e001", "status": "finished"})
+    _patch_session(monkeypatch, {"session_id": "cf-x", "site_id": "s001", "status": "finished"})
     out = await discharge_mod.deliver_discharge_order(
         "cf-x", "tenant_default", {"order_type": "discharge"})
     assert out["found"] is False
@@ -45,7 +45,7 @@ async def test_deliver_rejects_finished_session(monkeypatch):
 async def test_deliver_writes_checkpoint_with_consistent_thread_key(monkeypatch):
     """正常投递：只调 aupdate_state 写 discharge_order，thread_id / checkpoint_ns 与编排器一致。"""
     _patch_session(monkeypatch, {
-        "session_id": "cf-abc", "site_id": "e001",
+        "session_id": "cf-abc", "site_id": "s001",
         "status": "in_progress", "current_stage": "daily_care",
     })
 
@@ -74,14 +74,14 @@ async def test_deliver_writes_checkpoint_with_consistent_thread_key(monkeypatch)
     assert captured["values"] == {"discharge_order": order}
     # 键必须与 Orchestrator 的 build_config(site_id, session_id, agent_type="work_flow") 一致
     cfg = captured["config"]["configurable"]
-    assert cfg["thread_id"] == build_thread_id("e001", "cf-abc")
+    assert cfg["thread_id"] == build_thread_id("s001", "cf-abc")
     assert cfg["checkpoint_ns"] == "work_flow"
 
 
 @pytest.mark.asyncio
 async def test_deliver_returns_error_when_write_fails(monkeypatch):
     """检查点写入异常 → found=False + status=error（不把异常抛给调用方）。"""
-    _patch_session(monkeypatch, {"session_id": "cf-x", "site_id": "e001", "status": "in_progress"})
+    _patch_session(monkeypatch, {"session_id": "cf-x", "site_id": "s001", "status": "in_progress"})
 
     class _BoomGraph:
         async def aupdate_state(self, *args, **kwargs):

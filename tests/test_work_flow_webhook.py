@@ -256,7 +256,7 @@ async def test_enqueue_work_flow_finished_builds_payload(monkeypatch):
 
     event_id = await outbound_mod.enqueue_work_flow_finished(
         session_id="cf-abc",
-        site_id="e001",
+        site_id="s001",
         tenant_id=TENANT,
         service_plan_id="plan-1",
         stage_reached="finished",
@@ -283,7 +283,7 @@ async def test_enqueue_alert_dispatched_event(monkeypatch):
 
     await outbound_mod.enqueue_alert_decision(
         alert_id="alert-1",
-        site_id="e001",
+        site_id="s001",
         tenant_id=TENANT,
         dispatch_order={
             "order_id": "order-9",
@@ -313,7 +313,7 @@ async def test_enqueue_alert_dismissed_event(monkeypatch):
 
     await outbound_mod.enqueue_alert_decision(
         alert_id="alert-2",
-        site_id="e002",
+        site_id="s002",
         tenant_id=TENANT,
         dispatch_order={"order_id": "order-10", "status": "dismissed"},
     )
@@ -328,7 +328,7 @@ async def test_enqueue_alert_falls_back_to_alert_id_without_order(monkeypatch):
     fake = _patch(monkeypatch, _FakeRepo())
 
     await outbound_mod.enqueue_alert_decision(
-        alert_id="alert-3", site_id="e003", tenant_id=TENANT,
+        alert_id="alert-3", site_id="s003", tenant_id=TENANT,
         dispatch_order={"status": "dispatched"},
     )
 

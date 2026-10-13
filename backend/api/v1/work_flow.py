@@ -440,7 +440,7 @@ async def export_work_report_docx(
     session_id: str,
     current_user: dict = Depends(get_current_user),
 ):
-    """把照护流程报告导出为 Word（.docx）。"""
+    """把作业流程评估报告导出为 Word（.docx）。"""
     from backend.core.export import build_work_flow_docx, docx_response_headers
     from backend.db.repositories import get_work_flow_report
 

@@ -11,7 +11,7 @@ from typing import Any, Optional
 from docx import Document
 from docx.shared import Pt
 
-DISCLAIMER = "本报告由 AI 辅助生成，仅供护理团队参考，最终处置以专业人员判断为准。"
+DISCLAIMER = "本报告由 AI 辅助生成，仅供作业团队参考，最终处置以专业人员判断为准。"
 
 
 def _add_title(doc: Document, text: str) -> None:
@@ -47,15 +47,15 @@ def build_assessment_docx(payload: dict) -> bytes:
     structured = summary_payload.get("structured") or {}
 
     doc = Document()
-    _add_title(doc, "老年人能力评估报告")
+    _add_title(doc, "点位风险评估报告")
 
     _add_kv_table(doc, [
         ("评估编号", payload.get("assessment_id", "")),
-        ("老人编号", payload.get("site_id", "")),
+        ("点位编号", payload.get("site_id", "")),
         ("综合得分", payload.get("weighted_score", 0)),
         ("评估时间", payload.get("created_at") or datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
-        ("姓名 / 年龄段", f"{structured.get('name', '—')} / {structured.get('built_year', '—')}"),
-        ("照护等级建议", summary.get("risk_tier_recommendation", structured.get("risk_tier", "—"))),
+        ("点位名称 / 建成年份", f"{structured.get('name', '—')} / {structured.get('built_year', '—')}"),
+        ("风险等级建议", summary.get("risk_tier_recommendation", structured.get("risk_tier", "—"))),
     ])
 
     doc.add_heading("一、维度评分", level=1)
@@ -100,19 +100,19 @@ def build_assessment_docx(payload: dict) -> bytes:
 
 
 def build_work_flow_docx(payload: dict) -> bytes:
-    """照护流程报告 → Word。
+    """作业流程评估报告 → Word。
 
     入参结构来自 `repositories.get_work_flow_report`，`report` 字段是报告正文（字典或字符串）。
     """
     report = payload.get("report") or {}
 
     doc = Document()
-    _add_title(doc, "照护流程报告")
+    _add_title(doc, "作业流程评估报告")
 
     _add_kv_table(doc, [
         ("会话编号", payload.get("session_id", "")),
-        ("老人编号", payload.get("site_id", "")),
-        ("照护计划", payload.get("service_plan_id", "")),
+        ("点位编号", payload.get("site_id", "")),
+        ("服务计划", payload.get("service_plan_id", "")),
         ("到达阶段", payload.get("stage_reached", "")),
         ("总轮数", payload.get("total_turns", 0)),
         ("生成时间", payload.get("created_at") or datetime.now().strftime("%Y-%m-%d %H:%M:%S")),

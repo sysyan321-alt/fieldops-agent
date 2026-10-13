@@ -306,7 +306,7 @@ def scenario_b_auto_route_work_flow(client: FrontendMock) -> bool:
     events = client.chat(
         query="明天执行入住流程第二阶段",
         session_id="mock-B-001",
-        site_id="e001",
+        site_id="s001",
     )
     print_events(events)
     answer = extract_answer(events)
@@ -400,7 +400,7 @@ def scenario_e_direct_alert(client: FrontendMock) -> bool:
         query="301 房老人心率 130",
         session_id="mock-E-001",
         agent_type="alert",
-        site_id="e001",
+        site_id="s001",
     )
     print_events(events, max_content_len=240)
     answer = extract_answer(events)

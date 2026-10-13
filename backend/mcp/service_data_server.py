@@ -34,7 +34,7 @@ async def get_site_profile(site_id: str, tenant_id: str) -> dict:
     """查询老人基本档案（含当前照护计划与绑定设备）。
 
     Args:
-        site_id:  老人 ID（如 e001）
+        site_id:  老人 ID（如 s001）
         tenant_id: 租户 ID，必填
 
     Returns:

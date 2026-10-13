@@ -16,7 +16,7 @@ from backend.core.logger import configure_logging, get_logger
 configure_logging()
 logger = get_logger(__name__)
 
-ELDER_ID = "e001"
+ELDER_ID = "s001"
 
 
 def _build_initial_state(session_id: str, stage: str = None, max_turns: int = 40,

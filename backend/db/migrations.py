@@ -18,7 +18,7 @@ _MIGRATIONS: list[str] = [
     # v1：告警表增加风险评估与四轨数据（供 GET /alert/{id}/review 读取）
     "ALTER TABLE alerts ADD COLUMN IF NOT EXISTS risk_assessment JSONB",
     "ALTER TABLE alerts ADD COLUMN IF NOT EXISTS three_tracks JSONB",
-    # v1：照护流程报告表（save_report 节点落库）
+    # v1：作业流程报告表（save_report 节点落库）
     """
     CREATE TABLE IF NOT EXISTS work_flow_reports (
         report_id     VARCHAR(64) PRIMARY KEY,

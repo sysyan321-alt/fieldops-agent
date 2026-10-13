@@ -22,7 +22,7 @@ import path from 'node:path'
 const BASE = process.env.BASE ?? 'http://localhost:3000'
 const USER = process.env.USER ?? 'supervisor'
 const PASS = process.env.PASS ?? 'Supervisor@123'
-const ELDER = process.env.ELDER ?? 'e001'
+const ELDER = process.env.ELDER ?? 's001'
 const OUT = path.resolve('docs/images')
 
 // 每张图要体现的信息决定了怎么截：这些界面里"数据"比"布局"更重要，

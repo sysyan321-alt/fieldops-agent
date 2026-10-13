@@ -17,7 +17,7 @@ from backend.db import repositories as repo
 
 def _base_state(**overrides):
     state = {
-        "site_id": "e001",
+        "site_id": "s001",
         "tenant_id": "tenant_default",
         "service_plan_id": "",
     }
@@ -73,7 +73,7 @@ async def test_plan_from_pipeline_upstream(monkeypatch):
 async def test_plan_from_ai_assessment_when_only_ai_record(monkeypatch):
     """② 只有评估派生的计划时，来源标 ai_assessment。"""
     _patch_repo(monkeypatch, plan={
-        "plan_id": "plan-seed-001", "site_id": "e001",
+        "plan_id": "plan-seed-001", "site_id": "s001",
         "plan_content": {"risk_tier": "二级", "daily_tasks": ["晨间护理", "每2小时翻身"],
                          "special_notes": "高血压"},
         "created_at": "2026-10-01 00:00:00",

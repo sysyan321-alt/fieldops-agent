@@ -5,7 +5,7 @@
 # 用法（后端已在 8000 端口运行）：
 #   python scripts/check_mcp.py                 # 校验全部 server
 #   python scripts/check_mcp.py --server sop-kb # 只校验知识库
-#   python scripts/check_mcp.py --site-id e001 --tenant-id tenant_default
+#   python scripts/check_mcp.py --site-id s001 --tenant-id tenant_default
 #
 # 也可指向独立运行的 MCP Server：--base http://localhost:8011
 
@@ -123,7 +123,7 @@ async def main() -> int:
                         choices=["all", "sop-kb", "service-data", "web-search", "write"])
     parser.add_argument("--base", default="http://localhost:8000/mcp")
     parser.add_argument("--tenant-id", default="tenant_default")
-    parser.add_argument("--site-id", default="e001")
+    parser.add_argument("--site-id", default="s001")
     parser.add_argument("--admin-token", default="",
                         help="写工具 Bearer Token；留空则用 .env.local 里的 MCP_ADMIN_TOKEN")
     args = parser.parse_args()

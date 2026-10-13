@@ -215,7 +215,7 @@ def _login() -> str:
 
 def _ask(token: str, query: str, session_tag: str, timeout: int = 180) -> tuple[float, str, str]:
     """返回 (耗时ms, answer_mode, 回答正文)。"""
-    payload = {"site_id": "e001", "session_id": f"{session_tag}-{time.time_ns()}", "query": query}
+    payload = {"site_id": "s001", "session_id": f"{session_tag}-{time.time_ns()}", "query": query}
     req = urllib.request.Request(
         BACKEND + "/api/v1/sop-qa/chat", data=json.dumps(payload).encode(),
         headers={"Content-Type": "application/json", "Authorization": "Bearer " + token},
@@ -333,10 +333,10 @@ def bench_read_endpoints(repeat: int) -> None:
         return
 
     cases = [
-        ("GET /devices/site/e001/readings", "/api/v1/devices/site/e001/readings"),
+        ("GET /devices/site/s001/readings", "/api/v1/devices/site/s001/readings"),
         ("GET /work-flow/events", "/api/v1/work-flow/events"),
         ("GET /work-flow/webhooks", "/api/v1/work-flow/webhooks"),
-        ("GET /work-flow/active/e001", "/api/v1/work-flow/active/e001"),
+        ("GET /work-flow/active/s001", "/api/v1/work-flow/active/s001"),
         ("GET /assessment/{不存在}", "/api/v1/assessment/asmt-not-exist"),
         ("GET /alert/{不存在}/review", "/api/v1/alert/alert-not-exist/review"),
         ("GET /work-flow/{不存在}/report", "/api/v1/work-flow/sess-not-exist/report"),
@@ -383,12 +383,12 @@ def bench_other_paths(repeat: int) -> None:
 
     plans = [
         ("⑥ 统一对话入口（意图路由）", "/api/v1/chat",
-         {"site_id": "e001", "query": "压疮怎么护理"}, "⑥ 统一入口端到端"),
+         {"site_id": "s001", "query": "压疮怎么护理"}, "⑥ 统一入口端到端"),
         ("⑦ 告警研判（到 interrupt 暂停点）", "/api/v1/alert/trigger",
-         {"site_id": "e001", "device_id": "dev-001", "alert_type": "heart_rate_abnormal"},
+         {"site_id": "s001", "device_id": "dev-001", "alert_type": "heart_rate_abnormal"},
          "⑦ 告警研判端到端"),
         ("⑧ 照护流程 /start", "/api/v1/work-flow/start",
-         {"site_id": "e001"}, "⑧ 照护流程端到端"),
+         {"site_id": "s001"}, "⑧ 照护流程端到端"),
     ]
 
     for label, path, payload, summary_key in plans:

@@ -87,17 +87,17 @@ async def test_assessment_export_docx(client, auth_headers):
     assessment_id = make_id("export-asmt")
     await save_assessment_result(
         assessment_id=assessment_id,
-        site_id="e001",
+        site_id="s001",
         dimension_scores=[
             {"dimension": "ADL 日常生活能力", "score": 60, "weight": 0.30},
             {"dimension": "认知功能", "score": 70, "weight": 0.25},
         ],
         weighted_score=64.5,
         summary_payload={
-            "summary": {"overall_comment": "整体三级能力中等，需重点防跌倒。",
+            "summary": {"overall_comment": "点位整体状况中等，柜内温升偏高。",
                         "risk_tier_recommendation": "二级"},
-            "issues": [{"priority": "high", "description": "跌倒风险偏高",
-                        "suggestion": "加装床栏并加强夜间巡视"}],
+            "issues": [{"priority": "high", "description": "柜内温升偏高",
+                        "suggestion": "恢复通风并加密温升监测"}],
             "structured": {"name": "张明德", "built_year": 78, "risk_tier": "二级"},
         },
     )
@@ -111,8 +111,8 @@ async def test_assessment_export_docx(client, auth_headers):
 
     with zipfile.ZipFile(io.BytesIO(resp.content)) as zf:
         xml = zf.read("word/document.xml").decode("utf-8")
-    assert "老年人能力评估报告" in xml
-    assert "跌倒风险偏高" in xml
+        assert "点位风险评估报告" in xml
+        assert "柜内温升偏高" in xml
     assert "二级" in xml
 
 
@@ -128,7 +128,7 @@ async def test_work_flow_export_docx(client, auth_headers):
     session_id = make_id("export-flow")
     await save_work_flow_report(
         session_id=session_id,
-        site_id="e001",
+        site_id="s001",
         service_plan_id="plan-001",
         stage_reached="finished",
         total_turns=12,
@@ -143,7 +143,7 @@ async def test_work_flow_export_docx(client, auth_headers):
 
     with zipfile.ZipFile(io.BytesIO(resp.content)) as zf:
         xml = zf.read("word/document.xml").decode("utf-8")
-    assert "照护流程报告" in xml
+    assert "作业流程评估报告" in xml
     assert "照护流程执行完毕" in xml
 
 

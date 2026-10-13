@@ -151,11 +151,11 @@ def build_thread_id(site_id: str, session_id: str) -> str:
     构建 LangGraph Checkpointer 使用的 thread_id。
 
     格式：site_{site_id}_session_{session_id}
-    同一老人的不同会话有独立的历史，互不干扰。
+    同一点位的不同会话有独立的历史，互不干扰。
 
     Example:
-        build_thread_id("e001", "sess-abc")
-        → "site_e001_session_sess-abc"
+        build_thread_id("s001", "sess-abc")
+        → "site_s001_session_sess-abc"
     """
     return f"site_{site_id}_session_{session_id}"
 
