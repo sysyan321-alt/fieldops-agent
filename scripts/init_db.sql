@@ -6,12 +6,12 @@
 -- 老人信息表
 -- ──────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS sites (
-    site_id    VARCHAR(64) PRIMARY KEY,        -- 老人 ID
-    name        VARCHAR(100) NOT NULL,           -- 姓名
-    age         INTEGER,                          -- 年龄
-    gender      VARCHAR(10),                      -- 性别：男/女
-    room_no     VARCHAR(20),                      -- 房间号
-    risk_tier  VARCHAR(20) DEFAULT '自理',        -- 护理等级：自理/介助/介护
+    site_id    VARCHAR(64) PRIMARY KEY,          -- 点位 ID
+    name        VARCHAR(100) NOT NULL,           -- 点位名称，如「3号楼B1配电间」
+    built_year  INTEGER,                         -- 建成年份（判断设施老化程度）
+    site_type   VARCHAR(20),                     -- 点位类型：配电间/机房/仓库/公共区域
+    location    VARCHAR(64),                     -- 位置，如「3号楼B1」
+    risk_tier   VARCHAR(20) DEFAULT '三级',       -- 风险等级：三级(低)/二级(中)/一级(高)
     tenant_id   VARCHAR(64) NOT NULL DEFAULT 'tenant_default',  -- 租户 ID
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS daily_work_plans (
 -- ──────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS service_tier_configs (
     config_id       VARCHAR(64) PRIMARY KEY,
-    risk_tier      VARCHAR(32) NOT NULL,          -- 护理等级：自理/介助/介护
+    risk_tier      VARCHAR(32) NOT NULL,          -- 护理等级：三级/二级/一级
     project_id      VARCHAR(64) DEFAULT '',
     project_name    VARCHAR(128) NOT NULL,
     frequency_id    VARCHAR(64) DEFAULT '',

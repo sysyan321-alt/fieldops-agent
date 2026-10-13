@@ -33,7 +33,7 @@ ASSESSMENT_TEXT = """老年人能力评估表
 
 【基本信息】
 姓名：张建国    性别：男    年龄：78岁
-房间号：301      护理等级：介助
+房间号：301      护理等级：二级
 评估日期：2026-09-18
 
 【ADL 日常生活活动能力评估】
@@ -73,7 +73,7 @@ Morse 得分：45（跌倒风险中等）
 抑郁筛查 GDS：6/15（正常范围）
 
 【综合评估意见】
-老人轻度认知减退，跌倒风险中等，营养风险边缘，日常基本自理。
+老人轻度认知减退，跌倒风险中等，营养风险边缘，日常基本三级。
 建议：加强认知训练，预防跌倒，营养干预。"""
 
 
@@ -145,9 +145,9 @@ async def run_assessment_full_flow():
     print(f"\n[5] ② extract_structured 产出（老人基本信息）：")
     s = result.get("structured") or {}
     print(f"    name:       {s.get('name')}")
-    print(f"    age:        {s.get('age')}")
-    print(f"    gender:     {s.get('gender')}")
-    print(f"    room_no:     {s.get('room_no')}")
+    print(f"    built_year:        {s.get('built_year')}")
+    print(f"    site_type:     {s.get('site_type')}")
+    print(f"    location:     {s.get('location')}")
     print(f"    risk_tier: {s.get('risk_tier')}")
 
     print(f"\n[6] ③ run_five_dimensions 产出（五维度并行评审）：")

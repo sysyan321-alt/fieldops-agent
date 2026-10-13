@@ -42,7 +42,7 @@ async def get_site_profile(site_id: str, tenant_id: str) -> dict:
     """
     async with AsyncSessionLocal() as s:
         site = (await s.execute(text(
-            "SELECT site_id, name, age, gender, room_no, risk_tier, created_at"
+            "SELECT site_id, name, built_year, site_type, location, risk_tier, created_at"
             " FROM sites WHERE site_id = :eid AND tenant_id = :tid"),
             {"eid": site_id, "tid": tenant_id})).fetchone()
 
@@ -64,9 +64,9 @@ async def get_site_profile(site_id: str, tenant_id: str) -> dict:
         "found": True,
         "site_id": site.site_id,
         "name": site.name,
-        "age": site.age,
-        "gender": site.gender,
-        "room_no": site.room_no,
+        "built_year": site.built_year,
+        "site_type": site.site_type,
+        "location": site.location,
         "risk_tier": site.risk_tier,
         "service_plan": (
             {"plan_id": plan_rec["plan_id"], "content": plan_rec["plan_content"],
@@ -203,7 +203,7 @@ async def list_service_tier_configs(risk_tier: str, tenant_id: str,
     AI 可以在可选集合内推荐，但不能新增集合外的服务。
 
     Args:
-        risk_tier:    护理等级，如 自理 / 介助 / 介护
+        risk_tier:    护理等级，如 三级 / 二级 / 一级
         tenant_id:     租户 ID，必填
         required_only: True 只返回必选项
     """

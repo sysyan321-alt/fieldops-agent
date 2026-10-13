@@ -63,14 +63,14 @@ def test_format_assessment_snapshot_renders_key_fields():
         "weighted_score": 62.5,
         "dimension_scores": [{"dimension": "ADL", "score": 55}, {"dimension": "认知", "score": 70}],
         "summary": {
-            "risk_tier_recommendation": "介助",
+            "risk_tier_recommendation": "二级",
             "issues": [{"suggestion": "夜间加装床栏"}],
         },
     })
     assert "2026-09-20" in text
     assert "62.5" in text
     assert "ADL 55" in text
-    assert "介助" in text
+    assert "二级" in text
     assert "夜间加装床栏" in text
 
 

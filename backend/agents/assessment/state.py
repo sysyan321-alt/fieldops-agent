@@ -13,12 +13,12 @@ from pydantic import BaseModel, Field
 # ──────────────────────────────────────────────────────────────
 
 class SiteBasicInfo(BaseModel):
-    """老人基本信息（从评估表 PDF 中提取）。"""
-    name:        str = Field(description="老人姓名")
-    age:         int = Field(description="年龄")
-    gender:      str = Field(description="性别：男/女")
-    room_no:     str = Field(default="", description="房间号")
-    risk_tier:  str = Field(default="", description="当前护理等级：自理/介助/介护")
+    """点位基本信息（从点位评估表 PDF 中提取）。"""
+    name:        str = Field(description="点位名称")
+    built_year:  int = Field(description="建成年份")
+    site_type:   str = Field(description="点位类型：配电间/机房/仓库/公共区域/设备间")
+    location:    str = Field(default="", description="位置，如「3号楼B1」")
+    risk_tier:   str = Field(default="", description="当前风险等级：三级/二级/一级")
     photo_path:  str = Field(default="", description="照片路径（可选）")
 
 
@@ -58,7 +58,7 @@ class DiagnosisAndSummary(BaseModel):
     highlights: list[str] = Field(description="2-3 条核心亮点")
     core_improvements: list[str] = Field(description="2-3 条最重要的改进方向")
     overall_comment: str = Field(description="1-2 句综合评语")
-    risk_tier_recommendation: str = Field(description="建议护理等级：自理/介助/介护")
+    risk_tier_recommendation: str = Field(description="建议护理等级：三级/二级/一级")
 
 
 class AssessmentSummary(BaseModel):
@@ -66,7 +66,7 @@ class AssessmentSummary(BaseModel):
     highlights:               list[str] = Field(description="2-3 条核心亮点")
     core_improvements:        list[str] = Field(description="2-3 条最重要的改进方向")
     overall_comment:          str       = Field(description="1-2 句综合评语")
-    risk_tier_recommendation: str      = Field(description="建议护理等级：自理/介助/介护")
+    risk_tier_recommendation: str      = Field(description="建议护理等级：三级/二级/一级")
 
 
 # ──────────────────────────────────────────────────────────────

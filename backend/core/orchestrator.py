@@ -224,7 +224,7 @@ class Orchestrator:
             "plan_id": f"plan-{assessment_result.get('assessment_id', 'unknown')}",
             "site_id": site_id,
             "risk_tier": summary.get(
-                "risk_tier_recommendation", structured.get("risk_tier", "介助"),
+                "risk_tier_recommendation", structured.get("risk_tier", "二级"),
             ),
             "daily_tasks": daily_tasks,
             "special_notes": summary.get("overall_comment", ""),

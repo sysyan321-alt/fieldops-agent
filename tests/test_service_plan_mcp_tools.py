@@ -23,7 +23,7 @@ def test_service_data_exposes_plan_read_tools():
 async def test_service_items_tool_shape(monkeypatch):
     async def _items(site_id, tenant_id="tenant_default"):
         return [{"project_name": "协助翻身", "frequency_name": "每2小时",
-                 "is_required": True, "risk_tier": "介助"}]
+                 "is_required": True, "risk_tier": "二级"}]
 
     monkeypatch.setattr("backend.db.repositories.list_service_items", _items)
 
@@ -55,10 +55,10 @@ async def test_level_configs_tool_passes_required_only(monkeypatch):
 
     monkeypatch.setattr("backend.db.repositories.list_level_configs", _configs)
 
-    out = await service_data_server.list_service_tier_configs("介护", "tenant_default",
+    out = await service_data_server.list_service_tier_configs("一级", "tenant_default",
                                                          required_only=True)
 
-    assert seen == {"risk_tier": "介护", "required_only": True}
+    assert seen == {"risk_tier": "一级", "required_only": True}
     assert out == [{"project_name": "协助进食"}]
 
 

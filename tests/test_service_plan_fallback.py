@@ -52,19 +52,19 @@ async def test_plan_from_pipeline_upstream(monkeypatch):
     """① 上游注入 plan 时覆盖 Provider 的计划。"""
     _patch_repo(monkeypatch, plan={
         "plan_id": "plan-db-1",
-        "plan_content": {"risk_tier": "自理", "daily_tasks": ["DB 任务"]},
+        "plan_content": {"risk_tier": "三级", "daily_tasks": ["DB 任务"]},
     })
 
     upstream = {
         "plan_id": "plan-asmt-1",
-        "risk_tier": "介护",
+        "risk_tier": "一级",
         "daily_tasks": ["[HIGH] 鼻饲管护理"],
         "special_notes": "卧床",
     }
     out = await load_context_node(_base_state(service_plan=upstream))
 
     assert out["plan_source"] == "pipeline"
-    assert out["service_plan"]["risk_tier"] == "介护"
+    assert out["service_plan"]["risk_tier"] == "一级"
     assert out["service_plan"]["plan_id"] == "plan-asmt-1"
     assert out["service_plan_missing"] is False
 
@@ -74,7 +74,7 @@ async def test_plan_from_ai_assessment_when_only_ai_record(monkeypatch):
     """② 只有评估派生的计划时，来源标 ai_assessment。"""
     _patch_repo(monkeypatch, plan={
         "plan_id": "plan-seed-001", "site_id": "e001",
-        "plan_content": {"risk_tier": "介助", "daily_tasks": ["晨间护理", "每2小时翻身"],
+        "plan_content": {"risk_tier": "二级", "daily_tasks": ["晨间护理", "每2小时翻身"],
                          "special_notes": "高血压"},
         "created_at": "2026-10-01 00:00:00",
     })
@@ -82,7 +82,7 @@ async def test_plan_from_ai_assessment_when_only_ai_record(monkeypatch):
     out = await load_context_node(_base_state())
 
     assert out["plan_source"] == "ai_assessment"
-    assert out["service_plan"]["risk_tier"] == "介助"
+    assert out["service_plan"]["risk_tier"] == "二级"
     assert out["service_plan"]["plan_id"] == "plan-seed-001"
     assert len(out["service_plan"]["daily_tasks"]) == 2
     assert out["service_plan_missing"] is False
@@ -94,14 +94,14 @@ async def test_plan_from_service_items_when_no_ai_record(monkeypatch):
     _patch_repo(monkeypatch, items=[{
         "project_name": "协助翻身", "frequency_name": "每2小时", "times_per_day": 6,
         "nurse_time_slots": [{"startTime": "08:00", "endTime": "10:00"}],
-        "is_required": True, "risk_tier": "介护",
+        "is_required": True, "risk_tier": "一级",
     }])
 
     out = await load_context_node(_base_state())
 
     assert out["plan_source"] == "service_items"
     assert out["service_plan"]["daily_tasks"] == ["协助翻身（每2小时） 时间窗：08:00-10:00"]
-    assert out["service_plan"]["risk_tier"] == "介护"
+    assert out["service_plan"]["risk_tier"] == "一级"
 
 
 @pytest.mark.asyncio
@@ -110,9 +110,9 @@ async def test_service_items_override_ai_tasks_when_merged(monkeypatch):
     _patch_repo(
         monkeypatch,
         items=[{"project_name": "口腔护理", "frequency_name": "2次/日", "times_per_day": 2,
-                "is_required": True, "risk_tier": "介助"}],
+                "is_required": True, "risk_tier": "二级"}],
         plan={"plan_id": "plan-1", "plan_content": {
-            "risk_tier": "介助", "daily_tasks": ["[HIGH] AI 建议的任务"],
+            "risk_tier": "二级", "daily_tasks": ["[HIGH] AI 建议的任务"],
             "special_notes": "认知障碍需提醒"}},
     )
 
@@ -154,7 +154,7 @@ async def test_plan_missing_when_provider_raises(monkeypatch):
 async def test_service_history_comes_from_records(monkeypatch):
     """⑤ 照护历史来自真实记录（原来是写死的两条 mock）。"""
     _patch_repo(monkeypatch,
-                items=[{"project_name": "巡视", "is_required": True, "risk_tier": "介助"}],
+                items=[{"project_name": "巡视", "is_required": True, "risk_tier": "二级"}],
                 history=[{"date": "2026-10-12", "tasks": ["巡视：老人安静休息"], "abnormal": ""}])
 
     out = await load_context_node(_base_state())

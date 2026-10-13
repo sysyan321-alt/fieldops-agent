@@ -22,7 +22,7 @@ ASSESSMENT_TEXT = """老年人能力评估表
 
 【基本信息】
 姓名：张建国    性别：男    年龄：78岁
-房间号：301      护理等级：介助
+房间号：301      护理等级：二级
 评估日期：2026-09-18
 
 【ADL 日常生活活动能力评估】
@@ -62,7 +62,7 @@ Morse 得分：45（跌倒风险中等）
 抑郁筛查 GDS：6/15（正常范围）
 
 【综合评估意见】
-老人轻度认知减退，跌倒风险中等，营养风险边缘，日常基本自理。
+老人轻度认知减退，跌倒风险中等，营养风险边缘，日常基本三级。
 建议：加强认知训练，预防跌倒，营养干预。"""
 
 
@@ -263,8 +263,8 @@ async def run_single_agent_smoke():
     # mock service_plan 不应含 weighted_score
     assert "weighted_score" not in service_plan, \
         "单 Agent 模式下 service_plan 应是 mock，不含 weighted_score"
-    assert service_plan.get("risk_tier") == "介助", \
-        "mock service_plan 的 risk_tier 应是默认的 '介助'"
+    assert service_plan.get("risk_tier") == "二级", \
+        "mock service_plan 的 risk_tier 应是默认的 '二级'"
 
     messages = result.get("messages", [])
     ai_msg = ""

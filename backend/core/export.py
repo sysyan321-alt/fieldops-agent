@@ -54,7 +54,7 @@ def build_assessment_docx(payload: dict) -> bytes:
         ("老人编号", payload.get("site_id", "")),
         ("综合得分", payload.get("weighted_score", 0)),
         ("评估时间", payload.get("created_at") or datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
-        ("姓名 / 年龄段", f"{structured.get('name', '—')} / {structured.get('age', '—')}"),
+        ("姓名 / 年龄段", f"{structured.get('name', '—')} / {structured.get('built_year', '—')}"),
         ("照护等级建议", summary.get("risk_tier_recommendation", structured.get("risk_tier", "—"))),
     ])
 

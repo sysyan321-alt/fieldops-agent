@@ -39,15 +39,15 @@ async def seed_data():
         # 1. 插入 5 位老人
         # ──────────────────────────────────────────────────
         sites = [
-            ("e001", "张明德", 78, "男", "101", "介助"),
-            ("e002", "李桂芳", 82, "女", "102", "介护"),
-            ("e003", "王建国", 75, "男", "103", "自理"),
-            ("e004", "赵秀英", 80, "女", "104", "介助"),
-            ("e005", "刘福生", 85, "男", "201", "介护"),
+            ("e001", "张明德", 78, "男", "101", "二级"),
+            ("e002", "李桂芳", 82, "女", "102", "一级"),
+            ("e003", "王建国", 75, "男", "103", "三级"),
+            ("e004", "赵秀英", 80, "女", "104", "二级"),
+            ("e005", "刘福生", 85, "男", "201", "一级"),
         ]
         for site in sites:
             await conn.execute(
-                """INSERT INTO sites (site_id, name, age, gender, room_no, risk_tier, tenant_id)
+                """INSERT INTO sites (site_id, name, built_year, site_type, location, risk_tier, tenant_id)
                    VALUES ($1, $2, $3, $4, $5, $6, 'tenant_default')
                    ON CONFLICT (site_id) DO NOTHING""",
                 *site,
@@ -83,17 +83,17 @@ async def seed_data():
         # ──────────────────────────────────────────────────
         service_plans = [
             ("plan-001", "e001", {
-                "risk_tier": "介助",
+                "risk_tier": "二级",
                 "daily_tasks": ["晨间护理", "三餐协助", "每2小时翻身", "按时发药"],
                 "special_notes": "高血压，需监测血压",
             }),
             ("plan-002", "e002", {
-                "risk_tier": "介护",
+                "risk_tier": "一级",
                 "daily_tasks": ["全天候照护", "鼻饲管护理", "每1小时翻身", "压疮预防"],
                 "special_notes": "卧床老人，需重点防压疮",
             }),
             ("plan-003", "e004", {
-                "risk_tier": "介助",
+                "risk_tier": "二级",
                 "daily_tasks": ["晨间护理", "协助进食", "每2小时翻身", "用药管理"],
                 "special_notes": "轻度认知障碍，需反复提醒",
             }),

@@ -114,7 +114,7 @@ async def load_context_node(state: WorkFlowState) -> dict:
       ② ServicePlanProvider（默认本地库：老人的照护服务项 site_service_items +
          最近一次评估派生的计划 service_plans；配了 SAAS_CARE_BASE_URL 就改读主系统）。
 
-    改造说明：原来第 ③ 级是**硬编码 mock 计划**（"介助" + 5 条固定任务），照护历史更是
+    改造说明：原来第 ③ 级是**硬编码 mock 计划**（"二级" + 5 条固定任务），照护历史更是
     无论计划来源如何都用两条写死的记录。结果是新入住/未评估的老人也会拿到一份看起来
     完整的假计划继续推进状态机。现在取不到就标记 `service_plan_missing`，
     由 notify_missing_plan 节点如实告知并结束本轮——"没有计划"是必须让人知道的状态。

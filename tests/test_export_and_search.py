@@ -94,11 +94,11 @@ async def test_assessment_export_docx(client, auth_headers):
         ],
         weighted_score=64.5,
         summary_payload={
-            "summary": {"overall_comment": "整体自理能力中等，需重点防跌倒。",
-                        "risk_tier_recommendation": "介助"},
+            "summary": {"overall_comment": "整体三级能力中等，需重点防跌倒。",
+                        "risk_tier_recommendation": "二级"},
             "issues": [{"priority": "high", "description": "跌倒风险偏高",
                         "suggestion": "加装床栏并加强夜间巡视"}],
-            "structured": {"name": "张明德", "age": 78, "risk_tier": "介助"},
+            "structured": {"name": "张明德", "built_year": 78, "risk_tier": "二级"},
         },
     )
 
@@ -113,7 +113,7 @@ async def test_assessment_export_docx(client, auth_headers):
         xml = zf.read("word/document.xml").decode("utf-8")
     assert "老年人能力评估报告" in xml
     assert "跌倒风险偏高" in xml
-    assert "介助" in xml
+    assert "二级" in xml
 
 
 async def test_assessment_export_404(client, auth_headers):

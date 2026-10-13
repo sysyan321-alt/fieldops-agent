@@ -10,7 +10,7 @@ from backend.core.orchestrator import Orchestrator
 from backend.db.repositories import DEFAULT_LEVEL_CONFIGS
 
 
-def _assessment(issues=None, level="介助"):
+def _assessment(issues=None, level="二级"):
     return {
         "assessment_id": "asmt-1",
         "weighted_score": 62.5,
@@ -50,7 +50,7 @@ def test_assessment_conclusions_are_still_carried():
     """砍掉的是"用问题当任务"，不是评估结论本身——等级/问题/注意事项都要保留。"""
     plan = Orchestrator._build_service_plan_from_assessment(_assessment(), "e001", service_items=_items())
 
-    assert plan["risk_tier"] == "介助"
+    assert plan["risk_tier"] == "二级"
     assert plan["special_notes"] == "总体偏弱"
     assert plan["weighted_score"] == 62.5
     assert plan["high_priority_issues"] == [
@@ -74,15 +74,15 @@ def test_assessment_fallback_returns_none():
 
 def test_default_level_configs_cover_three_levels():
     levels = {c["risk_tier"] for c in DEFAULT_LEVEL_CONFIGS}
-    assert levels == {"自理", "介助", "介护"}
+    assert levels == {"三级", "二级", "一级"}
     for c in DEFAULT_LEVEL_CONFIGS:
         assert c["project_name"], "模板项必须有项目名"
         assert isinstance(c["is_required"], bool)
-    # 介护等级必须有更高的照护强度（翻身频次高于介助）
+    # 一级等级必须有更高的照护强度（翻身频次高于二级）
     ji_hu = [c for c in DEFAULT_LEVEL_CONFIGS
-             if c["risk_tier"] == "介护" and c["project_name"] == "协助翻身"][0]
+             if c["risk_tier"] == "一级" and c["project_name"] == "协助翻身"][0]
     jie_zhu = [c for c in DEFAULT_LEVEL_CONFIGS
-               if c["risk_tier"] == "介助" and c["project_name"] == "协助翻身"][0]
+               if c["risk_tier"] == "二级" and c["project_name"] == "协助翻身"][0]
     assert ji_hu["times_per_day"] > jie_zhu["times_per_day"]
 
 
@@ -98,10 +98,10 @@ async def test_local_provider_writes_items(monkeypatch):
 
     monkeypatch.setattr("backend.db.repositories.bind_service_items_for_level", _bind)
 
-    out = await LocalServicePlanProvider().ensure_items_for_level("e001", "介助", "tenant_default")
+    out = await LocalServicePlanProvider().ensure_items_for_level("e001", "二级", "tenant_default")
 
     assert out == _items()
-    assert called == {"site_id": "e001", "risk_tier": "介助", "tenant_id": "tenant_default"}
+    assert called == {"site_id": "e001", "risk_tier": "二级", "tenant_id": "tenant_default"}
 
 
 async def test_saas_provider_only_reads_allowed_items(monkeypatch):
@@ -113,15 +113,15 @@ async def test_saas_provider_only_reads_allowed_items(monkeypatch):
         seen.update(path=path, payload=payload)
         return {"list": [{"projectName": "协助翻身", "serverTimes": 6,
                           "nurseTimeDto": [{"startTime": "08:00", "endTime": "20:00"}],
-                          "isRequired": 1, "nurseLevelName": "介助"}]}
+                          "isRequired": 1, "nurseLevelName": "二级"}]}
 
     monkeypatch.setattr(provider, "_post", _post)
 
-    items = await provider.ensure_items_for_level("e001", "介助", "tenant_default")
+    items = await provider.ensure_items_for_level("e001", "二级", "tenant_default")
 
     # 断言用常量而不是字面量：路径是占位命名，换系统时只改常量、不动用例
     assert seen["path"] == SaasServicePlanProvider.PATH_AVAILABLE_ITEMS
-    assert seen["payload"] == {"siteId": "e001", "nurseLevelName": "介助"}
+    assert seen["payload"] == {"siteId": "e001", "nurseLevelName": "二级"}
     assert items[0]["project_name"] == "协助翻身"
     assert items[0]["times_per_day"] == 6
     assert items[0]["source"] == "template"

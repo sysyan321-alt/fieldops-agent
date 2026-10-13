@@ -22,16 +22,16 @@ logger = get_logger(__name__)
 
 # ── 五维度定义（名称 / 权重 / 评分侧重）。权重之和 = 1.0 ──
 FIVE_DIMENSIONS = [
-    {"key": "adl",        "name": "ADL日常活动能力", "weight": 0.30,
-     "focus": "进食、穿衣、如厕、移动、洗澡等日常生活自理程度"},
-    {"key": "cognition",  "name": "认知功能",       "weight": 0.25,
-     "focus": "定向力、记忆力、计算力、判断力、语言能力等认知状态"},
-    {"key": "nutrition",   "name": "营养状态",       "weight": 0.20,
-     "focus": "BMI、进食量、体重变化、血清蛋白等营养指标"},
-    {"key": "fall_risk",   "name": "跌倒风险",       "weight": 0.15,
-     "focus": "跌倒史、步态、用药、视力、辅助器具等跌倒风险因素"},
-    {"key": "social",      "name": "社交参与",       "weight": 0.10,
-     "focus": "集体活动参与度、人际交流、情绪状态、抑郁筛查等"},
+    {"key": "structural_safety",   "name": "结构安全", "weight": 0.30,
+     "focus": "建筑结构、承重构件、护栏围护、地面与屋面等本体安全状况"},
+    {"key": "equipment_condition", "name": "设备状态", "weight": 0.25,
+     "focus": "设备完好率、维保记录、故障历史、带病运行情况"},
+    {"key": "environmental_risk",  "name": "环境风险", "weight": 0.20,
+     "focus": "温湿度、通风与照明、可燃物堆放、积水与渗漏等环境因素"},
+    {"key": "operation_risk",      "name": "作业风险", "weight": 0.15,
+     "focus": "高处、受限空间、动火、临时用电等作业的固有风险与管控措施"},
+    {"key": "compliance",          "name": "合规性",   "weight": 0.10,
+     "focus": "证照与检验有效期、制度执行、记录完整性、安全标识"},
 ]
 
 
@@ -49,12 +49,12 @@ def _build_structured_summary(structured: dict) -> str:
     lines = []
     if structured.get("name"):
         lines.append(f"姓名：{structured['name']}")
-    if structured.get("age"):
-        lines.append(f"年龄：{structured['age']}岁")
-    if structured.get("gender"):
-        lines.append(f"性别：{structured['gender']}")
-    if structured.get("room_no"):
-        lines.append(f"房间号：{structured['room_no']}")
+    if structured.get("built_year"):
+        lines.append(f"年龄：{structured['built_year']}岁")
+    if structured.get("site_type"):
+        lines.append(f"性别：{structured['site_type']}")
+    if structured.get("location"):
+        lines.append(f"房间号：{structured['location']}")
     if structured.get("risk_tier"):
         lines.append(f"当前护理等级：{structured['risk_tier']}")
     return "\n".join(lines) if lines else "（结构化提取失败，请基于原文评审）"
@@ -178,7 +178,7 @@ async def extract_structured_node(state: AssessmentState) -> dict:
 
     if structured_dict is None:
         logger.warning("extract_structured.fallback")
-        structured_dict = SiteBasicInfo(name="未能提取", age=0, gender="未知").model_dump()
+        structured_dict = SiteBasicInfo(name="未能提取", built_year=0, site_type="未知").model_dump()
 
     logger.info("extract_structured.done", name=structured_dict.get("name", ""))
     return {"structured": structured_dict}
@@ -330,7 +330,7 @@ async def diagnose_and_summarize_node(state: AssessmentState) -> dict:
             "highlights": ["评估内容已完整提交"],
             "core_improvements": ["请参考各维度建议制定照护计划"],
             "overall_comment": f"综合评分 {round(weighted_score, 1)} 分，请参考各维度详细反馈。",
-            "risk_tier_recommendation": "介助" if weighted_score < 80 else "自理",
+            "risk_tier_recommendation": "二级" if weighted_score < 80 else "三级",
         }
 
     # 按优先级排序
@@ -387,7 +387,7 @@ async def generate_summary_node(state: AssessmentState) -> dict:
             "highlights": ["评估内容已完整提交"],
             "core_improvements": high_issues[:2] if high_issues else ["请参考各维度建议制定照护计划"],
             "overall_comment": f"综合评分 {round(weighted_score, 1)} 分，请参考各维度详细反馈。",
-            "risk_tier_recommendation": "介助" if weighted_score < 80 else "自理",
+            "risk_tier_recommendation": "二级" if weighted_score < 80 else "三级",
         }
     logger.info("generate_summary.done", highlights_count=len(summary_dict.get("highlights", [])))
     return {"summary": summary_dict}

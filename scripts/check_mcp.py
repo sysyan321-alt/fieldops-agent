@@ -57,7 +57,7 @@ async def check_service_data(base: str, site_id: str, tenant_id: str) -> bool:
     profile = await call_mcp_tool(
         base, "get_site_profile", {"site_id": site_id, "tenant_id": tenant_id}
     )
-    print("老人档案：", {k: profile.get(k) for k in ("found", "name", "risk_tier", "room_no")})
+    print("老人档案：", {k: profile.get(k) for k in ("found", "name", "risk_tier", "location")})
 
     for tool, label in (
         ("get_recent_device_readings", "设备读数"),

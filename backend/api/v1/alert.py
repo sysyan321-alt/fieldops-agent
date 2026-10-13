@@ -60,16 +60,17 @@ def _infer_alert_type(device_type: str, alert_content: str) -> str:
 
     text = f"{alert_content or ''}"
     keyword_map = {
-        "heart_rate_abnormal": ("心率", "心跳", "脉搏"),
-        "breath_abnormal": ("呼吸", "喘息"),
-        "off_bed_timeout": ("离床", "下床", "不在床"),
-        "fall_detected": ("跌倒", "摔倒", "坠床"),
-        "room_temp_abnormal": ("温度", "高温", "低温", "湿度"),
-        "sos_pressed": ("SOS", "sos", "呼叫", "求助"),
-        "wander_detected": ("外出", "走失", "离院", "出院门"),
-        "vital_abnormal": ("血压", "血氧", "体温"),
-        "activity_low": ("活动量", "久坐", "不动"),
+        "overcurrent": ("过载", "超载", "电流", "跳闸"),
+        "device_offline": ("离线", "失联", "掉线", "无响应", "通讯中断"),
+        "fall_detected": ("跌倒", "摔倒", "倒地"),
+        "intrusion_detected": ("闯入", "越界", "非法进入", "翻越", "翻墙"),
+        "env_temp_abnormal": ("温度", "高温", "低温", "湿度", "闷热"),
+        "air_quality_abnormal": ("可燃气", "有毒气体", "气体超标", "燃气", "空气质量"),
+        "sos_pressed": ("求助", "呼叫", "报警按钮", "SOS"),
+        "missed_patrol": ("漏点", "漏巡", "未打点", "巡检超时"),
+        "water_level_abnormal": ("水位", "渗漏", "积水", "漏水", "溢水"),
         "crowd_density": ("拥挤", "聚集", "人流"),
+        "gate_forced": ("强开", "非正常开启", "门被撬", "尾随"),
     }
     for code, words in keyword_map.items():
         if any(w in text for w in words):
@@ -78,7 +79,7 @@ def _infer_alert_type(device_type: str, alert_content: str) -> str:
     dt = resolve_device_type(device_type)
     if dt and dt.alert_types:
         return dt.alert_types[0]
-    return "heart_rate_abnormal"
+    return "device_offline"
 
 
 @router.post("/trigger")

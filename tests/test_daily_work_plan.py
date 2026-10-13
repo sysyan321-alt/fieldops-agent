@@ -94,7 +94,7 @@ def test_expand_times_zero_defaults_to_one():
 
 
 def test_expand_covers_multiple_projects_once():
-    """多个项目各展开各的：介助 5 项（含 6 次的翻身）应得到正确总数。"""
+    """多个项目各展开各的：二级 5 项（含 6 次的翻身）应得到正确总数。"""
     items = [
         {"project_name": "协助翻身", "times_per_day": 6, "nurse_time_slots": []},
         {"project_name": "协助进食", "times_per_day": 3, "nurse_time_slots": []},
@@ -260,7 +260,7 @@ async def test_plan_overview_returns_full_picture(monkeypatch):
     monkeypatch.setattr(
         "backend.core.service_plan_provider.get_service_plan_provider",
         lambda: _FakeProvider(
-            plan={"risk_tier": "介助", "special_notes": "高血压",
+            plan={"risk_tier": "二级", "special_notes": "高血压",
                   "service_items": [{"project_name": "协助翻身", "is_required": True}]},
             source="merged", today=today))
 
@@ -268,7 +268,7 @@ async def test_plan_overview_returns_full_picture(monkeypatch):
 
     assert out["plan_missing"] is False
     assert out["plan_source"] == "merged"
-    assert out["risk_tier"] == "介助"
+    assert out["risk_tier"] == "二级"
     assert len(out["service_items"]) == 1
     assert len(out["today_plan"]) == 2
     assert out["progress"] == {"total": 2, "done": 1, "missed": 0, "pending": 1}
