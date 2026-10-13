@@ -77,6 +77,18 @@
 幂等迁移、Redis 缓存（fail-open）、238 项 pytest、docker-compose 五服务编排、
 快通道回归脚本与延迟压测脚本。
 
+### 修复
+
+- **CI 后端流水线只起真正被依赖的服务**。原先会拉起 Milvus / etcd / minio，
+  但这几个服务不参与任何用例——测试的真实依赖只有 PostgreSQL（`db_ready` 夹具）
+  与 Redis（缓存用例），两者连不上时用例本来就会自动 skip。原实现里 2GB+ 的镜像拉取
+  让整条流水线一执行就挂、且报错看不出原因；现在只 `up -d --wait postgres redis`
+  （带一次重试），失败时把最后几行错误顶成 annotation 显示在 Actions 页面上。
+- 新增「环境自检」步骤（打印 Docker / compose 版本并解析一遍 compose 文件），
+  依赖安装改为先装 CPU 版 torch（约 200MB；PyPI 默认轮子拖着 CUDA 依赖约 1GB），
+  并去掉重复执行的那次 `pip install -r requirements.txt`。
+- 工作流支持手动触发（`workflow_dispatch`），同一分支连推多次时取消排队中的旧运行。
+
 ### 说明
 
 - 本项目由一套参考实现改造而来，保留了技术骨架（LangGraph 多智能体编排、

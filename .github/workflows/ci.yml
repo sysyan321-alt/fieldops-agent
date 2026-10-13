@@ -4,6 +4,12 @@ on:
   push:
     branches: [main, master]
   pull_request:
+  workflow_dispatch:
+
+# 同一分支连推多次时，取消排队中的旧运行
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   backend:
@@ -18,6 +24,14 @@ jobs:
         with:
           python-version: "3.11"        # 硬要求：LangGraph interrupt() 在 3.10 上不可用
           cache: pip
+
+      # 先做环境自检：Docker 不可用、compose 文件写坏，都在这里一眼可见，
+      # 而不是等到后面的步骤抛一句看不出所以然的话
+      - name: 环境自检
+        run: |
+          docker version
+          docker compose version
+          docker compose config --quiet
 
       # 测试配置：口令与 Key 都用占位值，仓库里不放任何真实凭据
       - name: 准备测试配置
@@ -40,27 +54,37 @@ jobs:
           MCP_ENABLED=false
           CORS_ORIGINS=
           EOF
+          # 用这份配置再解析一次 compose 文件，确认占位值不会把插值搞崩
+          docker compose --env-file .env.local config --quiet
 
-      - name: 起基础设施（postgres / redis / milvus + 依赖）
+      # 只起测试真正依赖的服务。用例对基础设施的依赖是：
+      #   PostgreSQL —— db_ready 夹具，连不上自动 skip
+      #   Redis      —— 缓存用例，连不上自动 skip
+      # Milvus / etcd / minio 不参与任何用例（向量链路由 scripts/ 下的脚本单独验证），
+      # 所以 CI 不拉这几个 GB 级镜像：既省时间，也避免镜像源波动把整条流水线拖红。
+      # 失败时把最后几行错误顶成 annotation，Actions 页面上直接能看到原因。
+      - name: 起基础设施（postgres / redis）
         run: |
-          docker compose --env-file .env.local up -d postgres redis etcd minio milvus
-          # 等 postgres 就绪（compose 里已配 healthcheck，这里再兜一层）
-          for i in $(seq 1 30); do
-            docker compose exec -T postgres pg_isready -U fieldops_user >/dev/null 2>&1 && break
-            sleep 2
-          done
+          up() { docker compose --env-file .env.local up -d --wait postgres redis; }
+          up || { echo "第一次启动失败，10 秒后重试"; sleep 10; up; } || {
+            detail=$(docker compose --env-file .env.local up -d --wait postgres redis 2>&1 | tail -5 | tr '\n' ' ')
+            echo "::error title=基础设施启动失败::${detail:0:400}"
+            docker compose ps || true
+            exit 1
+          }
+          docker compose ps
 
       - name: 安装依赖
         run: |
           python -m pip install --upgrade pip
+          # CI 里不做真实推理（缺权重时相关用例自动跳过），装带 CUDA 依赖的 torch 是纯浪费：
+          # 先装 CPU 轮子（约 200MB，而 PyPI 默认轮子拖着一堆 CUDA 依赖，约 1GB）
+          pip install --index-url https://download.pytorch.org/whl/cpu "torch>=2.5.0" \
+            || echo "（CPU 版 torch 预装失败，回落到 PyPI 默认源）"
           # 全量安装：reranker.py / knowledge_base.py 在模块层 import torch 与 transformers，
           # 缺了会直接 ImportError。**模型权重本身不下载**——用例已做到不依赖权重
           # （需要权重的用例用 conftest 的 models_ready 夹具跳过）。
           pip install -r requirements.txt
-          pip install -r requirements.txt
-
-      - name: 建 Milvus 集合
-        run: python scripts/init_milvus.py || echo "（Milvus 集合初始化失败，相关用例会自动跳过）"
 
       - name: 跑测试
         run: python -m pytest tests/ -q
