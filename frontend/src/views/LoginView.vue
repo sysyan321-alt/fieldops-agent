@@ -3,7 +3,7 @@
     <el-card class="login-card">
       <div class="login-header">
         <div class="login-logo">🏥</div>
-        <h2>CareAgent</h2>
+        <h2>FieldOps</h2>
         <p>养老机构 AI 照护智能体系统</p>
       </div>
       <el-form
@@ -43,7 +43,7 @@
         </el-button>
       </el-form>
       <div class="login-hint">
-        <p>默认账号：caregiver / supervisor / admin</p>
+        <p>默认账号：worker / supervisor / admin</p>
         <p>密码见项目 README（演示环境）</p>
       </div>
     </el-card>
@@ -80,7 +80,7 @@ async function handleLogin() {
     })
     auth.login(data.access_token, {
       userId: data.user_id,
-      role: data.role as 'caregiver' | 'supervisor' | 'admin',
+      role: data.role as 'worker' | 'supervisor' | 'admin',
       tenantId: '',
       username: form.username,
     })

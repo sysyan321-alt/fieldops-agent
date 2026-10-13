@@ -25,8 +25,8 @@ jobs:
           cat > .env.local <<'EOF'
           DB_HOST=127.0.0.1
           DB_PORT=5433
-          DB_NAME=careagent
-          DB_USER=careagent_user
+          DB_NAME=fieldops
+          DB_USER=fieldops_user
           DB_PASSWORD=ci-test-password
           JWT_SECRET_KEY=ci-test-jwt-secret
           DEEPSEEK_API_KEY=sk-your-key-here
@@ -46,7 +46,7 @@ jobs:
           docker compose --env-file .env.local up -d postgres redis etcd minio milvus
           # 等 postgres 就绪（compose 里已配 healthcheck，这里再兜一层）
           for i in $(seq 1 30); do
-            docker compose exec -T postgres pg_isready -U careagent_user >/dev/null 2>&1 && break
+            docker compose exec -T postgres pg_isready -U fieldops_user >/dev/null 2>&1 && break
             sleep 2
           done
 

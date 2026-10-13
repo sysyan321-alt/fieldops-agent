@@ -29,7 +29,7 @@ CHAT_PATH = "/api/v1/chat"
 HEALTH_PATH = "/health"
 
 # 测试账号（来自 backend/dependencies.py MOCK_USERS）
-CAREGIVER = {"username": "caregiver", "password": "Caregiver@123"}
+CAREGIVER = {"username": "worker", "password": "Worker@123"}
 
 # 启动超时（秒）
 SERVER_BOOT_TIMEOUT = 30.0
@@ -117,7 +117,7 @@ class FrontendMock:
         session_id: str = "",
         agent_type: Optional[str] = None,
         mode: str = "single",
-        elder_id: str = "",
+        site_id: str = "",
         pipeline: Optional[str] = None,
     ) -> list[dict]:
         """发送对话请求，返回 SSE 事件列表。"""
@@ -125,7 +125,7 @@ class FrontendMock:
             "query": query,
             "session_id": session_id,
             "mode": mode,
-            "elder_id": elder_id,
+            "site_id": site_id,
         }
         if agent_type:
             payload["agent_type"] = agent_type
@@ -296,25 +296,25 @@ def scenario_a_auto_route_sop_qa(client: FrontendMock) -> bool:
     return ok
 
 
-def scenario_b_auto_route_care_flow(client: FrontendMock) -> bool:
+def scenario_b_auto_route_work_flow(client: FrontendMock) -> bool:
     """场景 B：自动路由到 CARE_FLOW（流程执行）。
 
-    注意：care_flow 不一定有真实 care_plan，可能走 mock 兜底，但流程应能跑通。
+    注意：work_flow 不一定有真实 service_plan，可能走 mock 兜底，但流程应能跑通。
     """
     print_section("场景 B：自动路由 → CARE_FLOW（照护流程）")
     print("  query='明天执行入住流程第二阶段'  agent_type=None")
     events = client.chat(
         query="明天执行入住流程第二阶段",
         session_id="mock-B-001",
-        elder_id="e001",
+        site_id="e001",
     )
     print_events(events)
     answer = extract_answer(events)
     if not answer:
         print("\n  ❌ 未收到 answer 事件")
         return False
-    ok = answer.get("agent_type") == "care_flow"
-    print(f"\n  {'✅' if ok else '❌'} 路由到 care_flow，agent_type={answer.get('agent_type')}")
+    ok = answer.get("agent_type") == "work_flow"
+    print(f"\n  {'✅' if ok else '❌'} 路由到 work_flow，agent_type={answer.get('agent_type')}")
     return ok
 
 
@@ -400,7 +400,7 @@ def scenario_e_direct_alert(client: FrontendMock) -> bool:
         query="301 房老人心率 130",
         session_id="mock-E-001",
         agent_type="alert",
-        elder_id="e001",
+        site_id="e001",
     )
     print_events(events, max_content_len=240)
     answer = extract_answer(events)
@@ -447,7 +447,7 @@ def main():
         # ── 3. 跑场景 ──
         results = []
         results.append(("场景 A - 自动路由 SOP_QA", scenario_a_auto_route_sop_qa(client)))
-        results.append(("场景 B - 自动路由 CARE_FLOW", scenario_b_auto_route_care_flow(client)))
+        results.append(("场景 B - 自动路由 CARE_FLOW", scenario_b_auto_route_work_flow(client)))
         results.append(("场景 C - 多轮对话",          scenario_c_multi_turn(client)))
         results.append(("场景 D - clarify 触发",       scenario_d_clarify(client)))
         results.append(("场景 E - 显式 alert",          scenario_e_direct_alert(client)))

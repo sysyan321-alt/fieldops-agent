@@ -26,7 +26,7 @@ SESSION_ID = ALERT_ID  # 用 alert_id 同时做 session_id，保证 thread_id �
 
 INITIAL_STATE = {
     "messages": [],
-    "elder_id":        ELDER_ID,
+    "site_id":        ELDER_ID,
     "tenant_id":       "tenant_default",
     "alert_id":        ALERT_ID,
     "session_id":      SESSION_ID,
@@ -34,7 +34,7 @@ INITIAL_STATE = {
     "alert_type":      "heart_rate_abnormal",
     "alert_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     "device_readings":    [],
-    "care_records":       [],
+    "service_records":       [],
     "health_indicators":  [],
     "risk_assessment":    None,
     "supervisor_notified": False,
@@ -103,7 +103,7 @@ async def run_full_hitl_flow():
     dispatch = final.get("dispatch_order", {})
     print(f"\n    ── 派发工单 ──")
     print(f"    alert_id:    {dispatch.get('alert_id', 'N/A')}")
-    print(f"    elder_id:    {dispatch.get('elder_id', 'N/A')}")
+    print(f"    site_id:    {dispatch.get('site_id', 'N/A')}")
     print(f"    risk_level:  {dispatch.get('risk_level', 'N/A')}")
     print(f"    status:      {dispatch.get('status', 'N/A')}")
     print(f"    supervisor:  {dispatch.get('supervisor_id', 'N/A')}")

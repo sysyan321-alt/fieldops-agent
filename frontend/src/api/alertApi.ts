@@ -1,7 +1,7 @@
 import client from './client'
 
 export interface AlertTriggerRequest {
-  elder_id: string
+  site_id: string
   device_id: string
   alert_type: string
   alert_timestamp?: string
@@ -20,14 +20,14 @@ export interface TrackItem {
 
 export interface AlertReview {
   alert_id: string
-  elder_id: string
+  site_id: string
   device_id: string
   alert_type: string
   status: string
   risk_level?: string
   risk_assessment: Record<string, unknown>
   device_readings: TrackItem[]
-  care_records: TrackItem[]
+  service_records: TrackItem[]
   health_indicators: TrackItem[]
   created_at?: string
   message: string

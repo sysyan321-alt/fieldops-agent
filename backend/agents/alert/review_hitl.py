@@ -14,7 +14,7 @@ from backend.agents.alert.nodes import supervisor_review_node
 # 公共基础 state（supervisor_review_node 用到的所有字段）
 BASE_STATE = {
     "alert_id": "alert-test-001",
-    "elder_id": "e-test-001",
+    "site_id": "e-test-001",
     "alert_type": "heart_rate_abnormal",
     "alert_timestamp": "2026-09-18 10:30:00",
     "device_readings": [
@@ -22,10 +22,10 @@ BASE_STATE = {
          "reading_value": "135", "reading_unit": "bpm",
          "timestamp": "2026-09-18 10:30:00", "is_abnormal": True},
     ],
-    "care_records": [
-        {"record_id": "rec-001", "elder_id": "e-test-001",
-         "care_type": "巡视", "content": "老人安静休息",
-         "caregiver_id": "cg-001", "timestamp": "2026-09-18 09:30:00"},
+    "service_records": [
+        {"record_id": "rec-001", "site_id": "e-test-001",
+         "service_type": "巡视", "content": "老人安静休息",
+         "worker_id": "cg-001", "timestamp": "2026-09-18 09:30:00"},
     ],
     "health_indicators": [
         {"indicator_name": "心率", "value": "135", "unit": "bpm",

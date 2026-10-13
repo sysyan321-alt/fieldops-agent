@@ -23,11 +23,11 @@ from backend.mcp.client import list_mcp_tools  # noqa: E402
 # 只读工具免鉴权，写工具需要 MCP_ADMIN_TOKEN
 SERVERS = [
     {"name": "sop-kb", "cn": "护理知识库检索", "auth": "none"},
-    {"name": "care-data", "cn": "照护数据查询", "auth": "none"},
+    {"name": "service-data", "cn": "照护数据查询", "auth": "none"},
     {"name": "web-search", "cn": "联网搜索", "auth": "none"},
     {"name": "sop-kb-admin", "cn": "知识库管理", "auth": "token"},
     {"name": "alert-ops", "cn": "告警触发与派单", "auth": "token"},
-    {"name": "care-flow", "cn": "照护流程", "auth": "token"},
+    {"name": "work-flow", "cn": "照护流程", "auth": "token"},
 ]
 
 

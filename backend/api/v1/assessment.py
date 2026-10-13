@@ -27,7 +27,7 @@ class AssessmentResponse(BaseModel):
 
 @router.post("/upload", response_model=AssessmentResponse)
 async def upload_assessment(
-    elder_id: str,
+    site_id: str,
     file: UploadFile = File(...),
     current_user: dict = Depends(get_current_user),
 ):
@@ -47,7 +47,7 @@ async def upload_assessment(
         orchestrator = get_orchestrator()
         request = AgentRequest(
             staff_id=current_user["user_id"],
-            elder_id=elder_id,
+            site_id=site_id,
             tenant_id=current_user["tenant_id"],
             session_id=assessment_id,
             agent_type="assessment",

@@ -33,7 +33,7 @@ async def test_query_endpoints_404(client, auth_headers):
     for path in [
         f"/api/v1/assessment/{make_id('none')}",
         f"/api/v1/alert/{make_id('none')}/review",
-        f"/api/v1/care-flow/{make_id('none')}/report",
+        f"/api/v1/work-flow/{make_id('none')}/report",
     ]:
         resp = await client.get(path, headers=auth_headers)
         assert resp.status_code == 404, path
@@ -52,13 +52,13 @@ async def test_query_endpoints_read_from_db(client, auth_headers):
 
     asmt_id = make_id("asmt")
     assert await repo.save_assessment_result(
-        asmt_id, make_id("elder"),
+        asmt_id, make_id("site"),
         [{"dimension": "adl", "score": 60, "issues": []}],
-        60.0, {"summary": {"care_level": "介助"}}) is True
+        60.0, {"summary": {"risk_tier": "介助"}}) is True
 
     resp = await client.get(f"/api/v1/assessment/{asmt_id}", headers=auth_headers)
     assert resp.status_code == 200
     body = resp.json()
     assert body["assessment_id"] == asmt_id
     assert float(body["weighted_score"]) == 60.0
-    assert body["summary"]["care_level"] == "介助"
+    assert body["summary"]["risk_tier"] == "介助"

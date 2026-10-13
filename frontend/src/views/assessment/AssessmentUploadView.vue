@@ -14,8 +14,8 @@
         label-position="top"
         style="max-width: 480px"
       >
-        <el-form-item label="老人 ID" prop="elder_id">
-          <el-input v-model="form.elder_id" placeholder="例如：elder_001" :prefix-icon="User" />
+        <el-form-item label="老人 ID" prop="site_id">
+          <el-input v-model="form.site_id" placeholder="例如：site_001" :prefix-icon="User" />
         </el-form-item>
         <el-form-item label="评估表 PDF" prop="file">
           <el-upload
@@ -34,7 +34,7 @@
           type="primary"
           size="large"
           :loading="loading"
-          :disabled="!form.elder_id || !file"
+          :disabled="!form.site_id || !file"
           style="width: 100%"
           @click="handleUpload"
         >
@@ -65,10 +65,10 @@ const router = useRouter()
 const formRef = ref<FormInstance>()
 const loading = ref(false)
 const file = ref<File | null>(null)
-const form = reactive({ elder_id: '' })
+const form = reactive({ site_id: '' })
 
 const rules: FormRules = {
-  elder_id: [{ required: true, message: '请输入老人 ID', trigger: 'blur' }],
+  site_id: [{ required: true, message: '请输入老人 ID', trigger: 'blur' }],
 }
 
 function handleFileChange(f: UploadFile) {
@@ -76,10 +76,10 @@ function handleFileChange(f: UploadFile) {
 }
 
 async function handleUpload() {
-  if (!form.elder_id || !file.value) return
+  if (!form.site_id || !file.value) return
   loading.value = true
   try {
-    const { data } = await assessmentApi.upload(form.elder_id, file.value)
+    const { data } = await assessmentApi.upload(form.site_id, file.value)
     ElMessage.success('评估完成')
     router.push(`/assessment/${data.assessment_id}`)
   } catch (e) {

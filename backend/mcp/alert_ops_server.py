@@ -26,9 +26,9 @@ from backend.mcp.auth import assert_tenant_allowed
 logger = get_logger(__name__)
 
 mcp = FastMCP(
-    name="CareAgent-AlertOps",
+    name="FieldOps-AlertOps",
     instructions=(
-        "CareAgent 护理能力工具 · 告警触发与派单（v1.0，写工具，需 Authorization: Bearer <MCP_ADMIN_TOKEN>）。"
+        "FieldOps 护理能力工具 · 告警触发与派单（v1.0，写工具，需 Authorization: Bearer <MCP_ADMIN_TOKEN>）。"
         "工具：trigger_alert（四轨采集+风险评估，在站长审核处暂停）、get_alert_review_data（读审核数据）、"
         "confirm_alert（站长确认后派发工单）、list_pending_alerts（列待审核告警）。"
         "所有工具必须传 tenant_id 且在 MCP_WRITE_TENANTS 白名单内。"
@@ -40,7 +40,7 @@ mcp = FastMCP(
 
 @mcp.tool()
 async def trigger_alert(
-    elder_id: str,
+    site_id: str,
     device_id: str,
     tenant_id: str,
     alert_type: str = "heart_rate_abnormal",
@@ -51,7 +51,7 @@ async def trigger_alert(
     对应 REST：POST /api/v1/alert/trigger
 
     Args:
-        elder_id:        老人 ID
+        site_id:        老人 ID
         device_id:       触发告警的设备 ID
         tenant_id:       租户 ID，必填且必须在 MCP_WRITE_TENANTS 白名单内
         alert_type:      告警类型：heart_rate_abnormal / off_bed_timeout /
@@ -68,7 +68,7 @@ async def trigger_alert(
     orchestrator = get_orchestrator()
     result = await orchestrator.execute(AgentRequest(
         staff_id="mcp-client",
-        elder_id=elder_id,
+        site_id=site_id,
         tenant_id=tenant_id,
         session_id=alert_id,
         agent_type="alert",
@@ -81,7 +81,7 @@ async def trigger_alert(
         },
     ))
 
-    logger.info("mcp.alert_ops.triggered", alert_id=alert_id, elder_id=elder_id,
+    logger.info("mcp.alert_ops.triggered", alert_id=alert_id, site_id=site_id,
                 tenant_id=tenant_id)
     return {
         "alert_id": alert_id,
@@ -112,14 +112,14 @@ async def get_alert_review_data(alert_id: str, tenant_id: str) -> dict:
     return {
         "found": True,
         "alert_id": row["alert_id"],
-        "elder_id": row["elder_id"],
+        "site_id": row["site_id"],
         "device_id": row["device_id"],
         "alert_type": row["alert_type"],
         "status": row["status"],
         "risk_level": row["risk_level"],
         "risk_assessment": row.get("risk_assessment", {}),
         "device_readings": tracks.get("device_readings", []),
-        "care_records": tracks.get("care_records", []),
+        "service_records": tracks.get("service_records", []),
         "health_indicators": tracks.get("health_indicators", []),
         "assessment_snapshot": tracks.get("assessment_snapshot"),
         "created_at": str(row.get("created_at", "")),
@@ -168,12 +168,12 @@ async def confirm_alert(
         "supervisor_id": supervisor_id,
         "comment": comment,
     }
-    # thread_id 必须与触发时（Orchestrator 的 build_config(elder_id, session_id)）一致，
+    # thread_id 必须与触发时（Orchestrator 的 build_config(site_id, session_id)）一致，
     # 否则恢复时找不到断点，apply_supervisor_decision / dispatch_order 都不会执行
     # agent_type 同理：它决定 config 里的 checkpoint_ns
     result = await graph.ainvoke(
         Command(resume=decision),
-        config=build_config(row["elder_id"], alert_id, agent_type="alert"),
+        config=build_config(row["site_id"], alert_id, agent_type="alert"),
     )
 
     logger.info("mcp.alert_ops.confirmed", alert_id=alert_id, action=action, tenant_id=tenant_id)
@@ -195,7 +195,7 @@ async def list_pending_alerts(tenant_id: str, limit: int = 10) -> list[dict]:
     """
     async with AsyncSessionLocal() as s:
         rows = (await s.execute(text(
-            "SELECT alert_id, elder_id, device_id, alert_type, risk_level, created_at"
+            "SELECT alert_id, site_id, device_id, alert_type, risk_level, created_at"
             " FROM alerts WHERE tenant_id = :tid AND status = 'reviewing'"
             " ORDER BY created_at DESC NULLS LAST LIMIT :lim"),
             {"tid": tenant_id, "lim": limit})).fetchall()
@@ -204,7 +204,7 @@ async def list_pending_alerts(tenant_id: str, limit: int = 10) -> list[dict]:
     return [
         {
             "alert_id": r.alert_id,
-            "elder_id": r.elder_id,
+            "site_id": r.site_id,
             "device_id": r.device_id,
             "alert_type": r.alert_type,
             "risk_level": r.risk_level,

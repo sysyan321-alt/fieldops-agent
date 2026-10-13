@@ -63,7 +63,7 @@ def test_format_assessment_snapshot_renders_key_fields():
         "weighted_score": 62.5,
         "dimension_scores": [{"dimension": "ADL", "score": 55}, {"dimension": "认知", "score": 70}],
         "summary": {
-            "care_level_recommendation": "介助",
+            "risk_tier_recommendation": "介助",
             "issues": [{"suggestion": "夜间加装床栏"}],
         },
     })
@@ -80,7 +80,7 @@ async def test_four_tracks_gather_returns_all_four(monkeypatch):
         return [{"device_type": "心率手环", "reading_value": "135"}]
 
     async def _care(_state):
-        return [{"care_type": "巡视", "content": "夜间巡视正常"}]
+        return [{"service_type": "巡视", "content": "夜间巡视正常"}]
 
     async def _health(_state):
         raise RuntimeError("健康指标服务异常")      # 第三轨失败
@@ -89,14 +89,14 @@ async def test_four_tracks_gather_returns_all_four(monkeypatch):
         raise RuntimeError("评估库超时")            # 第四轨失败
 
     monkeypatch.setattr(alert_nodes, "_fetch_device_data", _devices)
-    monkeypatch.setattr(alert_nodes, "_fetch_care_records", _care)
+    monkeypatch.setattr(alert_nodes, "_fetch_service_records", _care)
     monkeypatch.setattr(alert_nodes, "_fetch_health_indicators", _health)
     monkeypatch.setattr(alert_nodes, "_fetch_assessment_snapshot", _assessment)
 
     result = await alert_nodes.run_four_tracks_node({"alert_type": "heart_rate_abnormal"})
 
     assert len(result["device_readings"]) == 1
-    assert len(result["care_records"]) == 1
+    assert len(result["service_records"]) == 1
     assert result["health_indicators"] == [], "失败的那一轨应降级为空列表"
     assert result["assessment_snapshot"] is None, "缺评估记录应为 None，而不是抛异常"
 
@@ -109,7 +109,7 @@ def test_risk_prompt_accepts_fourth_track():
         alert_type="heart_rate_abnormal", alert_timestamp="2026-09-29 21:00:00",
         device_profile="设备类型：智能床垫（mattress），证据可信度 4/5",
         evidence_quality="partial", evidence_gaps="健康指标",
-        device_readings="（无）", care_records="（无）", health_indicators="（无）",
+        device_readings="（无）", service_records="（无）", health_indicators="（无）",
         assessment_snapshot="（暂无评估记录）",
     )
     assert "第四轨" in text

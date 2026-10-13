@@ -27,11 +27,11 @@ export interface AssessmentResponse {
 }
 
 export const assessmentApi = {
-  upload: (elderId: string, file: File) => {
+  upload: (siteId: string, file: File) => {
     const form = new FormData()
     form.append('file', file)
     return client.post<AssessmentResponse>('/assessment/upload', form, {
-      params: { elder_id: elderId },
+      params: { site_id: siteId },
       headers: { 'Content-Type': 'multipart/form-data' },
       timeout: 300_000,  // 五维度评审为多轮 LLM 调用
     })

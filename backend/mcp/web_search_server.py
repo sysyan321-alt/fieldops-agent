@@ -11,9 +11,9 @@ from backend.core.logger import get_logger
 logger = get_logger(__name__)
 
 mcp = FastMCP(
-    name="CareAgent-WebSearch",
+    name="FieldOps-WebSearch",
     instructions=(
-        "CareAgent 护理能力工具 · 联网搜索（v1.0，只读，免鉴权）。"
+        "FieldOps 护理能力工具 · 联网搜索（v1.0，只读，免鉴权）。"
         "工具：web_search（Tavily 优先，未配置或失败时降级 DuckDuckGo），用于知识库覆盖不到时的补充检索。"
     ),
     stateless_http=True,

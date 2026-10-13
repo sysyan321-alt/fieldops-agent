@@ -5,7 +5,7 @@
 #   1. 「尽力而为」：所有写操作 try/except 包裹，落库失败只记日志、不中断 Agent 流程
 #      （评估/照护/告警的主链路价值在推理结果，持久化是附加动作）
 #   2. 幂等：写操作用 ON CONFLICT DO UPDATE，重放安全
-#   3. 外键兜底：elders/devices 可能没有对应记录（演示/联调时 elder_id 随意传），
+#   3. 外键兜底：sites/devices 可能没有对应记录（演示/联调时 site_id 随意传），
 #      写入前先补占位行，避免 FK 违约导致整条 INSERT 失败
 
 import json
@@ -41,7 +41,7 @@ def _as_dict(value) -> dict | list | None:
     return value
 
 
-async def _ensure_elder(elder_id: str, name: str = "未登记老人",
+async def _ensure_site(site_id: str, name: str = "未登记老人",
                         tenant_id: str = DEFAULT_TENANT) -> str:
     """老人不存在时补占位行（ON CONFLICT 幂等），避免外键违约。
 
@@ -49,41 +49,41 @@ async def _ensure_elder(elder_id: str, name: str = "未登记老人",
     """
     async with AsyncSessionLocal() as session:
         await session.execute(text("""
-            INSERT INTO elders (elder_id, name, tenant_id)
-            VALUES (:elder_id, :name, :tenant_id)
-            ON CONFLICT (elder_id) DO NOTHING
-        """), {"elder_id": elder_id, "name": name, "tenant_id": tenant_id})
+            INSERT INTO sites (site_id, name, tenant_id)
+            VALUES (:site_id, :name, :tenant_id)
+            ON CONFLICT (site_id) DO NOTHING
+        """), {"site_id": site_id, "name": name, "tenant_id": tenant_id})
         row = (await session.execute(text("""
-            SELECT tenant_id FROM elders WHERE elder_id = :elder_id
-        """), {"elder_id": elder_id})).first()
+            SELECT tenant_id FROM sites WHERE site_id = :site_id
+        """), {"site_id": site_id})).first()
         await session.commit()
     return row.tenant_id if row else tenant_id
 
 
-async def _guard_tenant(elder_id: str, tenant_id: str,
+async def _guard_tenant(site_id: str, tenant_id: str,
                         name: str = "未登记老人") -> bool:
     """租户守卫：确保老人存在且归属当前租户，跨租户写入直接拒绝。"""
-    actual = await _ensure_elder(elder_id, name, tenant_id)
+    actual = await _ensure_site(site_id, name, tenant_id)
     if actual != tenant_id:
-        logger.warning("repo.tenant_violation", elder_id=elder_id,
+        logger.warning("repo.tenant_violation", site_id=site_id,
                        tenant_id=tenant_id, owner_tenant=actual)
         return False
     return True
 
 
-async def get_elder_tenant(elder_id: str) -> Optional[str]:
-    """只读查询老人归属租户；不存在返回 None（不会像 _ensure_elder 那样补占位行）。
+async def get_site_tenant(site_id: str) -> Optional[str]:
+    """只读查询老人归属租户；不存在返回 None（不会像 _ensure_site 那样补占位行）。
 
     用于"删除会话状态"这类破坏性操作的租户守卫：先确认归属，再动手。
     """
     async with AsyncSessionLocal() as session:
         row = (await session.execute(text("""
-            SELECT tenant_id FROM elders WHERE elder_id = :elder_id
-        """), {"elder_id": elder_id})).first()
+            SELECT tenant_id FROM sites WHERE site_id = :site_id
+        """), {"site_id": site_id})).first()
     return row.tenant_id if row else None
 
 
-async def _ensure_device(device_id: str, elder_id: str,
+async def _ensure_device(device_id: str, site_id: str,
                          tenant_id: str = DEFAULT_TENANT,
                          device_type: str = "",
                          type_code: str = "",
@@ -95,10 +95,10 @@ async def _ensure_device(device_id: str, elder_id: str,
     """
     async with AsyncSessionLocal() as session:
         await session.execute(text("""
-            INSERT INTO devices (device_id, elder_id, device_type, type_code, location, tenant_id)
-            VALUES (:device_id, :elder_id, :device_type, :type_code, :location, :tenant_id)
+            INSERT INTO devices (device_id, site_id, device_type, type_code, location, tenant_id)
+            VALUES (:device_id, :site_id, :device_type, :type_code, :location, :tenant_id)
             ON CONFLICT (device_id) DO NOTHING
-        """), {"device_id": device_id, "elder_id": elder_id,
+        """), {"device_id": device_id, "site_id": site_id,
                "device_type": device_type or "未知设备",
                "type_code": type_code or None, "location": location or "",
                "tenant_id": tenant_id})
@@ -136,12 +136,12 @@ async def get_device(device_id: str, tenant_id: str = DEFAULT_TENANT) -> dict | 
     try:
         async with AsyncSessionLocal() as session:
             row = (await session.execute(text("""
-                SELECT device_id, elder_id, device_type, type_code, location, status
+                SELECT device_id, site_id, device_type, type_code, location, status
                 FROM devices WHERE device_id = :device_id AND tenant_id = :tenant_id
             """), {"device_id": device_id, "tenant_id": tenant_id})).first()
         if row is None:
             return None
-        return {"device_id": row.device_id, "elder_id": row.elder_id,
+        return {"device_id": row.device_id, "site_id": row.site_id,
                 "device_type": row.device_type, "type_code": row.type_code or "",
                 "location": row.location or "", "status": row.status}
     except Exception as e:
@@ -153,7 +153,7 @@ async def get_device(device_id: str, tenant_id: str = DEFAULT_TENANT) -> dict | 
 
 async def save_assessment_result(
     assessment_id: str,
-    elder_id: str,
+    site_id: str,
     dimension_scores: list,
     weighted_score: float,
     summary_payload: dict,
@@ -161,14 +161,14 @@ async def save_assessment_result(
 ) -> bool:
     """保存评估 Agent 完整结果。summary_payload 含 structured/issues/summary 全量数据。"""
     try:
-        if not await _guard_tenant(elder_id, tenant_id):
+        if not await _guard_tenant(site_id, tenant_id):
             return False
         async with AsyncSessionLocal() as session:
             await session.execute(text("""
                 INSERT INTO assessment_results
-                    (assessment_id, elder_id, tenant_id, dimension_scores, weighted_score, summary)
+                    (assessment_id, site_id, tenant_id, dimension_scores, weighted_score, summary)
                 VALUES
-                    (:assessment_id, :elder_id, :tenant_id, CAST(:dimension_scores AS JSONB),
+                    (:assessment_id, :site_id, :tenant_id, CAST(:dimension_scores AS JSONB),
                      :weighted_score, CAST(:summary AS JSONB))
                 ON CONFLICT (assessment_id) DO UPDATE SET
                     dimension_scores = EXCLUDED.dimension_scores,
@@ -176,7 +176,7 @@ async def save_assessment_result(
                     summary          = EXCLUDED.summary
             """), {
                 "assessment_id": assessment_id,
-                "elder_id": elder_id,
+                "site_id": site_id,
                 "tenant_id": tenant_id,
                 "dimension_scores": json.dumps(dimension_scores, ensure_ascii=False),
                 "weighted_score": round(float(weighted_score), 2),
@@ -184,14 +184,14 @@ async def save_assessment_result(
             })
             await session.commit()
         logger.info("repo.assessment_saved", assessment_id=assessment_id,
-                    elder_id=elder_id, weighted_score=round(weighted_score, 2))
+                    site_id=site_id, weighted_score=round(weighted_score, 2))
         return True
     except Exception as e:
         logger.error("repo.assessment_save_failed", assessment_id=assessment_id, error=str(e))
         return False
 
 
-async def get_latest_assessment(elder_id: str, tenant_id: str = DEFAULT_TENANT) -> dict | None:
+async def get_latest_assessment(site_id: str, tenant_id: str = DEFAULT_TENANT) -> dict | None:
     """取老人最近一次能力评估（告警研判的第四轨）。
 
     用途：设备告警只是"当下异常"，评估结果才是"这个人本来有多脆弱"——
@@ -200,19 +200,19 @@ async def get_latest_assessment(elder_id: str, tenant_id: str = DEFAULT_TENANT) 
     """
     async with AsyncSessionLocal() as session:
         row = (await session.execute(text("""
-            SELECT assessment_id, elder_id, dimension_scores, weighted_score,
+            SELECT assessment_id, site_id, dimension_scores, weighted_score,
                    summary, created_at
             FROM assessment_results
-            WHERE elder_id = :elder_id AND tenant_id = :tenant_id
+            WHERE site_id = :site_id AND tenant_id = :tenant_id
             ORDER BY created_at DESC
             LIMIT 1
-        """), {"elder_id": elder_id, "tenant_id": tenant_id})).first()
+        """), {"site_id": site_id, "tenant_id": tenant_id})).first()
 
     if not row:
         return None
     return {
         "assessment_id": row.assessment_id,
-        "elder_id": row.elder_id,
+        "site_id": row.site_id,
         "dimension_scores": _as_dict(row.dimension_scores) or [],
         "weighted_score": float(row.weighted_score) if row.weighted_score is not None else None,
         "summary": _as_dict(row.summary) or {},
@@ -226,7 +226,7 @@ async def get_assessment_result(assessment_id: str,
     try:
         async with AsyncSessionLocal() as session:
             row = (await session.execute(text("""
-                SELECT assessment_id, elder_id, dimension_scores, weighted_score, summary, created_at
+                SELECT assessment_id, site_id, dimension_scores, weighted_score, summary, created_at
                 FROM assessment_results
                 WHERE assessment_id = :assessment_id AND tenant_id = :tenant_id
             """), {"assessment_id": assessment_id, "tenant_id": tenant_id})).first()
@@ -234,7 +234,7 @@ async def get_assessment_result(assessment_id: str,
             return None
         return {
             "assessment_id": row.assessment_id,
-            "elder_id": row.elder_id,
+            "site_id": row.site_id,
             "dimension_scores": _as_dict(row.dimension_scores) or [],
             "weighted_score": float(row.weighted_score) if row.weighted_score is not None else 0,
             "summary": _as_dict(row.summary) or {},
@@ -245,11 +245,11 @@ async def get_assessment_result(assessment_id: str,
         return None
 
 
-# ── 照护计划：care_plans 表 ────────────────────────────────
+# ── 照护计划：service_plans 表 ────────────────────────────────
 
-async def save_care_plan(
+async def save_service_plan(
     plan_id: str,
-    elder_id: str,
+    site_id: str,
     plan_content: dict,
     tenant_id: str = DEFAULT_TENANT,
 ) -> bool:
@@ -260,71 +260,71 @@ async def save_care_plan(
     """
     try:
         if not plan_id:
-            logger.error("repo.care_plan_save_skipped", reason="empty_plan_id")
+            logger.error("repo.service_plan_save_skipped", reason="empty_plan_id")
             return False
-        if not await _guard_tenant(elder_id, tenant_id):
+        if not await _guard_tenant(site_id, tenant_id):
             return False
         async with AsyncSessionLocal() as session:
             await session.execute(text("""
-                INSERT INTO care_plans
-                    (plan_id, elder_id, plan_content, tenant_id)
+                INSERT INTO service_plans
+                    (plan_id, site_id, plan_content, tenant_id)
                 VALUES
-                    (:plan_id, :elder_id, CAST(:plan_content AS JSONB), :tenant_id)
+                    (:plan_id, :site_id, CAST(:plan_content AS JSONB), :tenant_id)
                 ON CONFLICT (plan_id) DO UPDATE SET
                     plan_content = EXCLUDED.plan_content
             """), {
                 "plan_id": plan_id,
-                "elder_id": elder_id,
+                "site_id": site_id,
                 "plan_content": json.dumps(plan_content, ensure_ascii=False),
                 "tenant_id": tenant_id,
             })
             await session.commit()
-        logger.info("repo.care_plan_saved", plan_id=plan_id, elder_id=elder_id,
-                    care_level=plan_content.get("care_level"),
+        logger.info("repo.service_plan_saved", plan_id=plan_id, site_id=site_id,
+                    risk_tier=plan_content.get("risk_tier"),
                     daily_tasks_count=len(plan_content.get("daily_tasks", [])))
         return True
     except Exception as e:
-        logger.error("repo.care_plan_save_failed", plan_id=plan_id, error=str(e))
+        logger.error("repo.service_plan_save_failed", plan_id=plan_id, error=str(e))
         return False
 
 
-async def get_latest_care_plan(
-    elder_id: str, tenant_id: str = DEFAULT_TENANT,
+async def get_latest_service_plan(
+    site_id: str, tenant_id: str = DEFAULT_TENANT,
 ) -> dict | None:
     """取老人最近一次评估生成的照护计划（强制租户过滤）。
 
-    care_plans 表只有 created_at，按 created_at DESC 取最新版本；
-    无记录或查询失败时返回 None——调用方（care_plan_provider）会继续查业务配置的
+    service_plans 表只有 created_at，按 created_at DESC 取最新版本；
+    无记录或查询失败时返回 None——调用方（service_plan_provider）会继续查业务配置的
     照护服务项，两者都没有才报"计划缺失"，不会编一份假计划。
     """
     try:
         async with AsyncSessionLocal() as session:
             row = (await session.execute(text("""
-                SELECT plan_id, elder_id, plan_content, created_at
-                FROM care_plans
-                WHERE elder_id = :elder_id AND tenant_id = :tenant_id
+                SELECT plan_id, site_id, plan_content, created_at
+                FROM service_plans
+                WHERE site_id = :site_id AND tenant_id = :tenant_id
                 ORDER BY created_at DESC
                 LIMIT 1
-            """), {"elder_id": elder_id, "tenant_id": tenant_id})).first()
+            """), {"site_id": site_id, "tenant_id": tenant_id})).first()
         if row is None:
             return None
         return {
             "plan_id": row.plan_id,
-            "elder_id": row.elder_id,
+            "site_id": row.site_id,
             "plan_content": _as_dict(row.plan_content) or {},
             "created_at": str(row.created_at) if row.created_at else "",
         }
     except Exception as e:
-        logger.error("repo.care_plan_get_failed", elder_id=elder_id, error=str(e))
+        logger.error("repo.service_plan_get_failed", site_id=site_id, error=str(e))
         return None
 
 
 # ── 照护服务项与每日照护计划（对齐机构 SaaS 的业务模型）──────
-# elder_service_items = 业务配置的"该老人要做什么服务"（care 只读，由业务侧维护）
-# daily_care_plans    = 每日执行计划（care 只读，生成规则在业务侧）
+# site_service_items = 业务配置的"该老人要做什么服务"（care 只读，由业务侧维护）
+# daily_work_plans    = 每日执行计划（care 只读，生成规则在业务侧）
 
 async def save_service_item(
-    elder_id: str,
+    site_id: str,
     project_name: str,
     tenant_id: str = DEFAULT_TENANT,
     project_id: str = "",
@@ -334,7 +334,7 @@ async def save_service_item(
     nurse_time_slots: list | None = None,
     price: float = 0,
     is_required: bool = True,
-    care_level: str = "",
+    risk_tier: str = "",
     source: str = "manual",
     item_id: str = "",
 ) -> str | None:
@@ -344,17 +344,17 @@ async def save_service_item(
     重复导入走更新而不是插新行。
     """
     try:
-        if not await _guard_tenant(elder_id, tenant_id):
+        if not await _guard_tenant(site_id, tenant_id):
             return None
         row_id = item_id or f"esi-{uuid.uuid4().hex[:12]}"
         async with AsyncSessionLocal() as session:
             await session.execute(text("""
-                INSERT INTO elder_service_items
-                    (item_id, elder_id, project_id, project_name, frequency_id, frequency_name,
-                     times_per_day, nurse_time_slots, price, is_required, care_level, source, tenant_id)
+                INSERT INTO site_service_items
+                    (item_id, site_id, project_id, project_name, frequency_id, frequency_name,
+                     times_per_day, nurse_time_slots, price, is_required, risk_tier, source, tenant_id)
                 VALUES
-                    (:item_id, :elder_id, :project_id, :project_name, :frequency_id, :frequency_name,
-                     :times_per_day, CAST(:slots AS JSONB), :price, :is_required, :care_level,
+                    (:item_id, :site_id, :project_id, :project_name, :frequency_id, :frequency_name,
+                     :times_per_day, CAST(:slots AS JSONB), :price, :is_required, :risk_tier,
                      :source, :tenant_id)
                 ON CONFLICT (item_id) DO UPDATE SET
                     project_name   = EXCLUDED.project_name,
@@ -363,45 +363,45 @@ async def save_service_item(
                     nurse_time_slots = EXCLUDED.nurse_time_slots,
                     price          = EXCLUDED.price,
                     is_required    = EXCLUDED.is_required,
-                    care_level     = EXCLUDED.care_level,
+                    risk_tier     = EXCLUDED.risk_tier,
                     active         = TRUE
             """), {
-                "item_id": row_id, "elder_id": elder_id, "project_id": project_id,
+                "item_id": row_id, "site_id": site_id, "project_id": project_id,
                 "project_name": project_name, "frequency_id": frequency_id,
                 "frequency_name": frequency_name, "times_per_day": int(times_per_day or 0),
                 "slots": json.dumps(nurse_time_slots or [], ensure_ascii=False),
                 "price": price or 0, "is_required": bool(is_required),
-                "care_level": care_level, "source": source, "tenant_id": tenant_id,
+                "risk_tier": risk_tier, "source": source, "tenant_id": tenant_id,
             })
             await session.commit()
         return row_id
     except Exception as e:
-        logger.error("repo.service_item_save_failed", elder_id=elder_id, error=str(e))
+        logger.error("repo.service_item_save_failed", site_id=site_id, error=str(e))
         return None
 
 
-async def list_service_items(elder_id: str, tenant_id: str = DEFAULT_TENANT) -> list[dict]:
+async def list_service_items(site_id: str, tenant_id: str = DEFAULT_TENANT) -> list[dict]:
     """取老人当前生效的照护服务项（强制租户过滤，必选在前）。"""
     try:
         async with AsyncSessionLocal() as session:
             rows = (await session.execute(text("""
-                SELECT item_id, elder_id, project_id, project_name, frequency_id, frequency_name,
-                       times_per_day, nurse_time_slots, price, is_required, care_level, source
-                FROM elder_service_items
-                WHERE elder_id = :elder_id AND tenant_id = :tenant_id AND active = TRUE
+                SELECT item_id, site_id, project_id, project_name, frequency_id, frequency_name,
+                       times_per_day, nurse_time_slots, price, is_required, risk_tier, source
+                FROM site_service_items
+                WHERE site_id = :site_id AND tenant_id = :tenant_id AND active = TRUE
                 ORDER BY is_required DESC, created_at ASC
-            """), {"elder_id": elder_id, "tenant_id": tenant_id})).fetchall()
+            """), {"site_id": site_id, "tenant_id": tenant_id})).fetchall()
         return [{
-            "item_id": r.item_id, "elder_id": r.elder_id,
+            "item_id": r.item_id, "site_id": r.site_id,
             "project_id": r.project_id or "", "project_name": r.project_name,
             "frequency_id": r.frequency_id or "", "frequency_name": r.frequency_name or "",
             "times_per_day": r.times_per_day or 0,
             "nurse_time_slots": _as_dict(r.nurse_time_slots) or [],
             "price": float(r.price or 0), "is_required": bool(r.is_required),
-            "care_level": r.care_level or "", "source": r.source or "template",
+            "risk_tier": r.risk_tier or "", "source": r.source or "template",
         } for r in rows]
     except Exception as e:
-        logger.error("repo.service_items_list_failed", elder_id=elder_id, error=str(e))
+        logger.error("repo.service_items_list_failed", site_id=site_id, error=str(e))
         return []
 
 
@@ -410,72 +410,72 @@ async def list_service_items(elder_id: str, tenant_id: str = DEFAULT_TENANT) -> 
 # 本地配置只为让 demo 能独立跑通"评估等级 → 该等级服务项"这条链路。
 DEFAULT_LEVEL_CONFIGS: list[dict] = [
     # 自理：巡视 + 健康监测为主
-    {"care_level": "自理", "project_name": "每日巡视", "frequency_name": "2次/日",
+    {"risk_tier": "自理", "project_name": "每日巡视", "frequency_name": "2次/日",
      "times_per_day": 2, "nurse_time_slots": [{"startTime": "09:00", "endTime": "11:00"},
                                               {"startTime": "15:00", "endTime": "17:00"}],
      "is_required": True, "sort_order": 1},
-    {"care_level": "自理", "project_name": "健康监测", "frequency_name": "1次/日",
+    {"risk_tier": "自理", "project_name": "健康监测", "frequency_name": "1次/日",
      "times_per_day": 1, "nurse_time_slots": [{"startTime": "08:00", "endTime": "09:00"}],
      "is_required": True, "sort_order": 2},
-    {"care_level": "自理", "project_name": "康复训练", "frequency_name": "1次/日",
+    {"risk_tier": "自理", "project_name": "康复训练", "frequency_name": "1次/日",
      "times_per_day": 1, "nurse_time_slots": [{"startTime": "14:00", "endTime": "15:00"}],
      "is_required": False, "sort_order": 3},
     # 介助：生活照护为主
-    {"care_level": "介助", "project_name": "协助进食", "frequency_name": "3次/日",
+    {"risk_tier": "介助", "project_name": "协助进食", "frequency_name": "3次/日",
      "times_per_day": 3, "nurse_time_slots": [{"startTime": "07:00", "endTime": "08:00"},
                                               {"startTime": "11:30", "endTime": "12:30"},
                                               {"startTime": "17:30", "endTime": "18:30"}],
      "is_required": True, "sort_order": 1},
-    {"care_level": "介助", "project_name": "协助翻身", "frequency_name": "每2小时",
+    {"risk_tier": "介助", "project_name": "协助翻身", "frequency_name": "每2小时",
      "times_per_day": 6, "nurse_time_slots": [{"startTime": "08:00", "endTime": "20:00"}],
      "is_required": True, "sort_order": 2},
-    {"care_level": "介助", "project_name": "用药协助", "frequency_name": "3次/日",
+    {"risk_tier": "介助", "project_name": "用药协助", "frequency_name": "3次/日",
      "times_per_day": 3, "nurse_time_slots": [{"startTime": "07:00", "endTime": "19:00"}],
      "is_required": True, "sort_order": 3},
-    {"care_level": "介助", "project_name": "口腔护理", "frequency_name": "2次/日",
+    {"risk_tier": "介助", "project_name": "口腔护理", "frequency_name": "2次/日",
      "times_per_day": 2, "nurse_time_slots": [{"startTime": "07:00", "endTime": "09:00"}],
      "is_required": True, "sort_order": 4},
-    {"care_level": "介助", "project_name": "每日巡视", "frequency_name": "2次/日",
+    {"risk_tier": "介助", "project_name": "每日巡视", "frequency_name": "2次/日",
      "times_per_day": 2, "nurse_time_slots": [{"startTime": "09:00", "endTime": "17:00"}],
      "is_required": True, "sort_order": 5},
-    {"care_level": "介助", "project_name": "康复训练", "frequency_name": "隔日1次",
+    {"risk_tier": "介助", "project_name": "康复训练", "frequency_name": "隔日1次",
      "times_per_day": 1, "nurse_time_slots": [{"startTime": "14:00", "endTime": "15:00"}],
      "is_required": False, "sort_order": 6},
     # 介护：全天候照护为主
-    {"care_level": "介护", "project_name": "鼻饲护理", "frequency_name": "4次/日",
+    {"risk_tier": "介护", "project_name": "鼻饲护理", "frequency_name": "4次/日",
      "times_per_day": 4, "nurse_time_slots": [{"startTime": "07:00", "endTime": "21:00"}],
      "is_required": True, "sort_order": 1},
-    {"care_level": "介护", "project_name": "协助翻身", "frequency_name": "每1小时",
+    {"risk_tier": "介护", "project_name": "协助翻身", "frequency_name": "每1小时",
      "times_per_day": 12, "nurse_time_slots": [{"startTime": "06:00", "endTime": "22:00"}],
      "is_required": True, "sort_order": 2},
-    {"care_level": "介护", "project_name": "皮肤护理", "frequency_name": "3次/日",
+    {"risk_tier": "介护", "project_name": "皮肤护理", "frequency_name": "3次/日",
      "times_per_day": 3, "nurse_time_slots": [{"startTime": "08:00", "endTime": "20:00"}],
      "is_required": True, "sort_order": 3},
-    {"care_level": "介护", "project_name": "口腔护理", "frequency_name": "2次/日",
+    {"risk_tier": "介护", "project_name": "口腔护理", "frequency_name": "2次/日",
      "times_per_day": 2, "nurse_time_slots": [{"startTime": "07:00", "endTime": "09:00"}],
      "is_required": True, "sort_order": 4},
-    {"care_level": "介护", "project_name": "全天巡视", "frequency_name": "6次/日",
+    {"risk_tier": "介护", "project_name": "全天巡视", "frequency_name": "6次/日",
      "times_per_day": 6, "nurse_time_slots": [{"startTime": "00:00", "endTime": "24:00"}],
      "is_required": True, "sort_order": 5},
 ]
 
 
-async def ensure_care_level_configs() -> None:
+async def ensure_service_tier_configs() -> None:
     """幂等播种护理等级照护模板（不覆盖已有记录，便于机构侧覆盖本地定义）。"""
     try:
         async with AsyncSessionLocal() as session:
             for i, cfg in enumerate(DEFAULT_LEVEL_CONFIGS):
                 await session.execute(text("""
-                    INSERT INTO care_level_configs
-                        (config_id, care_level, project_name, frequency_name, times_per_day,
+                    INSERT INTO service_tier_configs
+                        (config_id, risk_tier, project_name, frequency_name, times_per_day,
                          nurse_time_slots, is_required, sort_order)
                     VALUES
-                        (:config_id, :care_level, :project_name, :frequency_name, :times_per_day,
+                        (:config_id, :risk_tier, :project_name, :frequency_name, :times_per_day,
                          CAST(:slots AS JSONB), :is_required, :sort_order)
                     ON CONFLICT (config_id) DO NOTHING
                 """), {
-                    "config_id": f"clc-{cfg['care_level']}-{i + 1:02d}",
-                    "care_level": cfg["care_level"], "project_name": cfg["project_name"],
+                    "config_id": f"clc-{cfg['risk_tier']}-{i + 1:02d}",
+                    "risk_tier": cfg["risk_tier"], "project_name": cfg["project_name"],
                     "frequency_name": cfg.get("frequency_name", ""),
                     "times_per_day": cfg.get("times_per_day", 0),
                     "slots": json.dumps(cfg.get("nurse_time_slots") or [], ensure_ascii=False),
@@ -483,21 +483,21 @@ async def ensure_care_level_configs() -> None:
                     "sort_order": cfg.get("sort_order", 0),
                 })
             await session.commit()
-        logger.info("repo.care_level_configs_ensured", count=len(DEFAULT_LEVEL_CONFIGS))
+        logger.info("repo.service_tier_configs_ensured", count=len(DEFAULT_LEVEL_CONFIGS))
     except Exception as e:
-        logger.error("repo.care_level_configs_ensure_failed", error=str(e))
+        logger.error("repo.service_tier_configs_ensure_failed", error=str(e))
 
 
-async def list_level_configs(care_level: str, tenant_id: str = DEFAULT_TENANT,
+async def list_level_configs(risk_tier: str, tenant_id: str = DEFAULT_TENANT,
                              required_only: bool = False) -> list[dict]:
     """取某护理等级可用的照护项目（由业务系统提供「该等级允许做什么」）。"""
-    if not care_level:
+    if not risk_tier:
         return []
     try:
-        sql = ("SELECT config_id, care_level, project_id, project_name, frequency_id,"
+        sql = ("SELECT config_id, risk_tier, project_id, project_name, frequency_id,"
                " frequency_name, times_per_day, nurse_time_slots, price, is_required"
-               " FROM care_level_configs WHERE care_level = :level AND active = TRUE")
-        params = {"level": care_level}
+               " FROM service_tier_configs WHERE risk_tier = :level AND active = TRUE")
+        params = {"level": risk_tier}
         if required_only:
             sql += " AND is_required = TRUE"
         sql += " ORDER BY sort_order ASC"
@@ -509,14 +509,14 @@ async def list_level_configs(care_level: str, tenant_id: str = DEFAULT_TENANT,
             "times_per_day": r.times_per_day or 0,
             "nurse_time_slots": _as_dict(r.nurse_time_slots) or [],
             "price": float(r.price or 0), "is_required": bool(r.is_required),
-            "care_level": r.care_level, "source": "template",
+            "risk_tier": r.risk_tier, "source": "template",
         } for r in rows]
     except Exception as e:
-        logger.error("repo.level_configs_list_failed", care_level=care_level, error=str(e))
+        logger.error("repo.level_configs_list_failed", risk_tier=risk_tier, error=str(e))
         return []
 
 
-async def bind_service_items_for_level(elder_id: str, care_level: str,
+async def bind_service_items_for_level(site_id: str, risk_tier: str,
                                        tenant_id: str = DEFAULT_TENANT) -> list[dict]:
     """把该护理等级的**必选**照护项目落到老人名下，返回老人当前生效的服务项。
 
@@ -524,30 +524,30 @@ async def bind_service_items_for_level(elder_id: str, care_level: str,
     成为老人的照护服务项 → 照护流程的任务清单由它生成。已经手工登记过的服务项
     不会被覆盖（同名视为同一项）。
     """
-    if not care_level:
-        return await list_service_items(elder_id, tenant_id=tenant_id)
+    if not risk_tier:
+        return await list_service_items(site_id, tenant_id=tenant_id)
 
-    configs = await list_level_configs(care_level, tenant_id=tenant_id, required_only=True)
+    configs = await list_level_configs(risk_tier, tenant_id=tenant_id, required_only=True)
     if not configs:
-        logger.warning("repo.level_configs_empty", care_level=care_level)
-        return await list_service_items(elder_id, tenant_id=tenant_id)
+        logger.warning("repo.level_configs_empty", risk_tier=risk_tier)
+        return await list_service_items(site_id, tenant_id=tenant_id)
 
     existing = {it.get("project_name") for it in
-                await list_service_items(elder_id, tenant_id=tenant_id)}
+                await list_service_items(site_id, tenant_id=tenant_id)}
     for cfg in configs:
         if cfg["project_name"] in existing:
             continue
         await save_service_item(
-            elder_id=elder_id, project_name=cfg["project_name"], tenant_id=tenant_id,
+            site_id=site_id, project_name=cfg["project_name"], tenant_id=tenant_id,
             project_id=cfg.get("project_id", ""), frequency_id=cfg.get("frequency_id", ""),
             frequency_name=cfg.get("frequency_name", ""),
             times_per_day=cfg.get("times_per_day", 0),
             nurse_time_slots=cfg.get("nurse_time_slots") or [],
             price=cfg.get("price", 0), is_required=cfg.get("is_required", True),
-            care_level=care_level, source="template",
+            risk_tier=risk_tier, source="template",
         )
-    items = await list_service_items(elder_id, tenant_id=tenant_id)
-    logger.info("repo.service_items_bound", elder_id=elder_id, care_level=care_level,
+    items = await list_service_items(site_id, tenant_id=tenant_id)
+    logger.info("repo.service_items_bound", site_id=site_id, risk_tier=risk_tier,
                 bound=len(configs), total=len(items))
     return items
 
@@ -555,7 +555,7 @@ async def bind_service_items_for_level(elder_id: str, care_level: str,
 # ── 每日照护计划：生成（本地替身）与执行回写 ──────────────────
 # 边界提醒：真实的生成规则属于业务侧（每日计划由业务系统生成）。
 # 下面这个展开函数只为让本地 Provider 在演示/离线时能给出当天的可执行清单，
-# 生产形态走 SaaSCarePlanProvider 直接读主系统的当天计划。
+# 生产形态走 SaaSServicePlanProvider 直接读主系统的当天计划。
 
 def _split_window(slot: dict, times: int) -> list[str] | None:
     """把一个护理时间窗均分成 times 段，用于"每2小时翻身×6次"这类配置。
@@ -619,7 +619,7 @@ def _expand_items_to_day(items: list[dict], plan_date) -> list[dict]:
     return entries
 
 
-async def ensure_daily_plan(elder_id: str, plan_date=None,
+async def ensure_daily_plan(site_id: str, plan_date=None,
                             tenant_id: str = DEFAULT_TENANT) -> list[dict]:
     """按老人的照护服务项展开当天计划并落库（幂等），返回当天计划。
 
@@ -629,7 +629,7 @@ async def ensure_daily_plan(elder_id: str, plan_date=None,
     from datetime import date as _date
 
     plan_date = plan_date or _date.today()
-    items = await list_service_items(elder_id, tenant_id=tenant_id)
+    items = await list_service_items(site_id, tenant_id=tenant_id)
     if not items:
         return []
     entries = _expand_items_to_day(items, plan_date)
@@ -637,20 +637,20 @@ async def ensure_daily_plan(elder_id: str, plan_date=None,
         async with AsyncSessionLocal() as session:
             for e in entries:
                 await session.execute(text("""
-                    INSERT INTO daily_care_plans
-                        (plan_item_id, elder_id, plan_date, project_name, nurse_time, status, tenant_id)
+                    INSERT INTO daily_work_plans
+                        (plan_item_id, site_id, plan_date, project_name, nurse_time, status, tenant_id)
                     VALUES
                         (:pid, :eid, :pdate, :pname, :ntime, 'planned', :tid)
                     ON CONFLICT (plan_item_id) DO NOTHING
-                """), {"pid": e["plan_item_id"], "eid": elder_id, "pdate": plan_date,
+                """), {"pid": e["plan_item_id"], "eid": site_id, "pdate": plan_date,
                        "pname": e["project_name"], "ntime": e["nurse_time"], "tid": tenant_id})
             await session.commit()
     except Exception as ex:
-        logger.error("repo.daily_plan_ensure_failed", elder_id=elder_id, error=str(ex))
-    return await list_daily_plan(elder_id, plan_date=plan_date, tenant_id=tenant_id)
+        logger.error("repo.daily_plan_ensure_failed", site_id=site_id, error=str(ex))
+    return await list_daily_plan(site_id, plan_date=plan_date, tenant_id=tenant_id)
 
 
-async def list_daily_plan(elder_id: str, plan_date=None,
+async def list_daily_plan(site_id: str, plan_date=None,
                           tenant_id: str = DEFAULT_TENANT) -> list[dict]:
     """读某天的照护计划（默认今天），带执行状态。"""
     from datetime import date as _date
@@ -659,26 +659,26 @@ async def list_daily_plan(elder_id: str, plan_date=None,
     try:
         async with AsyncSessionLocal() as session:
             rows = (await session.execute(text("""
-                SELECT plan_item_id, project_name, nurse_time, carer_id, carer_name,
+                SELECT plan_item_id, project_name, nurse_time, worker_id, worker_name,
                        actual_care_time, status
-                FROM daily_care_plans
-                WHERE elder_id = :eid AND tenant_id = :tid AND plan_date = :pdate
+                FROM daily_work_plans
+                WHERE site_id = :eid AND tenant_id = :tid AND plan_date = :pdate
                 ORDER BY plan_item_id ASC
-            """), {"eid": elder_id, "tid": tenant_id, "pdate": plan_date})).fetchall()
+            """), {"eid": site_id, "tid": tenant_id, "pdate": plan_date})).fetchall()
         return [{
             "plan_item_id": r.plan_item_id, "project_name": r.project_name,
-            "nurse_time": r.nurse_time or "", "carer_id": r.carer_id or "",
-            "carer_name": r.carer_name or "", "actual_care_time": r.actual_care_time or "",
+            "nurse_time": r.nurse_time or "", "worker_id": r.worker_id or "",
+            "worker_name": r.worker_name or "", "actual_care_time": r.actual_care_time or "",
             "status": r.status, "plan_date": plan_date.isoformat(),
         } for r in rows]
     except Exception as e:
-        logger.error("repo.daily_plan_list_failed", elder_id=elder_id, error=str(e))
+        logger.error("repo.daily_plan_list_failed", site_id=site_id, error=str(e))
         return []
 
 
 async def confirm_daily_plan_item(plan_item_id: str, tenant_id: str = DEFAULT_TENANT,
-                                  status: str = "done", carer_id: str = "",
-                                  carer_name: str = "",
+                                  status: str = "done", worker_id: str = "",
+                                  worker_name: str = "",
                                   actual_care_time: str = "") -> bool:
     """护工执行后回写：标记该项完成/未完成 + 执行人与实际时间。
 
@@ -692,11 +692,11 @@ async def confirm_daily_plan_item(plan_item_id: str, tenant_id: str = DEFAULT_TE
     try:
         async with AsyncSessionLocal() as session:
             result = await session.execute(text("""
-                UPDATE daily_care_plans
-                SET status = :status, carer_id = :cid, carer_name = :cname,
+                UPDATE daily_work_plans
+                SET status = :status, worker_id = :cid, worker_name = :cname,
                     actual_care_time = :atime, updated_at = CURRENT_TIMESTAMP
                 WHERE plan_item_id = :pid AND tenant_id = :tid
-            """), {"status": status, "cid": carer_id, "cname": carer_name,
+            """), {"status": status, "cid": worker_id, "cname": worker_name,
                    "atime": actual_care_time, "pid": plan_item_id, "tid": tenant_id})
             if result.rowcount == 0:
                 await session.rollback()
@@ -717,30 +717,30 @@ def daily_plan_progress(plan: list[dict]) -> dict:
     return {"total": total, "done": done, "missed": missed, "pending": total - done - missed}
 
 
-async def list_care_history(elder_id: str, tenant_id: str = DEFAULT_TENANT,
+async def list_service_history(site_id: str, tenant_id: str = DEFAULT_TENANT,
                             limit: int = 8) -> list[dict]:
     """取真实照护历史（替代原先写死的两条 mock 记录）。
 
     两个来源合并后按日期倒序：
-      ① daily_care_plans 每日计划：给出"计划做了什么 / 完成没完成"；
-      ② care_records 照护记录：护工实际登记的执行内容。
+      ① daily_work_plans 每日计划：给出"计划做了什么 / 完成没完成"；
+      ② service_records 照护记录：护工实际登记的执行内容。
     两边都没有就返回空列表——Agent 应当知道"没有历史记录"，而不是拿到两条假记录。
     """
     history: dict[str, dict] = {}
     try:
         async with AsyncSessionLocal() as session:
             rows = (await session.execute(text("""
-                SELECT plan_date, project_name, status, carer_name, actual_care_time
-                FROM daily_care_plans
-                WHERE elder_id = :elder_id AND tenant_id = :tenant_id
+                SELECT plan_date, project_name, status, worker_name, actual_care_time
+                FROM daily_work_plans
+                WHERE site_id = :site_id AND tenant_id = :tenant_id
                 ORDER BY plan_date DESC LIMIT :lim
-            """), {"elder_id": elder_id, "tenant_id": tenant_id, "lim": limit})).fetchall()
+            """), {"site_id": site_id, "tenant_id": tenant_id, "lim": limit})).fetchall()
         for r in rows:
             day = r.plan_date.isoformat() if r.plan_date else ""
             entry = history.setdefault(day, {"date": day, "tasks": [], "abnormal": ""})
             label = r.project_name + ("（已完成）" if r.status == "done" else "（未完成）")
-            if r.carer_name:
-                label += f" 执行：{r.carer_name}"
+            if r.worker_name:
+                label += f" 执行：{r.worker_name}"
             if r.actual_care_time:
                 label += f" 实际：{r.actual_care_time}"
             entry["tasks"].append(label)
@@ -748,33 +748,33 @@ async def list_care_history(elder_id: str, tenant_id: str = DEFAULT_TENANT,
                 entry["abnormal"] = (entry["abnormal"] + "；" if entry["abnormal"] else "") + \
                                     f"{r.project_name}未按时完成"
     except Exception as e:
-        logger.error("repo.care_history_plan_failed", elder_id=elder_id, error=str(e))
+        logger.error("repo.service_history_plan_failed", site_id=site_id, error=str(e))
 
     try:
         async with AsyncSessionLocal() as session:
             rows = (await session.execute(text("""
-                SELECT record_id, care_type, content, caregiver_id, created_at
-                FROM care_records
-                WHERE elder_id = :elder_id AND tenant_id = :tenant_id
+                SELECT record_id, service_type, content, worker_id, created_at
+                FROM service_records
+                WHERE site_id = :site_id AND tenant_id = :tenant_id
                 ORDER BY created_at DESC LIMIT :lim
-            """), {"elder_id": elder_id, "tenant_id": tenant_id, "lim": limit})).fetchall()
+            """), {"site_id": site_id, "tenant_id": tenant_id, "lim": limit})).fetchall()
         for r in rows:
             day = r.created_at.strftime("%Y-%m-%d") if r.created_at else ""
             entry = history.setdefault(day, {"date": day, "tasks": [], "abnormal": ""})
-            entry["tasks"].append(f"{r.care_type}：{r.content or ''}".strip("："))
+            entry["tasks"].append(f"{r.service_type}：{r.content or ''}".strip("："))
     except Exception as e:
-        logger.error("repo.care_history_records_failed", elder_id=elder_id, error=str(e))
+        logger.error("repo.service_history_records_failed", site_id=site_id, error=str(e))
 
     ordered = sorted(history.values(), key=lambda x: x["date"], reverse=True)
     return ordered[:limit]
 
 
-# ── 照护流程报告：care_flow_reports 表 ──────────────────────
+# ── 照护流程报告：work_flow_reports 表 ──────────────────────
 
-async def save_care_flow_report(
+async def save_work_flow_report(
     session_id: str,
-    elder_id: str,
-    care_plan_id: str,
+    site_id: str,
+    service_plan_id: str,
     stage_reached: str,
     total_turns: int,
     report: dict,
@@ -782,15 +782,15 @@ async def save_care_flow_report(
 ) -> bool:
     """保存照护流程评估报告（session_id 作为唯一键，重放覆盖）。"""
     try:
-        if not await _guard_tenant(elder_id, tenant_id):
+        if not await _guard_tenant(site_id, tenant_id):
             return False
         async with AsyncSessionLocal() as session:
             await session.execute(text("""
-                INSERT INTO care_flow_reports
-                    (report_id, session_id, elder_id, care_plan_id, stage_reached,
+                INSERT INTO work_flow_reports
+                    (report_id, session_id, site_id, service_plan_id, stage_reached,
                      total_turns, report, tenant_id)
                 VALUES
-                    (:report_id, :session_id, :elder_id, :care_plan_id, :stage_reached,
+                    (:report_id, :session_id, :site_id, :service_plan_id, :stage_reached,
                      :total_turns, CAST(:report AS JSONB), :tenant_id)
                 ON CONFLICT (session_id) DO UPDATE SET
                     stage_reached = EXCLUDED.stage_reached,
@@ -799,87 +799,87 @@ async def save_care_flow_report(
             """), {
                 "report_id": f"rpt-{uuid.uuid4().hex[:12]}",
                 "session_id": session_id,
-                "elder_id": elder_id,
-                "care_plan_id": care_plan_id or "",
+                "site_id": site_id,
+                "service_plan_id": service_plan_id or "",
                 "stage_reached": stage_reached or "",
                 "total_turns": int(total_turns or 0),
                 "report": json.dumps(report, ensure_ascii=False),
                 "tenant_id": tenant_id,
             })
             await session.commit()
-        logger.info("repo.care_report_saved", session_id=session_id, elder_id=elder_id)
+        logger.info("repo.work_report_saved", session_id=session_id, site_id=site_id)
         return True
     except Exception as e:
-        logger.error("repo.care_report_save_failed", session_id=session_id, error=str(e))
+        logger.error("repo.work_report_save_failed", session_id=session_id, error=str(e))
         return False
 
 
-async def get_care_flow_report(session_id: str,
+async def get_work_flow_report(session_id: str,
                                tenant_id: str = DEFAULT_TENANT) -> dict | None:
     """按会话 ID 查询照护报告（强制租户过滤，跨租户视为不存在）。"""
     try:
         async with AsyncSessionLocal() as session:
             row = (await session.execute(text("""
-                SELECT session_id, elder_id, care_plan_id, stage_reached, total_turns, report, created_at
-                FROM care_flow_reports
+                SELECT session_id, site_id, service_plan_id, stage_reached, total_turns, report, created_at
+                FROM work_flow_reports
                 WHERE session_id = :session_id AND tenant_id = :tenant_id
             """), {"session_id": session_id, "tenant_id": tenant_id})).first()
         if row is None:
             return None
         return {
             "session_id": row.session_id,
-            "elder_id": row.elder_id,
-            "care_plan_id": row.care_plan_id,
+            "site_id": row.site_id,
+            "service_plan_id": row.service_plan_id,
             "stage_reached": row.stage_reached,
             "total_turns": row.total_turns,
             "report": _as_dict(row.report) or {},
             "created_at": row.created_at.isoformat() if row.created_at else None,
         }
     except Exception as e:
-        logger.error("repo.care_report_get_failed", session_id=session_id, error=str(e))
+        logger.error("repo.work_report_get_failed", session_id=session_id, error=str(e))
         return None
 
 
-# ── 照护流程会话登记：care_flow_sessions 表 ─────────────────
+# ── 照护流程会话登记：work_flow_sessions 表 ─────────────────
 # 业务侧权威记录：/start 登记、每轮同步进度、finished 置完成。
-# 前端按 elder_id 查进行中会话拿回 session_id，不再依赖浏览器保存 URL。
+# 前端按 site_id 查进行中会话拿回 session_id，不再依赖浏览器保存 URL。
 
-async def create_care_flow_session(
+async def create_work_flow_session(
     session_id: str,
-    elder_id: str,
+    site_id: str,
     staff_id: str,
     current_stage: str,
     tenant_id: str = DEFAULT_TENANT,
 ) -> bool:
     """照护流程 /start 时登记会话（同 session_id 重复发起幂等跳过）。"""
     try:
-        if not await _guard_tenant(elder_id, tenant_id):
+        if not await _guard_tenant(site_id, tenant_id):
             return False
         async with AsyncSessionLocal() as session:
             await session.execute(text("""
-                INSERT INTO care_flow_sessions
-                    (session_id, elder_id, staff_id, current_stage, total_turns, status, tenant_id)
+                INSERT INTO work_flow_sessions
+                    (session_id, site_id, staff_id, current_stage, total_turns, status, tenant_id)
                 VALUES
-                    (:session_id, :elder_id, :staff_id, :current_stage, 0, 'in_progress', :tenant_id)
+                    (:session_id, :site_id, :staff_id, :current_stage, 0, 'in_progress', :tenant_id)
                 ON CONFLICT (session_id) DO NOTHING
             """), {
                 "session_id": session_id,
-                "elder_id": elder_id,
+                "site_id": site_id,
                 "staff_id": staff_id,
                 "current_stage": current_stage or "admission_assessment",
                 "tenant_id": tenant_id,
             })
             await session.commit()
-        logger.info("repo.care_flow_session_created",
-                    session_id=session_id, elder_id=elder_id, stage=current_stage)
+        logger.info("repo.work_flow_session_created",
+                    session_id=session_id, site_id=site_id, stage=current_stage)
         return True
     except Exception as e:
-        logger.error("repo.care_flow_session_create_failed",
+        logger.error("repo.work_flow_session_create_failed",
                      session_id=session_id, error=str(e))
         return False
 
 
-async def update_care_flow_session_progress(
+async def update_work_flow_session_progress(
     session_id: str,
     current_stage: str,
     total_turns: int,
@@ -890,7 +890,7 @@ async def update_care_flow_session_progress(
         status = "finished" if (current_stage or "") == "finished" else "in_progress"
         async with AsyncSessionLocal() as session:
             await session.execute(text("""
-                UPDATE care_flow_sessions
+                UPDATE work_flow_sessions
                 SET current_stage = :current_stage,
                     total_turns   = :total_turns,
                     status        = :status,
@@ -906,62 +906,62 @@ async def update_care_flow_session_progress(
             await session.commit()
         return True
     except Exception as e:
-        logger.error("repo.care_flow_session_update_failed",
+        logger.error("repo.work_flow_session_update_failed",
                      session_id=session_id, error=str(e))
         return False
 
 
-async def get_care_flow_session(session_id: str,
+async def get_work_flow_session(session_id: str,
                                 tenant_id: str = DEFAULT_TENANT) -> dict | None:
     """按 session_id 查会话登记行。
 
-    用途：/chat 请求不带 elder_id，从这里找回，保证 thread_id 与 /start
+    用途：/chat 请求不带 site_id，从这里找回，保证 thread_id 与 /start
     拼接一致（否则检查点键对不上，流程续不上）。跨租户视为不存在。
     """
     try:
         async with AsyncSessionLocal() as session:
             row = (await session.execute(text("""
-                SELECT session_id, elder_id, staff_id, current_stage,
+                SELECT session_id, site_id, staff_id, current_stage,
                        total_turns, status
-                FROM care_flow_sessions
+                FROM work_flow_sessions
                 WHERE session_id = :session_id AND tenant_id = :tenant_id
             """), {"session_id": session_id, "tenant_id": tenant_id})).first()
         if row is None:
             return None
         return {
             "session_id": row.session_id,
-            "elder_id": row.elder_id,
+            "site_id": row.site_id,
             "staff_id": row.staff_id,
             "current_stage": row.current_stage,
             "total_turns": row.total_turns,
             "status": row.status,
         }
     except Exception as e:
-        logger.error("repo.care_flow_session_get_failed",
+        logger.error("repo.work_flow_session_get_failed",
                      session_id=session_id, error=str(e))
         return None
 
 
-async def get_active_care_flow_session(elder_id: str,
+async def get_active_work_flow_session(site_id: str,
                                        tenant_id: str = DEFAULT_TENANT) -> dict | None:
     """按老人查最近一场进行中的照护流程会话；没有返回 None。"""
     try:
         async with AsyncSessionLocal() as session:
             row = (await session.execute(text("""
-                SELECT session_id, elder_id, staff_id, current_stage,
+                SELECT session_id, site_id, staff_id, current_stage,
                        total_turns, started_at, updated_at
-                FROM care_flow_sessions
-                WHERE elder_id = :elder_id
+                FROM work_flow_sessions
+                WHERE site_id = :site_id
                   AND tenant_id = :tenant_id
                   AND status = 'in_progress'
                 ORDER BY started_at DESC
                 LIMIT 1
-            """), {"elder_id": elder_id, "tenant_id": tenant_id})).first()
+            """), {"site_id": site_id, "tenant_id": tenant_id})).first()
         if row is None:
             return None
         return {
             "session_id": row.session_id,
-            "elder_id": row.elder_id,
+            "site_id": row.site_id,
             "staff_id": row.staff_id,
             "current_stage": row.current_stage,
             "total_turns": row.total_turns,
@@ -969,8 +969,8 @@ async def get_active_care_flow_session(elder_id: str,
             "updated_at": row.updated_at.isoformat() if row.updated_at else None,
         }
     except Exception as e:
-        logger.error("repo.care_flow_session_get_active_failed",
-                     elder_id=elder_id, error=str(e))
+        logger.error("repo.work_flow_session_get_active_failed",
+                     site_id=site_id, error=str(e))
         return None
 
 
@@ -1232,13 +1232,13 @@ async def reset_outbound_event_for_redelivery(event_id: str,
 
 async def save_alert_triggered(
     alert_id: str,
-    elder_id: str,
+    site_id: str,
     device_id: str,
     alert_type: str,
     risk_assessment: dict,
     three_tracks: dict,
     tenant_id: str = DEFAULT_TENANT,
-    source: str = "care",
+    source: str = "local",
     external_alert_id: str | None = None,
     location: str = "",
     device_type: str = "",
@@ -1246,7 +1246,7 @@ async def save_alert_triggered(
 ) -> bool:
     """告警触发后（站长审核前）落库：状态 reviewing，保存风险评估与四轨数据。
 
-    three_tracks 形如 {"device_readings": [...], "care_records": [...], "health_indicators": [...]}
+    three_tracks 形如 {"device_readings": [...], "service_records": [...], "health_indicators": [...]}
     供 GET /alert/{id}/review 接口读取，替代 MemorySaver 反查。
 
     source / external_alert_id / location 用于对接机构 SaaS 的报警记录（报警记录）：
@@ -1254,17 +1254,17 @@ async def save_alert_triggered(
       处置完成后业务系统可按它回写处置结果。
     """
     try:
-        if not await _guard_tenant(elder_id, tenant_id):
+        if not await _guard_tenant(site_id, tenant_id):
             return False
-        await _ensure_device(device_id, elder_id, tenant_id,
+        await _ensure_device(device_id, site_id, tenant_id,
                              device_type=device_type, type_code=type_code, location=location)
         async with AsyncSessionLocal() as session:
             await session.execute(text("""
                 INSERT INTO alerts
-                    (alert_id, elder_id, device_id, alert_type, status, risk_level,
+                    (alert_id, site_id, device_id, alert_type, status, risk_level,
                      risk_assessment, three_tracks, tenant_id, source, external_alert_id, location)
                 VALUES
-                    (:alert_id, :elder_id, :device_id, :alert_type, 'reviewing', :risk_level,
+                    (:alert_id, :site_id, :device_id, :alert_type, 'reviewing', :risk_level,
                      CAST(:risk_assessment AS JSONB), CAST(:three_tracks AS JSONB), :tenant_id,
                      :source, :external_alert_id, :location)
                 ON CONFLICT (alert_id) DO UPDATE SET
@@ -1275,21 +1275,21 @@ async def save_alert_triggered(
                     location        = EXCLUDED.location
             """), {
                 "alert_id": alert_id,
-                "elder_id": elder_id,
+                "site_id": site_id,
                 "device_id": device_id,
                 "alert_type": alert_type,
                 "risk_level": (risk_assessment or {}).get("risk_level", "medium"),
                 "risk_assessment": json.dumps(risk_assessment or {}, ensure_ascii=False),
                 "three_tracks": json.dumps(three_tracks or {}, ensure_ascii=False),
                 "tenant_id": tenant_id,
-                "source": source or "care",
+                "source": source or "local",
                 "external_alert_id": external_alert_id or None,
                 "location": location or "",
             })
             await session.commit()
-        logger.info("repo.alert_saved", alert_id=alert_id, elder_id=elder_id,
+        logger.info("repo.alert_saved", alert_id=alert_id, site_id=site_id,
                     risk_level=(risk_assessment or {}).get("risk_level"),
-                    source=source or "care", external_alert_id=external_alert_id or "")
+                    source=source or "local", external_alert_id=external_alert_id or "")
         return True
     except Exception as e:
         logger.error("repo.alert_save_failed", alert_id=alert_id, error=str(e))
@@ -1304,12 +1304,12 @@ async def find_alert_by_external_id(external_alert_id: str,
     try:
         async with AsyncSessionLocal() as session:
             row = (await session.execute(text("""
-                SELECT alert_id, elder_id, device_id, alert_type, status, risk_level
+                SELECT alert_id, site_id, device_id, alert_type, status, risk_level
                 FROM alerts WHERE tenant_id = :tenant_id AND external_alert_id = :external_alert_id
             """), {"tenant_id": tenant_id, "external_alert_id": external_alert_id})).first()
         if row is None:
             return None
-        return {"alert_id": row.alert_id, "elder_id": row.elder_id,
+        return {"alert_id": row.alert_id, "site_id": row.site_id,
                 "device_id": row.device_id, "alert_type": row.alert_type,
                 "status": row.status, "risk_level": row.risk_level}
     except Exception as e:
@@ -1337,7 +1337,7 @@ async def mark_alert_handled(alert_id: str, handled_by: str,
         return False
 
 
-async def save_alert_dispatched(alert_id: str, elder_id: str, dispatch_order: dict,
+async def save_alert_dispatched(alert_id: str, site_id: str, dispatch_order: dict,
                                 tenant_id: str = DEFAULT_TENANT) -> bool:
     """站长确认后：更新告警状态 + 写入派发工单（跨租户告警拒绝更新）。"""
     try:
@@ -1356,16 +1356,16 @@ async def save_alert_dispatched(alert_id: str, elder_id: str, dispatch_order: di
 
             await session.execute(text("""
                 INSERT INTO dispatch_orders
-                    (order_id, alert_id, elder_id, order_content, status, tenant_id)
+                    (order_id, alert_id, site_id, order_content, status, tenant_id)
                 VALUES
-                    (:order_id, :alert_id, :elder_id, :order_content, :status, :tenant_id)
+                    (:order_id, :alert_id, :site_id, :order_content, :status, :tenant_id)
                 ON CONFLICT (order_id) DO UPDATE SET
                     order_content = EXCLUDED.order_content,
                     status        = EXCLUDED.status
             """), {
                 "order_id": order_id,
                 "alert_id": alert_id,
-                "elder_id": elder_id,
+                "site_id": site_id,
                 "order_content": dispatch_order.get("order_content", ""),
                 "status": status,
                 "tenant_id": tenant_id,
@@ -1383,7 +1383,7 @@ async def get_alert_review(alert_id: str, tenant_id: str = DEFAULT_TENANT) -> di
     try:
         async with AsyncSessionLocal() as session:
             row = (await session.execute(text("""
-                SELECT alert_id, elder_id, device_id, alert_type, status, risk_level,
+                SELECT alert_id, site_id, device_id, alert_type, status, risk_level,
                        risk_assessment, three_tracks, created_at,
                        source, external_alert_id, location, handled_by, handled_at
                 FROM alerts
@@ -1393,7 +1393,7 @@ async def get_alert_review(alert_id: str, tenant_id: str = DEFAULT_TENANT) -> di
             return None
         return {
             "alert_id": row.alert_id,
-            "elder_id": row.elder_id,
+            "site_id": row.site_id,
             "device_id": row.device_id,
             "alert_type": row.alert_type,
             "status": row.status,
@@ -1402,7 +1402,7 @@ async def get_alert_review(alert_id: str, tenant_id: str = DEFAULT_TENANT) -> di
             "three_tracks": _as_dict(row.three_tracks) or {},
             "created_at": row.created_at.isoformat() if row.created_at else None,
             # 对接机构 SaaS 报警记录所需的字段（SaaS 侧按下行报警 ID 关联处置）
-            "source": row.source or "care",
+            "source": row.source or "local",
             "external_alert_id": row.external_alert_id or "",
             "location": row.location or "",
             "handled_by": row.handled_by or "",
@@ -1417,9 +1417,9 @@ async def get_alert_review(alert_id: str, tenant_id: str = DEFAULT_TENANT) -> di
 
 # 默认账号（与原 MOCK_USERS 一致，便于平滑迁移；密码为 bcrypt 哈希）
 DEFAULT_USERS: list[dict] = [
-    {"user_id": "u-caregiver",  "username": "caregiver",
+    {"user_id": "u-worker",  "username": "worker",
      "password_hash": "$2b$12$ucHhpWFw3/ZQzp34HXxZxuVXYEvHlYyCI1puiS7bKw5hBg/67gk02",
-     "role": "caregiver"},   # Caregiver@123
+     "role": "worker"},   # Worker@123
     {"user_id": "u-supervisor", "username": "supervisor",
      "password_hash": "$2b$12$MKzMKo8McwqizaA5HdMKWO2KfcJ1s0QqJs97x0Jipf7rXvbD6/vpu",
      "role": "supervisor"},  # Supervisor@123

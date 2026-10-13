@@ -4,11 +4,11 @@
     <div class="plan-header">
       <div>
         <h2>照护计划</h2>
-        <p class="sub">老人 {{ overview?.elder_id || elderIdFallback }} · 会话 {{ sessionId }}</p>
+        <p class="sub">老人 {{ overview?.site_id || siteIdFallback }} · 会话 {{ sessionId }}</p>
       </div>
       <div class="header-actions">
-        <el-tag v-if="overview?.care_level" type="primary" size="large">
-          护理等级：{{ overview.care_level }}
+        <el-tag v-if="overview?.risk_tier" type="primary" size="large">
+          护理等级：{{ overview.risk_tier }}
         </el-tag>
         <el-tag :type="sourceTag.type" size="large">{{ sourceTag.text }}</el-tag>
         <el-button :loading="loading" @click="load">刷新</el-button>
@@ -90,8 +90,8 @@
           </el-table-column>
           <el-table-column label="执行" min-width="150">
             <template #default="{ row }">
-              <span v-if="row.carer_name">
-                {{ row.carer_name }}
+              <span v-if="row.worker_name">
+                {{ row.worker_name }}
                 <span v-if="row.actual_care_time" class="muted">（{{ row.actual_care_time }}）</span>
               </span>
               <span v-else class="muted">—</span>
@@ -139,13 +139,13 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { carePlanApi, type DailyPlanItem, type PlanOverview, type PlanSource } from '@/api/careFlow'
+import { servicePlanApi, type DailyPlanItem, type PlanOverview, type PlanSource } from '@/api/workFlow'
 
 const route = useRoute()
 const router = useRouter()
 
 const sessionId = (route.params.sessionId as string) ?? ''
-const elderIdFallback = ref('')
+const siteIdFallback = ref('')
 const overview = ref<PlanOverview | null>(null)
 const loading = ref(false)
 const busyId = ref('')
@@ -187,9 +187,9 @@ async function load() {
   }
   loading.value = true
   try {
-    const { data } = await carePlanApi.getOverview(sessionId)
+    const { data } = await servicePlanApi.getOverview(sessionId)
     overview.value = data
-    elderIdFallback.value = data.elder_id
+    siteIdFallback.value = data.site_id
   } catch {
     // 拦截器已提示错误（404 = 会话不存在或跨租户）
   } finally {
@@ -202,7 +202,7 @@ async function confirm(row: DailyPlanItem, status: 'done' | 'missed') {
   try {
     const now = new Date()
     const hhmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
-    await carePlanApi.confirmItem(row.plan_item_id, {
+    await servicePlanApi.confirmItem(row.plan_item_id, {
       status,
       actual_care_time: status === 'done' ? hhmm : '',
     })

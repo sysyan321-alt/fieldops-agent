@@ -10,7 +10,7 @@
           text
           type="primary"
           class="plan-entry"
-          @click="router.push(`/care-flow/${sessionId}/plan`)"
+          @click="router.push(`/work-flow/${sessionId}/plan`)"
         >
           照护计划
         </el-button>
@@ -92,7 +92,7 @@
       </div>
       <template v-else-if="report">
         <el-descriptions :column="2" border size="small" style="margin-bottom: 16px">
-          <el-descriptions-item label="老人 ID">{{ report.elder_id }}</el-descriptions-item>
+          <el-descriptions-item label="老人 ID">{{ report.site_id }}</el-descriptions-item>
           <el-descriptions-item label="会话 ID">{{ report.session_id }}</el-descriptions-item>
           <el-descriptions-item label="到达阶段">{{ stageLabel(report.stage_reached) }}</el-descriptions-item>
           <el-descriptions-item label="对话轮数">{{ report.total_turns }}</el-descriptions-item>
@@ -111,10 +111,10 @@ import { Loading } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import ChatBubble from '@/components/chat/ChatBubble.vue'
 import MarkdownRenderer from '@/components/chat/MarkdownRenderer.vue'
-import StageProgressBar from '@/components/care_flow/StageProgressBar.vue'
+import StageProgressBar from '@/components/work_flow/StageProgressBar.vue'
 import { useAuthStore } from '@/stores/auth'
 import { streamSSE, UnauthorizedError } from '@/api/sse'
-import { careFlowApi, type CareFlowReport } from '@/api/careFlow'
+import { workFlowApi, type WorkFlowReport } from '@/api/workFlow'
 
 const route = useRoute()
 const router = useRouter()
@@ -136,7 +136,7 @@ const dailyCareMode = ref('normal')
 const totalTurns = ref(0)
 const isFinished = ref(false)
 const showReport = ref(false)
-const report = ref<CareFlowReport | null>(null)
+const report = ref<WorkFlowReport | null>(null)
 const reportLoading = ref(false)
 const pendingDischargeOrder = ref(false)  // 标记：下一条消息将携带 SaaS 退住工单
 
@@ -173,7 +173,7 @@ async function openReport() {
   if (!report.value) {
     reportLoading.value = true
     try {
-      const { data } = await careFlowApi.getReport(sessionId)
+      const { data } = await workFlowApi.getReport(sessionId)
       report.value = data
     } catch {
       report.value = null
@@ -202,13 +202,13 @@ async function sendMessage() {
       body.discharge_order = { order_type: 'discharge', reason: 'SaaS 下发退住工单' }
       pendingDischargeOrder.value = false
     }
-    await streamSSE('/care-flow/chat', body, (event, data) => {
+    await streamSSE('/work-flow/chat', body, (event, data) => {
       if (event === 'message') {
         if (data.content) {
           messages.value.push({ role: 'assistant', content: data.content })
         }
         currentStage.value = data.current_stage ?? currentStage.value
-        dailyCareMode.value = data.daily_care_mode ?? dailyCareMode.value
+        dailyCareMode.value = data.daily_mode ?? dailyCareMode.value
         totalTurns.value = data.total_turn_count ?? totalTurns.value
       } else if (event === 'report') {
         isFinished.value = true
@@ -223,7 +223,7 @@ async function sendMessage() {
       return
     }
     ElMessage.error('请求失败，请重试')
-    console.error('[CareFlow SSE]', err)
+    console.error('[WorkFlow SSE]', err)
   } finally {
     isStreaming.value = false
     await scrollToBottom()
@@ -239,9 +239,9 @@ async function scrollToBottom() {
 
 onMounted(() => {
   // 恢复发起页传来的首条 AI 消息与初始阶段
-  const raw = sessionStorage.getItem(`careflow_${sessionId}`)
+  const raw = sessionStorage.getItem(`workflow_${sessionId}`)
   if (raw) {
-    sessionStorage.removeItem(`careflow_${sessionId}`)
+    sessionStorage.removeItem(`workflow_${sessionId}`)
     try {
       const parsed = JSON.parse(raw)
       if (parsed.aiMessage) messages.value.push({ role: 'assistant', content: parsed.aiMessage })

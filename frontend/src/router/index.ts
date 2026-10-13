@@ -38,26 +38,26 @@ const router = createRouter({
         },
         // 照护流程
         {
-          path: 'care-flow',
-          name: 'care-flow',
-          component: () => import('@/views/care_flow/CareFlowSetupView.vue'),
+          path: 'work-flow',
+          name: 'work-flow',
+          component: () => import('@/views/work_flow/WorkFlowSetupView.vue'),
         },
         {
-          path: 'care-flow/:sessionId',
-          name: 'care-flow-chat',
-          component: () => import('@/views/care_flow/CareFlowChatView.vue'),
+          path: 'work-flow/:sessionId',
+          name: 'work-flow-chat',
+          component: () => import('@/views/work_flow/WorkFlowChatView.vue'),
         },
         // 照护计划：护理等级 / 服务项 / 当天执行进度（只读 + 执行回写）
         {
-          path: 'care-flow/:sessionId/plan',
-          name: 'care-plan',
-          component: () => import('@/views/care_flow/CarePlanView.vue'),
+          path: 'work-flow/:sessionId/plan',
+          name: 'service-plan',
+          component: () => import('@/views/work_flow/ServicePlanView.vue'),
         },
         // 出站通知：SaaS 回调配置与事件审计（需要 supervisor/admin 角色）
         {
           path: 'outbound-webhook',
           name: 'outbound-webhook',
-          component: () => import('@/views/care_flow/OutboundWebhookView.vue'),
+          component: () => import('@/views/work_flow/OutboundWebhookView.vue'),
           meta: { requiresSupervisor: true },
         },
         // 老人评估

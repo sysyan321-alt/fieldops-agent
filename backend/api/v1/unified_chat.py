@@ -20,7 +20,7 @@ router = APIRouter(prefix="/chat")
 
 class UnifiedChatRequest(BaseModel):
     """统一对话请求。"""
-    elder_id:   str = ""
+    site_id:   str = ""
     session_id: str = ""
     query:      str
     agent_type: str | None = None   # 指定 Agent（None = 自动路由）
@@ -43,7 +43,7 @@ async def unified_chat(
             orchestrator = get_orchestrator()
             request = AgentRequest(
                 staff_id=current_user["user_id"],
-                elder_id=req.elder_id,
+                site_id=req.site_id,
                 tenant_id=current_user["tenant_id"],
                 session_id=session_id,
                 agent_type=req.agent_type,
@@ -94,9 +94,9 @@ async def unified_chat(
     return EventSourceResponse(event_generator())
 
 
-@router.delete("/session/{elder_id}/{session_id}")
+@router.delete("/session/{site_id}/{session_id}")
 async def delete_chat_session(
-    elder_id: str,
+    site_id: str,
     session_id: str,
     current_user: dict = Depends(get_current_user),
 ):
@@ -112,14 +112,14 @@ async def delete_chat_session(
     if current_user["role"] != "admin":
         raise HTTPException(status_code=403, detail="仅管理员可删除会话状态")
 
-    from backend.db.repositories import get_elder_tenant
-    owner_tenant = await get_elder_tenant(elder_id)
+    from backend.db.repositories import get_site_tenant
+    owner_tenant = await get_site_tenant(site_id)
     if owner_tenant is None or owner_tenant != current_user["tenant_id"]:
-        raise HTTPException(status_code=404, detail=f"老人不存在: {elder_id}")
+        raise HTTPException(status_code=404, detail=f"老人不存在: {site_id}")
 
-    thread_id = build_thread_id(elder_id, session_id)
+    thread_id = build_thread_id(site_id, session_id)
     result = await delete_thread_state(thread_id)
-    logger.info("chat.session_deleted", elder_id=elder_id, session_id=session_id,
+    logger.info("chat.session_deleted", site_id=site_id, session_id=session_id,
                 thread_id=thread_id, operator=current_user["user_id"],
                 backend=result.get("backend"))
 

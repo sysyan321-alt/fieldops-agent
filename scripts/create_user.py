@@ -4,7 +4,7 @@
 #
 # 用法：
 #   python scripts/create_user.py --username admin --role admin
-#   python scripts/create_user.py --username nurse01 --role caregiver --tenant tenant_default
+#   python scripts/create_user.py --username nurse01 --role worker --tenant tenant_default
 #   python scripts/create_user.py --username admin --password 'xxx' --reset
 #
 # 不传 --password 时会交互式输入（不回显），避免密码进 shell 历史。
@@ -18,7 +18,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-VALID_ROLES = ("caregiver", "supervisor", "admin")
+VALID_ROLES = ("worker", "supervisor", "admin")
 
 
 async def _run(args) -> int:
@@ -71,7 +71,7 @@ async def _run(args) -> int:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="创建或重置 CareAgent 登录账号")
+    parser = argparse.ArgumentParser(description="创建或重置 FieldOps 登录账号")
     parser.add_argument("--username", required=True)
     parser.add_argument("--password", default="", help="省略则交互式输入（推荐）")
     parser.add_argument("--role", default="admin", choices=VALID_ROLES)

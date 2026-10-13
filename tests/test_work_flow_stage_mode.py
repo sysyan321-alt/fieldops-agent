@@ -1,11 +1,11 @@
-# tests/test_care_flow_stage_mode.py
+# tests/test_work_flow_stage_mode.py
 # 照护流程：异常子模式切换与阶段流转单元测试
 # 不依赖真实 LLM / DB——只验证 check_stage_node 的规则逻辑。
 
 import pytest
 from langchain_core.messages import HumanMessage
 
-from backend.agents.care_flow.nodes import (
+from backend.agents.work_flow.nodes import (
     check_stage_node,
     ABNORMAL_KEYWORDS,
     ABNORMAL_DONE_KEYWORDS,
@@ -13,7 +13,7 @@ from backend.agents.care_flow.nodes import (
     STAGE_MIN_TURNS,
     STAGE_MAX_TURNS,
 )
-from backend.agents.care_flow.state import CareStage, DailyCareMode
+from backend.agents.work_flow.state import WorkStage, DailyCareMode
 
 
 def _state(stage="daily_care", stage_turns=5, total_turns=10,
@@ -26,7 +26,7 @@ def _state(stage="daily_care", stage_turns=5, total_turns=10,
         "stage_turn_count": stage_turns,
         "total_turn_count": total_turns,
         "max_turns": max_turns,
-        "daily_care_mode": mode,
+        "daily_mode": mode,
         "abnormal_turn_count": abnormal_turns,
         "messages": [HumanMessage(content=last_input)],
     }
@@ -43,7 +43,7 @@ async def test_normal_to_abnormal_by_keyword():
     """日常照护 normal → abnormal：命中关键词即切模式，不切阶段。"""
     s = _state(mode="normal", last_input="晨护时发现压红，皮肤有破损")
     out = await check_stage_node(s)
-    assert out["daily_care_mode"] == "abnormal"
+    assert out["daily_mode"] == "abnormal"
     assert out["abnormal_turn_count"] == 0
     # 不切阶段
     assert "current_stage" not in out
@@ -54,7 +54,7 @@ async def test_abnormal_to_normal_by_done_keyword():
     """abnormal → normal：命中'异常处理完'等关键词。"""
     s = _state(mode="abnormal", abnormal_turns=3, last_input="异常处理完毕")
     out = await check_stage_node(s)
-    assert out["daily_care_mode"] == "normal"
+    assert out["daily_mode"] == "normal"
     assert out["abnormal_turn_count"] == 0
 
 
@@ -64,7 +64,7 @@ async def test_abnormal_to_normal_by_max_turns():
     s = _state(mode="abnormal", abnormal_turns=ABNORMAL_MAX_TURNS,
                last_input="还在处理")
     out = await check_stage_node(s)
-    assert out["daily_care_mode"] == "normal"
+    assert out["daily_mode"] == "normal"
 
 
 @pytest.mark.asyncio
@@ -104,9 +104,9 @@ async def test_daily_care_finish_to_review():
     s = _state(stage="daily_care", mode="normal", stage_turns=8,
                last_input="结束照护")
     out = await check_stage_node(s)
-    assert out["current_stage"] == CareStage.PERIODIC_REVIEW.value
+    assert out["current_stage"] == WorkStage.PERIODIC_REVIEW.value
     assert out["stage_turn_count"] == 0
-    assert out["daily_care_mode"] == "normal"  # 阶段流转后默认重置 normal
+    assert out["daily_mode"] == "normal"  # 阶段流转后默认重置 normal
 
 
 @pytest.mark.asyncio
@@ -116,8 +116,8 @@ async def test_admission_reached_max_to_daily_care():
                stage_turns=STAGE_MAX_TURNS["admission_assessment"],
                mode="normal", last_input="继续")
     out = await check_stage_node(s)
-    assert out["current_stage"] == CareStage.DAILY_CARE.value
-    assert out["daily_care_mode"] == "normal"
+    assert out["current_stage"] == WorkStage.DAILY_CARE.value
+    assert out["daily_mode"] == "normal"
 
 
 @pytest.mark.asyncio
@@ -141,9 +141,9 @@ async def test_periodic_review_with_discharge_order_to_discharge_assessment():
         discharge_order={"order_type": "discharge", "reason": "家属申请"},
     )
     out = await check_stage_node(s)
-    assert out["current_stage"] == CareStage.DISCHARGE_ASSESSMENT.value
+    assert out["current_stage"] == WorkStage.DISCHARGE_ASSESSMENT.value
     assert out["stage_turn_count"] == 0
-    assert out["daily_care_mode"] == "normal"
+    assert out["daily_mode"] == "normal"
 
 
 @pytest.mark.asyncio
@@ -157,9 +157,9 @@ async def test_periodic_review_without_discharge_order_loops_back_to_daily_care(
         # 不传 discharge_order → 视为 None（续住）
     )
     out = await check_stage_node(s)
-    assert out["current_stage"] == CareStage.DAILY_CARE.value
+    assert out["current_stage"] == WorkStage.DAILY_CARE.value
     assert out["stage_turn_count"] == 0
-    assert out["daily_care_mode"] == "normal"  # 阶段流转后默认重置
+    assert out["daily_mode"] == "normal"  # 阶段流转后默认重置
 
 
 @pytest.mark.asyncio
@@ -172,7 +172,7 @@ async def test_periodic_review_user_finish_keyword_also_routes_by_discharge_orde
         last_input="结束本阶段",
     )
     out_no_order = await check_stage_node(s_no_order)
-    assert out_no_order["current_stage"] == CareStage.DAILY_CARE.value  # 续住循环
+    assert out_no_order["current_stage"] == WorkStage.DAILY_CARE.value  # 续住循环
 
     s_with_order = _state(
         stage="periodic_review",
@@ -182,7 +182,7 @@ async def test_periodic_review_user_finish_keyword_also_routes_by_discharge_orde
         discharge_order={"order_type": "discharge"},
     )
     out_with_order = await check_stage_node(s_with_order)
-    assert out_with_order["current_stage"] == CareStage.DISCHARGE_ASSESSMENT.value  # 出院
+    assert out_with_order["current_stage"] == WorkStage.DISCHARGE_ASSESSMENT.value  # 出院
 
 
 @pytest.mark.asyncio
@@ -201,7 +201,7 @@ async def test_total_max_overrides_discharge_order_at_review():
         discharge_order={"order_type": "discharge"},
     )
     out = await check_stage_node(s)
-    assert out["current_stage"] == CareStage.FINISHED.value
+    assert out["current_stage"] == WorkStage.FINISHED.value
 
 
 # ── 层2-补：discharge_order 边界与持久化的反向验证 ────────────────
@@ -222,7 +222,7 @@ async def test_discharge_order_converges_all_stages_to_review_spine():
         discharge_order={"order_type": "discharge"},
     )
     out_daily = await check_stage_node(s_daily)
-    assert out_daily["current_stage"] == CareStage.PERIODIC_REVIEW.value
+    assert out_daily["current_stage"] == WorkStage.PERIODIC_REVIEW.value
 
     # ② ADMISSION_ASSESSMENT + 工单 + 到达 max → 收敛到 PERIODIC_REVIEW（不再进日常照护）
     s_adm = _state(
@@ -233,7 +233,7 @@ async def test_discharge_order_converges_all_stages_to_review_spine():
         discharge_order={"order_type": "discharge"},
     )
     out_adm = await check_stage_node(s_adm)
-    assert out_adm["current_stage"] == CareStage.PERIODIC_REVIEW.value
+    assert out_adm["current_stage"] == WorkStage.PERIODIC_REVIEW.value
 
 
 # ── 层2-补：工单驱动的阶段收敛（收到工单 → 复评 → 出院评估 主干道） ──
@@ -249,9 +249,9 @@ async def test_discharge_order_converges_daily_care_to_review_at_min():
         discharge_order={"order_type": "discharge", "reason": "转院"},
     )
     out = await check_stage_node(s)
-    assert out["current_stage"] == CareStage.PERIODIC_REVIEW.value
+    assert out["current_stage"] == WorkStage.PERIODIC_REVIEW.value
     assert out["stage_turn_count"] == 0
-    assert out["daily_care_mode"] == "normal"
+    assert out["daily_mode"] == "normal"
     assert out["abnormal_turn_count"] == 0
 
 
@@ -280,7 +280,7 @@ async def test_discharge_order_converges_admission_to_review():
         discharge_order={"order_type": "discharge", "reason": "病愈出院"},
     )
     out = await check_stage_node(s)
-    assert out["current_stage"] == CareStage.PERIODIC_REVIEW.value
+    assert out["current_stage"] == WorkStage.PERIODIC_REVIEW.value
 
 
 @pytest.mark.asyncio
@@ -294,7 +294,7 @@ async def test_discharge_assessment_with_order_to_finished():
         discharge_order={"order_type": "discharge"},
     )
     out = await check_stage_node(s)
-    assert out["current_stage"] == CareStage.FINISHED.value
+    assert out["current_stage"] == WorkStage.FINISHED.value
 
 
 @pytest.mark.asyncio
@@ -325,7 +325,7 @@ async def test_discharge_converge_still_bounded_by_total_max():
         discharge_order={"order_type": "discharge"},
     )
     out = await check_stage_node(s)
-    assert out["current_stage"] == CareStage.FINISHED.value
+    assert out["current_stage"] == WorkStage.FINISHED.value
 
 
 @pytest.mark.asyncio
@@ -355,13 +355,13 @@ async def test_empty_dict_discharge_order_treated_as_none():
         discharge_order={},  # 空 dict 显式 falsy
     )
     out = await check_stage_node(s)
-    assert out["current_stage"] == CareStage.DAILY_CARE.value  # 续住循环
+    assert out["current_stage"] == WorkStage.DAILY_CARE.value  # 续住循环
     assert "discharge_order" not in out
 
 
 @pytest.mark.asyncio
 async def test_loop_back_resets_substate_counters_too():
-    """续住循环时 abnormal_turn_count / daily_care_mode 也一并归零，新周期从干净状态起步。
+    """续住循环时 abnormal_turn_count / daily_mode 也一并归零，新周期从干净状态起步。
 
     避免上一轮的异常子模式计数污染下一周期——例如上一周期积累了 5 轮 abnormal，
     不归零会导致下一周期一进门就被判定为 ABNORMAL_MAX_TURNS、强制切回 normal。
@@ -374,10 +374,10 @@ async def test_loop_back_resets_substate_counters_too():
         abnormal_turns=5,  # 模拟上一轮异常子模式累积过轮数
     )
     out = await check_stage_node(s)
-    assert out["current_stage"] == CareStage.DAILY_CARE.value
+    assert out["current_stage"] == WorkStage.DAILY_CARE.value
     assert out["stage_turn_count"] == 0
     assert out["abnormal_turn_count"] == 0  # 也归零
-    assert out["daily_care_mode"] == "normal"
+    assert out["daily_mode"] == "normal"
 
 
 @pytest.mark.asyncio
@@ -396,7 +396,7 @@ async def test_check_stage_does_not_clear_discharge_order_on_transition():
         discharge_order={"order_type": "discharge", "reason": "家属申请"},
     )
     out = await check_stage_node(s)
-    assert out["current_stage"] == CareStage.DISCHARGE_ASSESSMENT.value
+    assert out["current_stage"] == WorkStage.DISCHARGE_ASSESSMENT.value
     # check_stage_node 的返回值里不应出现 discharge_order——意味着原值保留在 state
     assert "discharge_order" not in out
 

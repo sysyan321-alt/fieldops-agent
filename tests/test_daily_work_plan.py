@@ -1,4 +1,4 @@
-# tests/test_daily_care_plan.py
+# tests/test_daily_service_plan.py
 # 每日照护计划：展开生成、执行回写、进度统计。
 #
 # 边界提醒（和照护计划那组用例一致）：
@@ -121,8 +121,8 @@ def test_progress_on_empty_plan():
 # ── ③ Provider 的回写责任差异 ─────────────────────────────────
 
 async def test_local_provider_confirms_locally(monkeypatch):
-    """本地实现：回写 care 自己的 daily_care_plans。"""
-    from backend.core.care_plan_provider import LocalCarePlanProvider
+    """本地实现：回写 care 自己的 daily_work_plans。"""
+    from backend.core.service_plan_provider import LocalServicePlanProvider
 
     seen = {}
 
@@ -132,9 +132,9 @@ async def test_local_provider_confirms_locally(monkeypatch):
 
     monkeypatch.setattr("backend.db.repositories.confirm_daily_plan_item", _confirm)
 
-    ok = await LocalCarePlanProvider().confirm_plan_item(
+    ok = await LocalServicePlanProvider().confirm_plan_item(
         "dcp-2026-10-13-001", "tenant_default",
-        status="done", carer_id="u-1", carer_name="张三", actual_care_time="08:05")
+        status="done", worker_id="u-1", worker_name="张三", actual_care_time="08:05")
 
     assert ok is True
     assert seen["plan_item_id"] == "dcp-2026-10-13-001"
@@ -144,9 +144,9 @@ async def test_local_provider_confirms_locally(monkeypatch):
 
 async def test_saas_provider_posts_confirm(monkeypatch):
     """SaaS 实现：调主系统的执行结果回写接口（写的是执行结果，不是业务规则）。"""
-    from backend.core.care_plan_provider import SaasCarePlanProvider
+    from backend.core.service_plan_provider import SaasServicePlanProvider
 
-    provider = SaasCarePlanProvider(base_url="http://saas.local/api")
+    provider = SaasServicePlanProvider(base_url="http://saas.local/api")
     seen = {}
 
     async def _post(path, payload):
@@ -156,20 +156,20 @@ async def test_saas_provider_posts_confirm(monkeypatch):
     monkeypatch.setattr(provider, "_post", _post)
 
     ok = await provider.confirm_plan_item(
-        "P-100", "tenant_default", status="done", carer_id="u-1",
-        carer_name="张三", actual_care_time="08:05")
+        "P-100", "tenant_default", status="done", worker_id="u-1",
+        worker_name="张三", actual_care_time="08:05")
 
     assert ok is True
-    assert seen["path"] == SaasCarePlanProvider.PATH_CONFIRM_ITEM
+    assert seen["path"] == SaasServicePlanProvider.PATH_CONFIRM_ITEM
     assert seen["payload"]["id"] == "P-100"
     assert seen["payload"]["actualCareTime"] == "08:05"
 
 
 async def test_saas_provider_normalizes_status(monkeypatch):
     """主系统的状态值要归一成 care 的 done/missed/planned。"""
-    from backend.core.care_plan_provider import SaasCarePlanProvider
+    from backend.core.service_plan_provider import SaasServicePlanProvider
 
-    provider = SaasCarePlanProvider(base_url="http://saas.local/api")
+    provider = SaasServicePlanProvider(base_url="http://saas.local/api")
 
     async def _post(path, payload):
         return {"list": [{"id": "1", "projectName": "巡视", "statusF": "已完成"},
@@ -187,19 +187,19 @@ async def test_saas_provider_normalizes_status(monkeypatch):
 
 def test_prompts_include_today_plan_placeholder():
     """日常照护/异常处理阶段必须能看到"今天还剩哪几项"（缺占位符会格式化失败）。"""
-    from backend.agents.care_flow.prompts import ABNORMAL_PROMPT, DAILY_CARE_PROMPT
+    from backend.agents.work_flow.prompts import ABNORMAL_PROMPT, DAILY_CARE_PROMPT
 
     for tpl in (DAILY_CARE_PROMPT, ABNORMAL_PROMPT):
-        text = tpl.format(care_plan="{}", caregiver_input="x", today_plan="今日共 3 项")
+        text = tpl.format(service_plan="{}", worker_input="x", today_plan="今日共 3 项")
         assert "今日共 3 项" in text
 
 
 def test_format_today_plan_renders_status():
-    from backend.agents.care_flow.nodes import _format_today_plan
+    from backend.agents.work_flow.nodes import _format_today_plan
 
     text = _format_today_plan(
         [{"project_name": "协助翻身", "nurse_time": "08:00-10:00",
-          "status": "done", "carer_name": "张三"},
+          "status": "done", "worker_name": "张三"},
          {"project_name": "用药协助", "status": "planned"}],
         {"total": 2, "done": 1, "missed": 0, "pending": 1})
 
@@ -210,7 +210,7 @@ def test_format_today_plan_renders_status():
 
 
 def test_format_today_plan_empty():
-    from backend.agents.care_flow.nodes import _format_today_plan
+    from backend.agents.work_flow.nodes import _format_today_plan
 
     assert "没有可执行的照护计划条目" in _format_today_plan([], {})
 
@@ -233,24 +233,24 @@ class _FakeProvider:
     def __init__(self, plan=None, source="missing", today=None):
         self._plan, self._source, self._today = plan, source, today or []
 
-    async def fetch(self, elder_id, tenant_id, history_limit=8):
-        from backend.core.care_plan_provider import CarePlanBundle
-        return CarePlanBundle(plan=self._plan, history=[],
+    async def fetch(self, site_id, tenant_id, history_limit=8):
+        from backend.core.service_plan_provider import ServicePlanBundle
+        return ServicePlanBundle(plan=self._plan, history=[],
                               plan_source=self._source, data_source="local")
 
-    async def today_plan(self, elder_id, tenant_id):
+    async def today_plan(self, site_id, tenant_id):
         return self._today
 
 
-def _patch_session(monkeypatch, elder_id="e001"):
+def _patch_session(monkeypatch, site_id="e001"):
     async def _get(session_id, tenant_id="tenant_default"):
-        return {"session_id": session_id, "elder_id": elder_id}
-    monkeypatch.setattr("backend.db.repositories.get_care_flow_session", _get)
+        return {"session_id": session_id, "site_id": site_id}
+    monkeypatch.setattr("backend.db.repositories.get_work_flow_session", _get)
 
 
 async def test_plan_overview_returns_full_picture(monkeypatch):
     """一个接口给足前端：护理等级 / 服务项 / 当天计划 / 进度 / 计划来源。"""
-    from backend.api.v1.care_flow import get_plan_overview
+    from backend.api.v1.work_flow import get_plan_overview
 
     _patch_session(monkeypatch)
     today = [{"plan_item_id": "dcp-1", "project_name": "协助翻身",
@@ -258,9 +258,9 @@ async def test_plan_overview_returns_full_picture(monkeypatch):
              {"plan_item_id": "dcp-2", "project_name": "用药协助",
               "nurse_time": "12:00-13:00", "status": "planned"}]
     monkeypatch.setattr(
-        "backend.core.care_plan_provider.get_care_plan_provider",
+        "backend.core.service_plan_provider.get_service_plan_provider",
         lambda: _FakeProvider(
-            plan={"care_level": "介助", "special_notes": "高血压",
+            plan={"risk_tier": "介助", "special_notes": "高血压",
                   "service_items": [{"project_name": "协助翻身", "is_required": True}]},
             source="merged", today=today))
 
@@ -268,7 +268,7 @@ async def test_plan_overview_returns_full_picture(monkeypatch):
 
     assert out["plan_missing"] is False
     assert out["plan_source"] == "merged"
-    assert out["care_level"] == "介助"
+    assert out["risk_tier"] == "介助"
     assert len(out["service_items"]) == 1
     assert len(out["today_plan"]) == 2
     assert out["progress"] == {"total": 2, "done": 1, "missed": 0, "pending": 1}
@@ -277,11 +277,11 @@ async def test_plan_overview_returns_full_picture(monkeypatch):
 
 async def test_plan_overview_missing_plan_gives_guidance(monkeypatch):
     """没有计划时返回明确引导，并跳过当天计划查询（不渲染空表格）。"""
-    from backend.api.v1.care_flow import get_plan_overview
+    from backend.api.v1.work_flow import get_plan_overview
 
     _patch_session(monkeypatch)
     provider = _FakeProvider(plan=None, source="missing")
-    monkeypatch.setattr("backend.core.care_plan_provider.get_care_plan_provider",
+    monkeypatch.setattr("backend.core.service_plan_provider.get_service_plan_provider",
                         lambda: provider)
 
     out = await get_plan_overview("sess-1", current_user=USER)
@@ -297,11 +297,11 @@ async def test_plan_overview_404_for_unknown_session(monkeypatch):
     """会话不存在或跨租户 → 404（不泄露会话是否存在）。"""
     import pytest
     from fastapi import HTTPException
-    from backend.api.v1.care_flow import get_plan_overview
+    from backend.api.v1.work_flow import get_plan_overview
 
     async def _none(session_id, tenant_id="tenant_default"):
         return None
-    monkeypatch.setattr("backend.db.repositories.get_care_flow_session", _none)
+    monkeypatch.setattr("backend.db.repositories.get_work_flow_session", _none)
 
     with pytest.raises(HTTPException) as exc:
         await get_plan_overview("nope", current_user=USER)
@@ -312,7 +312,7 @@ async def test_confirm_rejects_unknown_status(monkeypatch):
     """回写状态只接受 done/missed——避免外部写入语义不明的值污染执行记录。"""
     import pytest
     from fastapi import HTTPException
-    from backend.api.v1.care_flow import PlanItemConfirmRequest, confirm_plan_item
+    from backend.api.v1.work_flow import PlanItemConfirmRequest, confirm_plan_item
 
     with pytest.raises(HTTPException) as exc:
         await confirm_plan_item("dcp-1", PlanItemConfirmRequest(status="whatever"),
@@ -322,7 +322,7 @@ async def test_confirm_rejects_unknown_status(monkeypatch):
 
 async def test_confirm_writes_back_operator(monkeypatch):
     """回写要带上执行人，审计才有意义。"""
-    from backend.api.v1.care_flow import PlanItemConfirmRequest, confirm_plan_item
+    from backend.api.v1.work_flow import PlanItemConfirmRequest, confirm_plan_item
 
     seen = {}
 
@@ -331,7 +331,7 @@ async def test_confirm_writes_back_operator(monkeypatch):
             seen.update(plan_item_id=plan_item_id, tenant_id=tenant_id, **kw)
             return True
 
-    monkeypatch.setattr("backend.core.care_plan_provider.get_care_plan_provider",
+    monkeypatch.setattr("backend.core.service_plan_provider.get_service_plan_provider",
                         lambda: _Provider())
 
     out = await confirm_plan_item(
@@ -339,5 +339,5 @@ async def test_confirm_writes_back_operator(monkeypatch):
         current_user=USER)
 
     assert out["confirmed"] is True
-    assert seen["carer_id"] == "u-supervisor"
+    assert seen["worker_id"] == "u-supervisor"
     assert seen["actual_care_time"] == "08:05"

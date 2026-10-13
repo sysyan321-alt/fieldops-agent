@@ -87,7 +87,7 @@ async def test_assessment_export_docx(client, auth_headers):
     assessment_id = make_id("export-asmt")
     await save_assessment_result(
         assessment_id=assessment_id,
-        elder_id="e001",
+        site_id="e001",
         dimension_scores=[
             {"dimension": "ADL 日常生活能力", "score": 60, "weight": 0.30},
             {"dimension": "认知功能", "score": 70, "weight": 0.25},
@@ -95,10 +95,10 @@ async def test_assessment_export_docx(client, auth_headers):
         weighted_score=64.5,
         summary_payload={
             "summary": {"overall_comment": "整体自理能力中等，需重点防跌倒。",
-                        "care_level_recommendation": "介助"},
+                        "risk_tier_recommendation": "介助"},
             "issues": [{"priority": "high", "description": "跌倒风险偏高",
                         "suggestion": "加装床栏并加强夜间巡视"}],
-            "structured": {"name": "张明德", "age": 78, "care_level": "介助"},
+            "structured": {"name": "张明德", "age": 78, "risk_tier": "介助"},
         },
     )
 
@@ -121,22 +121,22 @@ async def test_assessment_export_404(client, auth_headers):
     assert resp.status_code == 404
 
 
-async def test_care_flow_export_docx(client, auth_headers):
+async def test_work_flow_export_docx(client, auth_headers):
     """写入一条照护报告 → 导出 Word 成功。"""
-    from backend.db.repositories import save_care_flow_report
+    from backend.db.repositories import save_work_flow_report
 
     session_id = make_id("export-flow")
-    await save_care_flow_report(
+    await save_work_flow_report(
         session_id=session_id,
-        elder_id="e001",
-        care_plan_id="plan-001",
+        site_id="e001",
+        service_plan_id="plan-001",
         stage_reached="finished",
         total_turns=12,
         report={"content": "照护流程执行完毕，老人状态稳定。",
                 "recommendation": "维持当前照护等级"},
     )
 
-    resp = await client.get(f"/api/v1/care-flow/{session_id}/report/export",
+    resp = await client.get(f"/api/v1/work-flow/{session_id}/report/export",
                             headers=auth_headers)
     assert resp.status_code == 200, resp.text
     assert _is_docx(resp.content)
@@ -147,7 +147,7 @@ async def test_care_flow_export_docx(client, auth_headers):
     assert "照护流程执行完毕" in xml
 
 
-async def test_care_flow_export_404(client, auth_headers):
-    resp = await client.get(f"/api/v1/care-flow/{make_id('none')}/report/export",
+async def test_work_flow_export_404(client, auth_headers):
+    resp = await client.get(f"/api/v1/work-flow/{make_id('none')}/report/export",
                             headers=auth_headers)
     assert resp.status_code == 404

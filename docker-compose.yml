@@ -1,4 +1,4 @@
-# docker-compose.yml — CareAgent 养老照护智能体本地开发环境
+# docker-compose.yml — FieldOps 养老照护智能体本地开发环境
 # 启动：docker compose up -d（默认值与 .env.local 一致，亦可 --env-file .env.local 覆盖）
 
 services:
@@ -6,11 +6,11 @@ services:
   # ── PostgreSQL 主数据库（对外 5433，本机 5432 已占用）──
   postgres:
     image: postgres:15-alpine
-    container_name: care_agent_postgres
+    container_name: fieldops_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${DB_NAME:-careagent}
-      POSTGRES_USER: ${DB_USER:-careagent_user}
+      POSTGRES_DB: ${DB_NAME:-fieldops}
+      POSTGRES_USER: ${DB_USER:-fieldops_user}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-123456}
       PGTZ: Asia/Shanghai
     volumes:
@@ -20,7 +20,7 @@ services:
     ports:
       - "5433:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-careagent_user} -d ${DB_NAME:-careagent}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-fieldops_user} -d ${DB_NAME:-fieldops}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -28,7 +28,7 @@ services:
   # ── Redis 缓存（对外 6380，本机 6379 已占用）──
   redis:
     image: redis:7-alpine
-    container_name: care_agent_redis
+    container_name: fieldops_redis
     restart: unless-stopped
     command: redis-server --appendonly yes
     volumes:
@@ -44,7 +44,7 @@ services:
   # ── etcd（Milvus 元数据存储，仅内部使用，不对外暴露端口）──
   etcd:
     image: quay.io/coreos/etcd:v3.5.14
-    container_name: care_agent_etcd
+    container_name: fieldops_etcd
     restart: unless-stopped
     environment:
       ETCD_AUTO_COMPACTION_MODE: revision
@@ -61,7 +61,7 @@ services:
   # ── MinIO（Milvus 向量文件存储，对外 9002/9003）──
   minio:
     image: minio/minio:RELEASE.2025-04-22T22-12-26Z
-    container_name: care_agent_minio
+    container_name: fieldops_minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
@@ -81,7 +81,7 @@ services:
   # ── Milvus 向量数据库（对外 19531，本机 19530 已占用）──
   milvus:
     image: milvusdb/milvus:v2.4.0
-    container_name: care_agent_milvus
+    container_name: fieldops_milvus
     restart: unless-stopped
     command: ["milvus", "run", "standalone"]
     environment:

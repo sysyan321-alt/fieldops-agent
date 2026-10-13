@@ -1,7 +1,7 @@
 <template>
   <div class="sidebar">
     <div class="logo">
-      <span>🏥 CareAgent</span>
+      <span>🏥 FieldOps</span>
     </div>
     <nav class="nav-list">
       <RouterLink to="/dashboard" class="nav-item" :class="{ 'nav-item--active': isActive('/dashboard') }">
@@ -19,7 +19,7 @@
         <span>SOP 问答</span>
       </RouterLink>
 
-      <RouterLink to="/care-flow" class="nav-item" :class="{ 'nav-item--active': isActive('/care-flow') }">
+      <RouterLink to="/work-flow" class="nav-item" :class="{ 'nav-item--active': isActive('/work-flow') }">
         <el-icon><FirstAidKit /></el-icon>
         <span>照护流程</span>
       </RouterLink>

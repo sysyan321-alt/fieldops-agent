@@ -2,13 +2,13 @@
 # 会话记忆测试：窗口裁剪、摘要触发判据、摘要是否真的写回 state。
 #
 # 为什么单独测：这三件事曾经"文档写了、代码没落地"——
-#   ① trim_messages_to_window 只在 care_flow 用、且窗口是 6 轮，SOP 问答压根没裁；
+#   ① trim_messages_to_window 只在 work_flow 用、且窗口是 6 轮，SOP 问答压根没裁；
 #   ② should_trigger_summary 用取模判断，只有恰好 20/40… 条消息才触发；
 #   ③ save_memory 算完摘要只打日志、不写回 state，下一轮拿到的仍是 None（白花一次 LLM 调用）。
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
-from backend.agents.care_flow.nodes import save_memory_node as care_flow_save_memory
+from backend.agents.work_flow.nodes import save_memory_node as work_flow_save_memory
 from backend.agents.sop_qa.nodes import save_memory_node as sop_qa_save_memory
 from backend.core import memory as memory_mod
 from backend.core.memory import should_trigger_summary, trim_messages_to_window
@@ -92,15 +92,15 @@ async def test_sop_qa_save_memory_skips_when_not_needed(monkeypatch):
     assert "existing_summary" not in update
 
 
-async def test_care_flow_save_memory_writes_summary_back(monkeypatch):
+async def test_work_flow_save_memory_writes_summary_back(monkeypatch):
     """照护流程同样写回摘要（它下一轮 generate_response 会读）。"""
     async def _fake_summary(messages, existing_summary=None):
         return "【摘要】照护流程进度：日常照护第 3 轮"
 
-    monkeypatch.setattr("backend.agents.care_flow.nodes.compress_to_summary", _fake_summary)
+    monkeypatch.setattr("backend.agents.work_flow.nodes.compress_to_summary", _fake_summary)
     messages = _dialogue(10)
 
-    update = await care_flow_save_memory({
+    update = await work_flow_save_memory({
         "session_id": "c1", "messages": messages, "should_summarize": True,
         "existing_summary": "【旧摘要】",
     })
@@ -186,7 +186,7 @@ async def test_summary_survives_next_turn_within_same_thread(monkeypatch):
 
     graph = await build_sop_qa_graph()
     config = build_config("e-mem", "sess-mem", agent_type="sop_qa")
-    base = {"tenant_id": "tenant_default", "elder_id": "e-mem", "session_id": "sess-mem",
+    base = {"tenant_id": "tenant_default", "site_id": "e-mem", "session_id": "sess-mem",
             "enable_web_search": False}
 
     # 第 1 轮：带 20 条历史 → 触发压缩

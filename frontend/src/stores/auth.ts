@@ -3,16 +3,16 @@ import { ref, computed } from 'vue'
 
 interface UserInfo {
   userId: string
-  role: 'caregiver' | 'supervisor' | 'admin'
+  role: 'worker' | 'supervisor' | 'admin'
   tenantId: string
   username?: string
 }
 
 export const useAuthStore = defineStore('auth', () => {
-  const token = ref<string | null>(localStorage.getItem('care-agent-token'))
+  const token = ref<string | null>(localStorage.getItem('fieldops-agent-token'))
   const user = ref<UserInfo | null>((() => {
     try {
-      return JSON.parse(localStorage.getItem('care-agent-user') ?? 'null')
+      return JSON.parse(localStorage.getItem('fieldops-agent-user') ?? 'null')
     } catch {
       return null
     }
@@ -26,15 +26,15 @@ export const useAuthStore = defineStore('auth', () => {
   function login(accessToken: string, userInfo: UserInfo) {
     token.value = accessToken
     user.value = userInfo
-    localStorage.setItem('care-agent-token', accessToken)
-    localStorage.setItem('care-agent-user', JSON.stringify(userInfo))
+    localStorage.setItem('fieldops-agent-token', accessToken)
+    localStorage.setItem('fieldops-agent-user', JSON.stringify(userInfo))
   }
 
   function logout() {
     token.value = null
     user.value = null
-    localStorage.removeItem('care-agent-token')
-    localStorage.removeItem('care-agent-user')
+    localStorage.removeItem('fieldops-agent-token')
+    localStorage.removeItem('fieldops-agent-user')
   }
 
   return { token, user, isLoggedIn, isSupervisor, login, logout }

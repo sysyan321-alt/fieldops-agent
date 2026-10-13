@@ -11,7 +11,7 @@ const client = axios.create({
 
 // 请求拦截器：注入 JWT（懒加载 store 避免循环依赖）
 client.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const token = localStorage.getItem('care-agent-token')
+  const token = localStorage.getItem('fieldops-agent-token')
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
 })

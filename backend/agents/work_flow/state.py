@@ -1,4 +1,4 @@
-# backend/agents/care_flow/state.py
+# backend/agents/work_flow/state.py
 # 照护流程 Agent 的状态定义
 
 from typing import Annotated, Optional
@@ -9,13 +9,13 @@ from pydantic import BaseModel, Field
 from enum import Enum
 
 
-class CareStage(str, Enum):
+class WorkStage(str, Enum):
     """照护流程的四个阶段（异常处理改为日常照护内的子模式，不再作为独立阶段）。
 
     设计取舍：异常是事件不是阶段——晨间护理发现压红、鼻饲时发现胃液异常
     本就是日常照护动作中发现的，把它做成独立阶段会导致：①老人没异常时空转；
     ②日常上下文被打散；③报告里"异常处理阶段得分"语义错位。
-    正确做法是日常照护内用 daily_care_mode 字段切换 normal/abnormal 模式。
+    正确做法是日常照护内用 daily_mode 字段切换 normal/abnormal 模式。
     """
     ADMISSION_ASSESSMENT = "admission_assessment"  # 入住评估
     DAILY_CARE           = "daily_care"             # 日常照护（内含异常子模式）
@@ -51,40 +51,40 @@ class DimensionEval(BaseModel):
     weaknesses:   list[str] = Field(default_factory=list, description="薄弱点列举")
 
 
-class CareReport(BaseModel):
+class WorkReport(BaseModel):
     """照护流程评估报告"""
     dimensions:         list[DimensionEval]
     overall_score:      int       = Field(description="综合得分 0-100（各维度加权平均）")
     strengths:          list[str] = Field(description="2-3条核心优势")
     improvements:       list[str] = Field(description="2-3条重点提升方向")
-    care_suggestions:   list[str] = Field(description="2-3条照护建议")
+    service_suggestions:   list[str] = Field(description="2-3条照护建议")
     next_review_date:   str       = Field(description="下次复评建议日期")
 
 
-class CareFlowState(TypedDict):
+class WorkFlowState(TypedDict):
     """照护流程 Agent 完整 State（跨轮由 checkpointer 持久化，默认 AsyncPostgresSaver 落 PostgreSQL）"""
 
     # ── 请求上下文 ──
     messages:           Annotated[list[BaseMessage], add_messages]
-    elder_id:           str
+    site_id:           str
     tenant_id:          str
     session_id:         str
-    care_plan_id:       str           # 照护计划 ID
+    service_plan_id:       str           # 照护计划 ID
 
     # ── 阶段控制 ──
-    current_stage:        str           # 当前阶段，CareStage 枚举值
+    current_stage:        str           # 当前阶段，WorkStage 枚举值
     stage_turn_count:     int           # 当前阶段已进行的轮数
     total_turn_count:     int           # 总轮数（跨阶段累计）
     max_turns:            int           # 轮数上限，默认 40
-    daily_care_mode:      str           # 日常照护子模式：normal / abnormal
+    daily_mode:      str           # 日常照护子模式：normal / abnormal
     abnormal_turn_count:  int           # 异常子模式内的轮数（仅 abnormal 累计）
     discharge_order:      Optional[dict]  # 退住工单（SaaS 注入，None=续住；阶段复评时据此决定出院评估 or 回日常照护）
 
     # ── 照护计划与历史 ──
-    care_plan:          Optional[dict]  # 照护计划（来自 Provider：业务服务项 + 评估结论）
-    care_plan_missing:  bool            # 计划缺失（取不到数据时为 True，流程不推进）
+    service_plan:          Optional[dict]  # 照护计划（来自 Provider：业务服务项 + 评估结论）
+    service_plan_missing:  bool            # 计划缺失（取不到数据时为 True，流程不推进）
     plan_source:        str             # 计划来源：pipeline/service_items/ai_assessment/merged/missing
-    care_history:       list[dict]      # 照护历史记录（真实记录，取不到就是空）
+    service_history:       list[dict]      # 照护历史记录（真实记录，取不到就是空）
     today_plan:         list[dict]      # 当天照护计划（含执行状态，来自 Provider）
     plan_progress:      dict            # 当天进度 {total, done, missed, pending}
 
@@ -98,7 +98,7 @@ class CareFlowState(TypedDict):
     should_summarize:    bool           # 本轮是否需要触发摘要压缩
 
     # ── 评估结果 ──
-    report:              Optional[dict]  # CareReport.model_dump()
+    report:              Optional[dict]  # WorkReport.model_dump()
 
     # ── 降级标记 ──
     fallback_used:       bool

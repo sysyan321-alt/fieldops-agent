@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# scripts/start.sh — CareAgent 一键启动/停止脚本
+# scripts/start.sh — FieldOps 一键启动/停止脚本
 #
 # 用法：
 #   ./scripts/start.sh                  # 基础设施 + （首次自动）初始化数据 + 后端
@@ -13,7 +13,7 @@
 # 设计说明：
 # 1) 脚本会 export .env.local，这样 docker compose 与 scripts/*.py（只读 os.getenv 的脚本）
 #    拿到的是同一套数据库/模型配置，避免"容器里是 A、脚本连 B"的连接失败。
-# 2) 种子数据与 Milvus 知识库都不是幂等的（seed 的 care_records 会主键冲突，
+# 2) 种子数据与 Milvus 知识库都不是幂等的（seed 的 service_records 会主键冲突，
 #    init_milvus 会 drop 集合重建），因此默认只在检测到"数据为空"时才执行。
 
 set -euo pipefail
@@ -30,16 +30,16 @@ NO_RELOAD=0
 DRY_RUN=0
 MODE="start"
 
-CONTAINERS=(care_agent_postgres care_agent_redis care_agent_milvus)
+CONTAINERS=(fieldops_postgres fieldops_redis fieldops_milvus)
 
 # ── 输出helpers ────────────────────────────────────────────────
-log()  { printf '\033[1;36m[CareAgent]\033[0m %s\n' "$*"; }
-warn() { printf '\033[1;33m[CareAgent]\033[0m %s\n' "$*" >&2; }
-die()  { printf '\033[1;31m[CareAgent]\033[0m %s\n' "$*" >&2; exit 1; }
+log()  { printf '\033[1;36m[FieldOps]\033[0m %s\n' "$*"; }
+warn() { printf '\033[1;33m[FieldOps]\033[0m %s\n' "$*" >&2; }
+die()  { printf '\033[1;31m[FieldOps]\033[0m %s\n' "$*" >&2; exit 1; }
 
 run() {
   if [ "$DRY_RUN" = "1" ]; then
-    printf '\033[1;36m[CareAgent]\033[0m   $ %s\n' "$*"
+    printf '\033[1;36m[FieldOps]\033[0m   $ %s\n' "$*"
     return 0
   fi
   "$@"
@@ -147,10 +147,10 @@ check_deps() {
 ensure_seed_data() {
   local count
   count="$("${COMPOSE_BIN[@]}" --env-file "$ENV_FILE" exec -T postgres \
-    psql -U "$DB_USER" -d "${DB_NAME:-careagent}" -tAc \
-    "SELECT count(*) FROM elders" 2>/dev/null || echo "0")"
+    psql -U "$DB_USER" -d "${DB_NAME:-fieldops}" -tAc \
+    "SELECT count(*) FROM sites" 2>/dev/null || echo "0")"
   if [ "$FORCE_INIT_DATA" = "0" ] && [ "${count:-0}" != "0" ]; then
-    log "种子数据已存在（elders=${count}），跳过"
+    log "种子数据已存在（sites=${count}），跳过"
     return 0
   fi
   log "导入种子数据（老人/设备/照护记录）…"
@@ -220,9 +220,9 @@ start_backend() {
   local args=(backend.main:app --host "${APP_HOST:-0.0.0.0}" --port "${APP_PORT:-8000}")
   [ "$NO_RELOAD" = "0" ] && args+=(--reload)
   if [ "$WITH_FRONTEND" = "1" ]; then
-    log "后台启动后端（日志：/tmp/care_agent_backend.log）…"
+    log "后台启动后端（日志：/tmp/fieldops_backend.log）…"
     if [ "$DRY_RUN" = "0" ]; then
-      "$PYTHON" -m uvicorn "${args[@]}" >/tmp/care_agent_backend.log 2>&1 &
+      "$PYTHON" -m uvicorn "${args[@]}" >/tmp/fieldops_backend.log 2>&1 &
       BACKEND_PID=$!
       trap 'kill "$BACKEND_PID" 2>/dev/null || true' EXIT
     else

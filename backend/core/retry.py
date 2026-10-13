@@ -107,7 +107,7 @@ class AgentFallbackHandler:
             "assessment":  cls._assessment_fallback,
             "sop_qa":       cls._sop_qa_fallback,
             "alert":        cls._alert_fallback,
-            "care_flow":    cls._care_flow_fallback,
+            "work_flow":    cls._work_flow_fallback,
         }
         handler = fallback_map.get(agent_type)        # 查表
         if handler:
@@ -145,9 +145,9 @@ class AgentFallbackHandler:
         }
 
     @classmethod
-    async def _care_flow_fallback(cls) -> dict:
+    async def _work_flow_fallback(cls) -> dict:
         """照护流程降级：记录本次对话，提示稍后查看。"""
-        logger.info("fallback.care_flow_basic_feedback")
+        logger.info("fallback.work_flow_basic_feedback")
         return {
             "fallback_used": True,
             "content": "⚠️ 照护流程服务暂时不可用，已记录本次对话，请稍后查看。",
@@ -161,7 +161,7 @@ def _system_fallback_response(agent_type: str) -> dict:
         "assessment":  "非常抱歉，评估服务暂时不可用，请稍后再试，或联系护理主管手动评估。",
         "sop_qa":      "非常抱歉，护理问答服务暂时不可用，请稍后再试，或查阅纸质护理手册。",
         "alert":       "非常抱歉，告警研判服务暂时不可用，本次告警已转交站长人工核实。",
-        "care_flow":   "非常抱歉，照护流程服务暂时不可用，请稍后重新开始。",
+        "work_flow":   "非常抱歉，照护流程服务暂时不可用，请稍后重新开始。",
     }
     content = messages.get(agent_type, "服务暂时不可用，请稍后再试。")  # 找不到就用通用提示
     return {

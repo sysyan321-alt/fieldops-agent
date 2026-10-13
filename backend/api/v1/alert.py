@@ -19,7 +19,7 @@ router = APIRouter(prefix="/alert")
 
 class AlertTriggerRequest(BaseModel):
     """告警触发请求。"""
-    elder_id:        str
+    site_id:        str
     device_id:       str
     alert_type:      str = "heart_rate_abnormal"
     alert_timestamp: str = ""
@@ -42,7 +42,7 @@ class AlertIngestRequest(BaseModel):
     """
     external_alert_id: str           # 业务系统的报警记录 ID（回写关联与幂等键）
     device_id:       str
-    elder_id:        str
+    site_id:        str
     device_type:     str = ""             # SaaS 的设备类型（中文名或编码，care 侧解析）
     alert_content:   str = ""             # 报警内容
     location:        str = ""             # 报警位置
@@ -87,7 +87,7 @@ async def trigger_alert(
     current_user: dict = Depends(get_current_user),
 ):
     """触发告警研判，返回 interrupt 暂停点数据。"""
-    if current_user["role"] not in ("caregiver", "supervisor", "admin"):
+    if current_user["role"] not in ("worker", "supervisor", "admin"):
         raise HTTPException(status_code=403, detail="无权限")
 
     alert_id = f"alert-{uuid.uuid4().hex[:12]}"
@@ -96,7 +96,7 @@ async def trigger_alert(
     orchestrator = get_orchestrator()
     request = AgentRequest(
         staff_id=current_user["user_id"],
-        elder_id=req.elder_id,
+        site_id=req.site_id,
         tenant_id=current_user["tenant_id"],
         session_id=session_id,
         agent_type="alert",
@@ -124,7 +124,7 @@ async def _run_alert_assessment(
     *,
     alert_id: str,
     session_id: str,
-    elder_id: str,
+    site_id: str,
     device_id: str,
     alert_type: str,
     alert_timestamp: str,
@@ -138,7 +138,7 @@ async def _run_alert_assessment(
     orchestrator = get_orchestrator()
     request = AgentRequest(
         staff_id=current_user["user_id"],
-        elder_id=elder_id,
+        site_id=site_id,
         tenant_id=current_user["tenant_id"],
         session_id=session_id,
         agent_type="alert",
@@ -170,7 +170,7 @@ async def ingest_alert(
 
     幂等：同一 (租户, external_alert_id) 只会研判一次；重复下发直接返回既有研判。
     """
-    if current_user["role"] not in ("caregiver", "supervisor", "admin"):
+    if current_user["role"] not in ("worker", "supervisor", "admin"):
         raise HTTPException(status_code=403, detail="无权限")
 
     tenant_id = current_user["tenant_id"]
@@ -191,7 +191,7 @@ async def ingest_alert(
     alert_type = req.alert_type or _infer_alert_type(req.device_type, req.alert_content)
     alert_id = f"alert-{uuid.uuid4().hex[:12]}"
     result = await _run_alert_assessment(
-        alert_id=alert_id, session_id=alert_id, elder_id=req.elder_id,
+        alert_id=alert_id, session_id=alert_id, site_id=req.site_id,
         device_id=req.device_id, alert_type=alert_type,
         alert_timestamp=req.alert_time, current_user=current_user,
         source="saas", external_alert_id=req.external_alert_id, alert_location=req.location,
@@ -225,14 +225,14 @@ async def get_alert_review(
 
     return {
         "alert_id": row["alert_id"],
-        "elder_id": row["elder_id"],
+        "site_id": row["site_id"],
         "device_id": row["device_id"],
         "alert_type": row["alert_type"],
         "status": row["status"],
         "risk_level": row["risk_level"],
         "risk_assessment": row.get("risk_assessment", {}),
         "device_readings": row.get("three_tracks", {}).get("device_readings", []),
-        "care_records": row.get("three_tracks", {}).get("care_records", []),
+        "service_records": row.get("three_tracks", {}).get("service_records", []),
         "health_indicators": row.get("three_tracks", {}).get("health_indicators", []),
         "assessment_snapshot": row.get("three_tracks", {}).get("assessment_snapshot"),
         # 证据完整性：站长要能一眼看出"这次研判有几轨是真的有数据"
@@ -240,7 +240,7 @@ async def get_alert_review(
         "evidence_quality": row.get("three_tracks", {}).get("evidence_quality", ""),
         "evidence_gaps": row.get("three_tracks", {}).get("evidence_gaps", []),
         # 对接机构 SaaS 报警记录的字段（SaaS 下发的报警要能按 external_alert_id 追溯与回写）
-        "source": row.get("source", "care"),
+        "source": row.get("source", "local"),
         "external_alert_id": row.get("external_alert_id", ""),
         "location": row.get("location", ""),
         "handled_by": row.get("handled_by", ""),
@@ -270,10 +270,10 @@ async def confirm_alert(
     from backend.agents.alert.graph import build_alert_graph
     graph = await build_alert_graph()
 
-    # thread_id 必须与触发时一致：Orchestrator 用 build_config(elder_id, session_id) 构造，
-    # 而告警场景 session_id == alert_id，所以这里必须传 elder_id 而不是 alert_id
+    # thread_id 必须与触发时一致：Orchestrator 用 build_config(site_id, session_id) 构造，
+    # 而告警场景 session_id == alert_id，所以这里必须传 site_id 而不是 alert_id
     # agent_type 也要一致：它写进 config 的 checkpoint_ns，两端不匹配同样找不到断点
-    config = build_config(alert_row["elder_id"], alert_id, agent_type="alert")
+    config = build_config(alert_row["site_id"], alert_id, agent_type="alert")
     decision = {
         "action": req.action,
         "modified_actions": req.modified_actions,

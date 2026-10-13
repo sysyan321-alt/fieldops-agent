@@ -29,7 +29,7 @@ def _build_initial_state(query: str, session_id: str) -> dict:
     """构造单次查询的初始 State。"""
     return {
         "messages":          [HumanMessage(content=query)],
-        "elder_id":          ELDER_ID,
+        "site_id":          ELDER_ID,
         "tenant_id":         "tenant_default",
         "session_id":        session_id,
         "org_id":            None,

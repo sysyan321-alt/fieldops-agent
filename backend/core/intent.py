@@ -35,7 +35,7 @@ class IntentAgentType(str, Enum):
     ASSESSMENT = "assessment"   # 老年人能力评估
     SOP_QA     = "sop_qa"       # 护理 SOP 问答 / 通用问答兜底
     ALERT      = "alert"        # 告警研判
-    CARE_FLOW  = "care_flow"   # 照护流程
+    CARE_FLOW  = "work_flow"   # 照护流程
 
 
 class IntentClassification(BaseModel):
@@ -47,7 +47,7 @@ class IntentClassification(BaseModel):
             "路由目标 Agent。"
             "assessment=老人能力评估（明确要做评估/复评动作）；"
             "alert=设备告警/心率异常/跌倒事件实时研判；"
-            "care_flow=照护计划/入住出院流程执行；"
+            "work_flow=照护计划/入住出院流程执行；"
             "sop_qa=护理 SOP 知识问答或通用闲聊兜底。"
         ),
     )
@@ -87,7 +87,7 @@ INTENT_SYSTEM_PROMPT = """你是养老机构 AI 照护智能体的意图识别�
 【下游 Agent 职责】
 - assessment：老年人能力评估。触发词：要做评估、复评、ADL 评分、入住评估、营养/认知/跌倒风险「评估动作」。
 - alert：设备告警实时研判。触发词：心率异常、跌倒事件、离床报警、设备报警、紧急情况。
-- care_flow：照护流程执行。触发词：照护计划、入住流程、出院流程、日常照护任务、阶段执行。
+- work_flow：照护流程执行。触发词：照护计划、入住流程、出院流程、日常照护任务、阶段执行。
 - sop_qa：护理 SOP 知识问答 + 通用闲聊兜底。问护理操作规范、并发症处理、护理知识、或非业务闲聊。
 
 【跨域冲突样本（重点）】

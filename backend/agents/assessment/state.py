@@ -12,13 +12,13 @@ from pydantic import BaseModel, Field
 # 一、结构化提取结果（LLM 结构化输出的目标 Schema）
 # ──────────────────────────────────────────────────────────────
 
-class ElderBasicInfo(BaseModel):
+class SiteBasicInfo(BaseModel):
     """老人基本信息（从评估表 PDF 中提取）。"""
     name:        str = Field(description="老人姓名")
     age:         int = Field(description="年龄")
     gender:      str = Field(description="性别：男/女")
     room_no:     str = Field(default="", description="房间号")
-    care_level:  str = Field(default="", description="当前护理等级：自理/介助/介护")
+    risk_tier:  str = Field(default="", description="当前护理等级：自理/介助/介护")
     photo_path:  str = Field(default="", description="照片路径（可选）")
 
 
@@ -58,7 +58,7 @@ class DiagnosisAndSummary(BaseModel):
     highlights: list[str] = Field(description="2-3 条核心亮点")
     core_improvements: list[str] = Field(description="2-3 条最重要的改进方向")
     overall_comment: str = Field(description="1-2 句综合评语")
-    care_level_recommendation: str = Field(description="建议护理等级：自理/介助/介护")
+    risk_tier_recommendation: str = Field(description="建议护理等级：自理/介助/介护")
 
 
 class AssessmentSummary(BaseModel):
@@ -66,7 +66,7 @@ class AssessmentSummary(BaseModel):
     highlights:               list[str] = Field(description="2-3 条核心亮点")
     core_improvements:        list[str] = Field(description="2-3 条最重要的改进方向")
     overall_comment:          str       = Field(description="1-2 句综合评语")
-    care_level_recommendation: str      = Field(description="建议护理等级：自理/介助/介护")
+    risk_tier_recommendation: str      = Field(description="建议护理等级：自理/介助/介护")
 
 
 # ──────────────────────────────────────────────────────────────
@@ -78,7 +78,7 @@ class AssessmentState(TypedDict):
 
     # ── 请求上下文 ──
     messages:          Annotated[list[BaseMessage], add_messages]  # 对话消息（追加合并）
-    elder_id:          str
+    site_id:          str
     tenant_id:         str
     assessment_id:     str        # 评估记录 ID
     pdf_local_path:    str        # 本地临时文件路径
@@ -88,7 +88,7 @@ class AssessmentState(TypedDict):
     page_count:        int        # PDF 页数
 
     # ── 结构化提取结果 ──
-    structured:        Optional[dict]   # extract_structured 产出：ElderBasicInfo.model_dump()
+    structured:        Optional[dict]   # extract_structured 产出：SiteBasicInfo.model_dump()
 
     # ── 五维度评审结果 ──
     dimension_scores:  list[dict]     # run_five_dimensions 产出：五维度各一条

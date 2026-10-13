@@ -1,4 +1,4 @@
-# backend/api/v1/care_flow.py
+# backend/api/v1/work_flow.py
 # 照护流程 Agent API 路由
 
 import json
@@ -13,19 +13,19 @@ from backend.dependencies import get_current_user
 from backend.core.orchestrator import get_orchestrator, AgentRequest
 from backend.core.logger import get_logger
 
-router = APIRouter(prefix="/care-flow")
+router = APIRouter(prefix="/work-flow")
 logger = get_logger(__name__)
 
 
-class CareFlowStartRequest(BaseModel):
+class WorkFlowStartRequest(BaseModel):
     """启动照护流程请求。"""
-    elder_id:     str
-    care_plan_id: str = ""
+    site_id:     str
+    service_plan_id: str = ""
     initial_stage: str = "admission_assessment"
     discharge_order: dict | None = None  # SaaS 退住工单（入住时已知要出院可注入；None=续住）
 
 
-class CareFlowChatRequest(BaseModel):
+class WorkFlowChatRequest(BaseModel):
     """照护流程对话请求。"""
     session_id: str
     message:    str
@@ -58,8 +58,8 @@ def _mask_secret(secret: str) -> str:
 
 
 @router.post("/start")
-async def start_care_flow(
-    req: CareFlowStartRequest,
+async def start_work_flow(
+    req: WorkFlowStartRequest,
     current_user: dict = Depends(get_current_user),
 ):
     """启动照护流程会话。"""
@@ -68,13 +68,13 @@ async def start_care_flow(
     orchestrator = get_orchestrator()
     request = AgentRequest(
         staff_id=current_user["user_id"],
-        elder_id=req.elder_id,
+        site_id=req.site_id,
         tenant_id=current_user["tenant_id"],
         session_id=session_id,
-        agent_type="care_flow",
+        agent_type="work_flow",
         mode="single",
         context={
-            "care_plan_id": req.care_plan_id,
+            "service_plan_id": req.service_plan_id,
             "current_stage": req.initial_stage,
             "discharge_order": req.discharge_order,
         },
@@ -82,10 +82,10 @@ async def start_care_flow(
     result = await orchestrator.execute(request)
 
     # 会话登记（业务侧权威记录）：失败只记日志，不阻断流程发起
-    from backend.db.repositories import create_care_flow_session
-    await create_care_flow_session(
+    from backend.db.repositories import create_work_flow_session
+    await create_work_flow_session(
         session_id=session_id,
-        elder_id=req.elder_id,
+        site_id=req.site_id,
         staff_id=current_user["user_id"],
         current_stage=result.get("current_stage", req.initial_stage),
         tenant_id=current_user["tenant_id"],
@@ -107,8 +107,8 @@ async def start_care_flow(
 
 
 @router.post("/chat")
-async def care_flow_chat(
-    req: CareFlowChatRequest,
+async def work_flow_chat(
+    req: WorkFlowChatRequest,
     current_user: dict = Depends(get_current_user),
 ):
     """照护流程对话（SSE 流式响应）。"""
@@ -117,17 +117,17 @@ async def care_flow_chat(
 
         try:
             orchestrator = get_orchestrator()
-            # 从会话登记表找回 elder_id：/chat 请求不带 elder_id，
+            # 从会话登记表找回 site_id：/chat 请求不带 site_id，
             # 缺了它 thread_id 会退到 staff_id 拼键，与 /start 写入的检查点对不上。
-            from backend.db.repositories import get_care_flow_session
-            session_row = await get_care_flow_session(
+            from backend.db.repositories import get_work_flow_session
+            session_row = await get_work_flow_session(
                 req.session_id, tenant_id=current_user["tenant_id"])
             request = AgentRequest(
                 staff_id=current_user["user_id"],
-                elder_id=(session_row or {}).get("elder_id", ""),
+                site_id=(session_row or {}).get("site_id", ""),
                 tenant_id=current_user["tenant_id"],
                 session_id=req.session_id,
-                agent_type="care_flow",
+                agent_type="work_flow",
                 mode="single",
                 query=req.message,
                 context={"discharge_order": req.discharge_order} if req.discharge_order else {},
@@ -135,8 +135,8 @@ async def care_flow_chat(
             result = await orchestrator.execute(request)
 
             # 每轮同步会话进度到登记表（失败只记日志，不阻断对话）
-            from backend.db.repositories import update_care_flow_session_progress
-            await update_care_flow_session_progress(
+            from backend.db.repositories import update_work_flow_session_progress
+            await update_work_flow_session_progress(
                 session_id=req.session_id,
                 current_stage=result.get("current_stage", ""),
                 total_turns=result.get("total_turn_count", 0),
@@ -155,7 +155,7 @@ async def care_flow_chat(
                 "data": json.dumps({
                     "content": ai_message,
                     "current_stage": result.get("current_stage", ""),
-                    "daily_care_mode": result.get("daily_care_mode", "normal"),
+                    "daily_mode": result.get("daily_mode", "normal"),
                     "total_turn_count": result.get("total_turn_count", 0),
                 }, ensure_ascii=False),
             }
@@ -188,40 +188,40 @@ async def get_plan_overview(
     注意：这里**不跑 LangGraph**（不调 LLM），只读 Provider，所以很快；
     计划缺失时返回 plan_missing=true + 空列表，由前端展示引导。
     """
-    from backend.core.care_plan_provider import CarePlanProviderError, get_care_plan_provider
-    from backend.db.repositories import daily_plan_progress, get_care_flow_session
+    from backend.core.service_plan_provider import ServicePlanProviderError, get_service_plan_provider
+    from backend.db.repositories import daily_plan_progress, get_work_flow_session
 
-    session_row = await get_care_flow_session(session_id, tenant_id=current_user["tenant_id"])
+    session_row = await get_work_flow_session(session_id, tenant_id=current_user["tenant_id"])
     if not session_row:
         raise HTTPException(status_code=404, detail=f"会话不存在: {session_id}")
 
-    elder_id = session_row.get("elder_id", "")
+    site_id = session_row.get("site_id", "")
     tenant_id = current_user["tenant_id"]
-    provider = get_care_plan_provider()
+    provider = get_service_plan_provider()
 
     plan, plan_source, service_items, today_plan = None, "missing", [], []
     try:
-        bundle = await provider.fetch(elder_id, tenant_id)
+        bundle = await provider.fetch(site_id, tenant_id)
         plan, plan_source = bundle.plan, bundle.plan_source
         service_items = (plan or {}).get("service_items") or []
-    except CarePlanProviderError as e:
-        logger.error("care_flow.plan_overview_provider_failed", elder_id=elder_id, error=str(e))
+    except ServicePlanProviderError as e:
+        logger.error("work_flow.plan_overview_provider_failed", site_id=site_id, error=str(e))
     except Exception as e:  # noqa: BLE001
-        logger.warning("care_flow.plan_overview_failed", elder_id=elder_id, error=str(e))
+        logger.warning("work_flow.plan_overview_failed", site_id=site_id, error=str(e))
 
     plan_missing = not plan
     if not plan_missing:
         try:
-            today_plan = await provider.today_plan(elder_id, tenant_id)
+            today_plan = await provider.today_plan(site_id, tenant_id)
         except Exception as e:  # noqa: BLE001
-            logger.warning("care_flow.plan_overview_today_failed", elder_id=elder_id, error=str(e))
+            logger.warning("work_flow.plan_overview_today_failed", site_id=site_id, error=str(e))
 
     return {
         "session_id": session_id,
-        "elder_id": elder_id,
+        "site_id": site_id,
         "plan_missing": plan_missing,
         "plan_source": plan_source,
-        "care_level": (plan or {}).get("care_level", ""),
+        "risk_tier": (plan or {}).get("risk_tier", ""),
         "special_notes": (plan or {}).get("special_notes", ""),
         "service_items": service_items,
         "today_plan": today_plan,
@@ -242,18 +242,18 @@ async def get_today_plan(
     用途：护理员的手持机/前端进日常照护时先拉一次，知道"今天还剩哪几项没做"；
     care 侧对计划只读（生成规则在业务侧），只有 confirm 才回写。
     """
-    from backend.db.repositories import daily_plan_progress, get_care_flow_session
-    from backend.core.care_plan_provider import get_care_plan_provider
+    from backend.db.repositories import daily_plan_progress, get_work_flow_session
+    from backend.core.service_plan_provider import get_service_plan_provider
 
-    session_row = await get_care_flow_session(session_id, tenant_id=current_user["tenant_id"])
+    session_row = await get_work_flow_session(session_id, tenant_id=current_user["tenant_id"])
     if not session_row:
         raise HTTPException(status_code=404, detail=f"会话不存在: {session_id}")
 
-    elder_id = session_row.get("elder_id", "")
-    plan = await get_care_plan_provider().today_plan(elder_id, current_user["tenant_id"])
+    site_id = session_row.get("site_id", "")
+    plan = await get_service_plan_provider().today_plan(site_id, current_user["tenant_id"])
     return {
         "session_id": session_id,
-        "elder_id": elder_id,
+        "site_id": site_id,
         "plan": plan,
         "progress": daily_plan_progress(plan),
     }
@@ -262,7 +262,7 @@ async def get_today_plan(
 class PlanItemConfirmRequest(BaseModel):
     """护工执行回写（对应业务系统侧的执行结果回写接口）。"""
     status:           str = "done"   # done=完成 / missed=该做没做
-    carer_name:       str = ""
+    worker_name:       str = ""
     actual_care_time: str = ""
 
 
@@ -274,31 +274,31 @@ async def confirm_plan_item(
 ):
     """护工确认某项照护任务执行完成 → 回写状态与执行人。
 
-    两种 Provider 的落点不同：本地实现写 care 自己的 daily_care_plans；
+    两种 Provider 的落点不同：本地实现写 care 自己的 daily_work_plans；
     SaaS 实现调主系统的「执行结果回写」接口。写的是"执行结果"这类事实数据，
     不涉及业务规则，所以不违背"care 不重复实现计划生成"的分工。
     """
-    from backend.core.care_plan_provider import get_care_plan_provider
+    from backend.core.service_plan_provider import get_service_plan_provider
 
     if req.status not in ("done", "missed"):
         raise HTTPException(status_code=400, detail="status 只能是 done 或 missed")
-    ok = await get_care_plan_provider().confirm_plan_item(
+    ok = await get_service_plan_provider().confirm_plan_item(
         plan_item_id, current_user["tenant_id"],
         status=req.status,
-        carer_id=current_user["user_id"],
-        carer_name=req.carer_name or current_user["user_id"],
+        worker_id=current_user["user_id"],
+        worker_name=req.worker_name or current_user["user_id"],
         actual_care_time=req.actual_care_time,
     )
     if not ok:
         raise HTTPException(status_code=404, detail=f"计划条目不存在: {plan_item_id}")
-    logger.info("care_flow.plan_item_confirmed", plan_item_id=plan_item_id,
+    logger.info("work_flow.plan_item_confirmed", plan_item_id=plan_item_id,
                 status=req.status, operator=current_user["user_id"])
     return {"plan_item_id": plan_item_id, "status": req.status, "confirmed": True}
 
 
-@router.get("/active/{elder_id}")
-async def get_active_care_flow(
-    elder_id: str,
+@router.get("/active/{site_id}")
+async def get_active_work_flow(
+    site_id: str,
     current_user: dict = Depends(get_current_user),
 ):
     """按老人查最近一场进行中的照护流程会话。
@@ -307,8 +307,8 @@ async def get_active_care_flow(
     "继续未完成流程"，拿回 session_id 进入对话页即可命中检查点续跑，
     不依赖浏览器记住 URL。租户隔离：老人不归属当前租户视为不存在。
     """
-    from backend.db.repositories import get_active_care_flow_session
-    row = await get_active_care_flow_session(elder_id, tenant_id=current_user["tenant_id"])
+    from backend.db.repositories import get_active_work_flow_session
+    row = await get_active_work_flow_session(site_id, tenant_id=current_user["tenant_id"])
     if row is None:
         return {"active": False, "session": None}
     return {"active": True, "session": row}
@@ -322,11 +322,11 @@ async def deliver_discharge_order_api(
 ):
     """SaaS 主动下发退住工单到指定会话（不推进对话，等护理员下次开口时生效）。
 
-    与 MCP 工具 /mcp/care-flow 的 send_discharge_order 共用同一段落地逻辑
-    （backend.agents.care_flow.discharge.deliver_discharge_order）：
+    与 MCP 工具 /mcp/work-flow 的 send_discharge_order 共用同一段落地逻辑
+    （backend.agents.work_flow.discharge.deliver_discharge_order）：
     只写会话检查点里的 state.discharge_order，护理员下一次 /chat 时由状态机识别并收敛。
     """
-    from backend.agents.care_flow.discharge import deliver_discharge_order
+    from backend.agents.work_flow.discharge import deliver_discharge_order
     result = await deliver_discharge_order(
         session_id=session_id,
         tenant_id=current_user["tenant_id"],
@@ -413,20 +413,20 @@ async def redeliver_event(
 
 
 @router.get("/{session_id}/report")
-async def get_care_report(
+async def get_work_report(
     session_id: str,
     current_user: dict = Depends(get_current_user),
 ):
-    """按会话 ID 查询照护评估报告（读 care_flow_reports 表，租户隔离）。"""
-    from backend.db.repositories import get_care_flow_report
-    row = await get_care_flow_report(session_id, tenant_id=current_user["tenant_id"])
+    """按会话 ID 查询照护评估报告（读 work_flow_reports 表，租户隔离）。"""
+    from backend.db.repositories import get_work_flow_report
+    row = await get_work_flow_report(session_id, tenant_id=current_user["tenant_id"])
     if row is None:
         raise HTTPException(status_code=404, detail=f"照护报告不存在: {session_id}")
 
     return {
         "session_id": row["session_id"],
-        "elder_id": row["elder_id"],
-        "care_plan_id": row.get("care_plan_id", ""),
+        "site_id": row["site_id"],
+        "service_plan_id": row.get("service_plan_id", ""),
         "stage_reached": row.get("stage_reached", ""),
         "total_turns": row.get("total_turns", 0),
         "status": "completed",
@@ -436,22 +436,22 @@ async def get_care_report(
 
 
 @router.get("/{session_id}/report/export")
-async def export_care_report_docx(
+async def export_work_report_docx(
     session_id: str,
     current_user: dict = Depends(get_current_user),
 ):
     """把照护流程报告导出为 Word（.docx）。"""
-    from backend.core.export import build_care_flow_docx, docx_response_headers
-    from backend.db.repositories import get_care_flow_report
+    from backend.core.export import build_work_flow_docx, docx_response_headers
+    from backend.db.repositories import get_work_flow_report
 
-    row = await get_care_flow_report(session_id, tenant_id=current_user["tenant_id"])
+    row = await get_work_flow_report(session_id, tenant_id=current_user["tenant_id"])
     if row is None:
         raise HTTPException(status_code=404, detail=f"照护报告不存在: {session_id}")
 
-    content = build_care_flow_docx(row)
+    content = build_work_flow_docx(row)
     filename = f"照护报告-{session_id}.docx"
     return Response(
         content=content,
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        headers=docx_response_headers(filename, ascii_name=f"care-report-{session_id}.docx"),
+        headers=docx_response_headers(filename, ascii_name=f"work-report-{session_id}.docx"),
     )

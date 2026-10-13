@@ -5,9 +5,9 @@
 import logging                            # Python 标准库的日志模块（你用过的那个）
 import sys                                # 用于把日志输出到标准输出 stdout
 import os
-# 从 care_agent 根目录加载配置
-care_agent_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.append(care_agent_path)
+# 从 fieldops 根目录加载配置
+fieldops_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(fieldops_path)
 from backend.config import get_settings   # 读取配置（需要里面的 log_level 日志级别）
 
 
@@ -23,7 +23,7 @@ class _Logger:
 
     def _fmt(self, event: str, **kw) -> str:
         """内部方法：把「事件名 + 关键字参数」格式化成一行可读字符串。
-        例：_fmt("elder.alert", elder_id="e1") → "elder.alert | elder_id='e1'" """
+        例：_fmt("site.alert", site_id="e1") → "site.alert | site_id='e1'" """
         if kw:                                 # 如果传了关键字参数（即 key=value）
             return event + " | " + " ".join(f"{k}={v!r}" for k, v in kw.items())
         return event                           # 没有关键字参数时，只返回事件名本身

@@ -22,13 +22,13 @@ class DeviceReading(BaseModel):
     is_abnormal:   bool = Field(default=False, description="是否异常")
 
 
-class CareRecord(BaseModel):
+class ServiceRecord(BaseModel):
     """单条照护记录。"""
     record_id:    str = Field(description="记录 ID")
-    elder_id:     str = Field(description="老人 ID")
-    care_type:    str = Field(description="照护类型：翻身/喂药/进食/如厕/巡视")
+    site_id:     str = Field(description="老人 ID")
+    service_type:    str = Field(description="照护类型：翻身/喂药/进食/如厕/巡视")
     content:      str = Field(description="照护内容")
-    caregiver_id: str = Field(description="护理员 ID")
+    worker_id: str = Field(description="护理员 ID")
     timestamp:    str = Field(description="记录时间")
 
 
@@ -82,7 +82,7 @@ class AlertState(TypedDict):
 
     # ── 请求上下文 ──
     messages:          Annotated[list[BaseMessage], add_messages]
-    elder_id:          str
+    site_id:          str
     tenant_id:         str
     alert_id:          str         # 告警记录 ID
     session_id:        str
@@ -99,7 +99,7 @@ class AlertState(TypedDict):
 
     # ── 四轨数据采集结果 ──
     device_readings:     list[dict]        # 第一轨：设备读数列表
-    care_records:        list[dict]        # 第二轨：近期照护记录列表
+    service_records:        list[dict]        # 第二轨：近期照护记录列表
     health_indicators:   list[dict]        # 第三轨：健康指标列表
     assessment_snapshot: Optional[dict]    # 第四轨：老人最近一次能力评估（含五维得分与问题清单）
     evidence_gaps:       list[str]         # 缺失的证据轨（显式声明，不允许脑补）

@@ -18,7 +18,7 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 // 全局错误兜底：防止 Vue 调度器或组件更新过程中的错误以 unhandled rejection 形式
 // 崩溃整个应用。具体恢复逻辑由 AppLayout 的 onErrorCaptured 处理。
 app.config.errorHandler = (err, _instance, info) => {
-  console.error('[CareAgent] Vue error:', info, err)
+  console.error('[FieldOps] Vue error:', info, err)
 }
 
 app.use(createPinia())

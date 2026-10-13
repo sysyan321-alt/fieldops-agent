@@ -24,9 +24,9 @@ ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 DATA_DIR = ROOT_DIR / "data"
 
 mcp = FastMCP(
-    name="CareAgent-SOPKnowledgeBaseAdmin",
+    name="FieldOps-SOPKnowledgeBaseAdmin",
     instructions=(
-        "CareAgent 护理能力工具 · 知识库管理（v1.0，写工具，需 Authorization: Bearer <MCP_ADMIN_TOKEN>）。"
+        "FieldOps 护理能力工具 · 知识库管理（v1.0，写工具，需 Authorization: Bearer <MCP_ADMIN_TOKEN>）。"
         "工具：ingest_sop_document（导入/更新 SOP，仅允许 data/ 目录）、delete_sop_document（删除文档）、"
         "rebuild_collection（重建集合，需 confirm=DROP_AND_REBUILD）。所有工具必须传 tenant_id 且在 MCP_WRITE_TENANTS 白名单内。"
     ),
@@ -113,7 +113,7 @@ async def ingest_sop_document(
     target = _resolve_safe_path(file_path)
     document_id = str(uuid.uuid4())
 
-    build_pipeline = _load_module("build_knowledge_base.py", "care_agent_build_kb").build_pipeline
+    build_pipeline = _load_module("build_knowledge_base.py", "fieldops_build_kb").build_pipeline
     await build_pipeline(
         file_path=str(target),
         course_id=category,
@@ -205,7 +205,7 @@ async def rebuild_collection(tenant_id: str, confirm: str) -> dict:
         if client.has_collection(COLLECTION_NAME):
             client.drop_collection(COLLECTION_NAME)
         # 复用建库脚本，schema 与索引定义只保留一处
-        _load_module("init_milvus.py", "care_agent_init_milvus").main()
+        _load_module("init_milvus.py", "fieldops_init_milvus").main()
         return list(client.list_collections())
 
     collections = await asyncio.to_thread(_rebuild)

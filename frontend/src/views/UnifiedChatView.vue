@@ -10,7 +10,7 @@
       <!-- 消息区 -->
       <div class="chat-messages" ref="messagesEl">
         <div v-if="messages.length === 0 && !isStreaming" class="empty-hint">
-          <p>✨ 您好！我是 CareAgent AI 助手</p>
+          <p>✨ 您好！我是 FieldOps AI 助手</p>
           <p>请直接告诉我您的需求，例如：</p>
           <div class="example-queries">
             <el-tag
@@ -131,7 +131,7 @@ const AGENT_DISPLAY: Record<string, string> = {
   sop_qa: 'SOP 问答',
   alert: '告警研判',
   assessment: '老人评估',
-  care_flow: '照护流程',
+  work_flow: '照护流程',
   auto: '自动路由',
 }
 

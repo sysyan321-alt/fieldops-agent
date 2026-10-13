@@ -22,7 +22,7 @@ class AgentType(str, Enum):
     ASSESSMENT = "assessment"   # 老年人能力评估
     SOP_QA     = "sop_qa"       # 护理 SOP 问答
     ALERT      = "alert"        # 告警研判
-    CARE_FLOW  = "care_flow"   # 照护流程
+    CARE_FLOW  = "work_flow"   # 照护流程
 
 
 class ExecutionMode(str, Enum):
@@ -35,7 +35,7 @@ class ExecutionMode(str, Enum):
 class AgentRequest(BaseModel):
     """统一的 Agent 请求模型。"""
     staff_id:   str               # 护理员/站长 ID
-    elder_id:   str = Field(default="")  # 老人 ID（评估/告警/照护流程用）
+    site_id:   str = Field(default="")  # 老人 ID（评估/告警/照护流程用）
     tenant_id:  str = Field(default="")  # 租户 ID
     session_id: str               # 会话 ID
     agent_type: Optional[str] = None  # 指定 Agent（None = 由意图识别路由）
@@ -56,7 +56,7 @@ class AgentRequest(BaseModel):
 
 PIPELINES: dict[str, list[AgentType]] = {
     # 先评估再制定照护流程
-    "care_workflow": [AgentType.ASSESSMENT, AgentType.CARE_FLOW],
+    "service_workflow": [AgentType.ASSESSMENT, AgentType.CARE_FLOW],
 }
 
 
@@ -95,8 +95,8 @@ class Orchestrator:
                 from backend.agents.alert.graph import build_alert_graph
                 self._graphs[agent_type] = await build_alert_graph()
             elif agent_type == AgentType.CARE_FLOW.value:
-                from backend.agents.care_flow.graph import build_care_flow_graph
-                self._graphs[agent_type] = await build_care_flow_graph()
+                from backend.agents.work_flow.graph import build_work_flow_graph
+                self._graphs[agent_type] = await build_work_flow_graph()
             else:
                 raise ValueError(f"未知 agent_type: {agent_type}")
             logger.info("orchestrator.graph_loaded", agent_type=agent_type)
@@ -112,14 +112,14 @@ class Orchestrator:
         # agent_type 一并写进 config 的 checkpoint_ns：同一 thread_id 下各 Agent 的
         # 检查点互不覆盖（统一对话入口下，多个 Agent 会共用同一个 session_id）
         config = build_config(
-            request.elder_id or request.staff_id, request.session_id, agent_type=agent_type,
+            request.site_id or request.staff_id, request.session_id, agent_type=agent_type,
         )
 
         # 构造初始 State（各 Agent 需要的字段不同）
         state: dict = {
             "messages": [],
             "tenant_id": request.tenant_id,
-            "elder_id": request.elder_id,
+            "site_id": request.site_id,
             "session_id": request.session_id,
         }
 
@@ -138,20 +138,20 @@ class Orchestrator:
             state["alert_timestamp"] = request.context.get("alert_timestamp", "")
             # 下行来源：机构 SaaS 下发的报警（报警记录）带 external_alert_id 与报警位置，
             # 处置完成后按 external_alert_id 回写 Handle报警记录；care 自触发时为 care/空
-            state["source"] = request.context.get("source", "care")
+            state["source"] = request.context.get("source", "local")
             state["external_alert_id"] = request.context.get("external_alert_id", "")
             state["alert_location"] = request.context.get("alert_location", "")
             # 报警自带的设备类型声明（SaaS 的 报警记录 带"设备类型"）——
             # 它是"这台报警设备是干什么的"的直接声明，解析设备谱系时优先级高于本地登记
             state["device_type_declared"] = request.context.get("device_type", "")
         elif agent_type == AgentType.CARE_FLOW.value:
-            state["care_plan_id"] = request.context.get("care_plan_id", "")
+            state["service_plan_id"] = request.context.get("service_plan_id", "")
             state["current_stage"] = request.context.get("current_stage", "admission_assessment")
-            # Pipeline 模式下，上游（如 assessment）传入的 care_plan 注入 state；
-            # 单 Agent 直调时 care_plan 为 None，由 load_context 节点用 mock 兜底
-            upstream_care_plan = request.context.get("care_plan")
-            if upstream_care_plan:
-                state["care_plan"] = upstream_care_plan
+            # Pipeline 模式下，上游（如 assessment）传入的 service_plan 注入 state；
+            # 单 Agent 直调时 service_plan 为 None，由 load_context 节点用 mock 兜底
+            upstream_service_plan = request.context.get("service_plan")
+            if upstream_service_plan:
+                state["service_plan"] = upstream_service_plan
             # SaaS 注入的退住工单（None=续住）：阶段复评流转时据此决定出院 or 回日常照护
             discharge_order = request.context.get("discharge_order")
             if discharge_order:
@@ -169,7 +169,7 @@ class Orchestrator:
     # 按 Agent 类型设定单次调用超时：重链路给更长窗口，避免误杀
     _AGENT_TIMEOUT = {
         "assessment": 300.0,   # 5 维度并行 + diagnose + summary，重链路
-        "care_flow":  180.0,   # LLM 调用 + 可能多轮对话
+        "work_flow":  180.0,   # LLM 调用 + 可能多轮对话
         "alert":      120.0,
         "sop_qa":     120.0,
     }
@@ -186,15 +186,15 @@ class Orchestrator:
     # ── Pipeline 模式 ────────────────────────────────────────
 
     @staticmethod
-    def _build_care_plan_from_assessment(
-        assessment_result: Optional[dict], elder_id: str,
+    def _build_service_plan_from_assessment(
+        assessment_result: Optional[dict], site_id: str,
         service_items: Optional[list[dict]] = None,
     ) -> Optional[dict]:
-        """把 assessment 的 structured_output 转成 care_flow 期望的 care_plan 结构。
+        """把 assessment 的 structured_output 转成 work_flow 期望的 service_plan 结构。
 
-        care_flow 的 care_plan 字段（plan_id/elder_id/care_level/daily_tasks/special_notes）
+        work_flow 的 service_plan 字段（plan_id/site_id/risk_tier/daily_tasks/special_notes）
         必须保留，以兼容 prompt 模板；同时把评估的核心结果作为附加字段嵌入，
-        让 care_flow 的 LLM 能基于评估结论给出针对性照护指导。
+        让 work_flow 的 LLM 能基于评估结论给出针对性照护指导。
 
         **职责边界**（这条改动前后不一致，值得留意）：
           改造前 daily_tasks 由评估的 issues 派生（"[HIGH] 建议xxx"）——等于让 AI 决定
@@ -202,11 +202,11 @@ class Orchestrator:
           现在 daily_tasks 只来自该护理等级绑定的**服务项**（service_items），
           评估结论退回到它该在的位置：护理等级 + 问题清单 + 注意事项。
 
-        service_items 为空时 daily_tasks 为空（care_flow 会提示计划缺失），
+        service_items 为空时 daily_tasks 为空（work_flow 会提示计划缺失），
         不再用评估问题拼一份看起来像计划的清单。
 
         若 assessment 触发 fallback 导致 structured_output 为 None，返回 None；
-        上层 _run_pipeline 见 None 不写入 context，由 care_flow 如实报告计划缺失。
+        上层 _run_pipeline 见 None 不写入 context，由 work_flow 如实报告计划缺失。
         """
         if not assessment_result:
             return None
@@ -216,20 +216,20 @@ class Orchestrator:
         structured = assessment_result.get("structured") or {}
 
         # 任务清单 = 业务配置的服务项（不是评估问题）
-        from backend.core.care_plan_provider import LocalCarePlanProvider
-        daily_tasks = LocalCarePlanProvider._tasks_from_items(service_items or [])
+        from backend.core.service_plan_provider import LocalServicePlanProvider
+        daily_tasks = LocalServicePlanProvider._tasks_from_items(service_items or [])
 
         return {
-            # ── care_flow prompt 模板要求的字段 ──
+            # ── work_flow prompt 模板要求的字段 ──
             "plan_id": f"plan-{assessment_result.get('assessment_id', 'unknown')}",
-            "elder_id": elder_id,
-            "care_level": summary.get(
-                "care_level_recommendation", structured.get("care_level", "介助"),
+            "site_id": site_id,
+            "risk_tier": summary.get(
+                "risk_tier_recommendation", structured.get("risk_tier", "介助"),
             ),
             "daily_tasks": daily_tasks,
             "special_notes": summary.get("overall_comment", ""),
             "service_items": service_items or [],
-            # ── 附加：评估上下文，供 care_flow LLM 参考 ──
+            # ── 附加：评估上下文，供 work_flow LLM 参考 ──
             "assessment_summary": summary,
             "weighted_score": assessment_result.get("weighted_score", 0),
             "dimension_scores": assessment_result.get("dimension_scores", []),
@@ -264,57 +264,57 @@ class Orchestrator:
             result = await self._run_single_agent(sub_request, agent_type.value)
             results[agent_type.value] = result
 
-            # 传递上下文（assessment → care_flow）
+            # 传递上下文（assessment → work_flow）
             if agent_type == AgentType.ASSESSMENT:
                 assessment_result = result.get("structured_output")
                 context["assessment_result"] = assessment_result
 
                 # 评估结论 → 护理等级 → 该等级的服务项落到老人名下（业务配置驱动）
-                # 这一步让 care_flow 的任务清单来自机构配置，而不是评估问题的复述
-                care_level = (
+                # 这一步让 work_flow 的任务清单来自机构配置，而不是评估问题的复述
+                risk_tier = (
                     ((assessment_result or {}).get("summary") or {})
-                    .get("care_level_recommendation", "")
+                    .get("risk_tier_recommendation", "")
                 )
                 service_items: list[dict] = []
-                if care_level:
-                    from backend.core.care_plan_provider import get_care_plan_provider
+                if risk_tier:
+                    from backend.core.service_plan_provider import get_service_plan_provider
                     try:
-                        service_items = await get_care_plan_provider().ensure_items_for_level(
-                            request.elder_id, care_level,
+                        service_items = await get_service_plan_provider().ensure_items_for_level(
+                            request.site_id, risk_tier,
                             request.tenant_id or "tenant_default",
                         )
                     except Exception as exc:  # noqa: BLE001
                         logger.warning("pipeline.bind_service_items_failed",
-                                       elder_id=request.elder_id,
-                                       care_level=care_level, error=str(exc))
+                                       site_id=request.site_id,
+                                       risk_tier=risk_tier, error=str(exc))
 
-                # 转成 care_flow 能直接用的 care_plan 结构
-                care_plan = self._build_care_plan_from_assessment(
-                    assessment_result, request.elder_id, service_items=service_items,
+                # 转成 work_flow 能直接用的 service_plan 结构
+                service_plan = self._build_service_plan_from_assessment(
+                    assessment_result, request.site_id, service_items=service_items,
                 )
-                if care_plan:
-                    context["care_plan"] = care_plan
-                    # 落库 care_plans：后续单 Agent 直调 care_flow 时可按
-                    # elder_id 读回最近一次计划；失败不阻断主链路（内存 plan 仍可用）
-                    from backend.db.repositories import save_care_plan
-                    persisted = await save_care_plan(
-                        plan_id=care_plan.get("plan_id", ""),
-                        elder_id=request.elder_id,
-                        plan_content=care_plan,
+                if service_plan:
+                    context["service_plan"] = service_plan
+                    # 落库 service_plans：后续单 Agent 直调 work_flow 时可按
+                    # site_id 读回最近一次计划；失败不阻断主链路（内存 plan 仍可用）
+                    from backend.db.repositories import save_service_plan
+                    persisted = await save_service_plan(
+                        plan_id=service_plan.get("plan_id", ""),
+                        site_id=request.site_id,
+                        plan_content=service_plan,
                         tenant_id=request.tenant_id or "tenant_default",
                     )
                     logger.info(
                         "pipeline.context_transferred",
-                        from_agent="assessment", to_agent="care_flow",
+                        from_agent="assessment", to_agent="work_flow",
                         weighted_score=(assessment_result or {}).get("weighted_score"),
-                        care_level=care_plan.get("care_level"),
-                        daily_tasks_count=len(care_plan.get("daily_tasks", [])),
+                        risk_tier=service_plan.get("risk_tier"),
+                        daily_tasks_count=len(service_plan.get("daily_tasks", [])),
                         service_items=len(service_items),
-                        care_plan_persisted=persisted,
+                        service_plan_persisted=persisted,
                     )
                 else:
                     # assessment 触发了 fallback（structured_output 为 None）：
-                    # 不写 care_plan，care_flow 如实报告计划缺失
+                    # 不写 service_plan，work_flow 如实报告计划缺失
                     logger.warning(
                         "pipeline.context_transfer_skipped",
                         reason="assessment_fallback_no_structured_output",
@@ -328,7 +328,7 @@ class Orchestrator:
             "mode": "pipeline",
             "pipeline": request.pipeline,
             "staff_id": request.staff_id,
-            "elder_id": request.elder_id,
+            "site_id": request.site_id,
             "session_id": request.session_id,
             "results": results,
             "structured_output": {
@@ -377,7 +377,7 @@ class Orchestrator:
         """统一执行入口。
 
         支持三种模式：
-            - pipeline：走固定流水线（如 care_workflow = assessment → care_flow）
+            - pipeline：走固定流水线（如 service_workflow = assessment → work_flow）
             - single + agent_type 指定：直接路由到指定 Agent
             - single + agent_type=None：LLM 意图识别后路由
                 - needs_clarification=True 时返回 clarify 模式，让上层 UI 让用户选

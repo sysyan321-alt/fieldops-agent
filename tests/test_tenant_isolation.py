@@ -21,14 +21,14 @@ async def _cleanup(db_ready):
     async with AsyncSessionLocal() as session:
         # 先删子表（device_readings 引用 devices），再删主表
         await session.execute(sql_text(
-            "DELETE FROM device_readings WHERE elder_id LIKE 'pytest-%'"))
+            "DELETE FROM device_readings WHERE site_id LIKE 'pytest-%'"))
         for table, key in [
             ("dispatch_orders", "order_id"),
             ("alerts", "alert_id"),
             ("assessment_results", "assessment_id"),
-            ("care_flow_reports", "session_id"),
+            ("work_flow_reports", "session_id"),
             ("devices", "device_id"),
-            ("elders", "elder_id"),
+            ("sites", "site_id"),
         ]:
             await session.execute(sql_text(
                 f"DELETE FROM {table} WHERE {key} LIKE 'pytest-%'"))
@@ -43,10 +43,10 @@ async def _cleanup(db_ready):
 @pytest.mark.asyncio
 async def test_assessment_cross_tenant_read_blocked():
     asmt_id = make_id("asmt")
-    elder_a = make_id("elder")
+    site_a = make_id("site")
 
     assert await repo.save_assessment_result(
-        asmt_id, elder_a, [{"dimension": "adl", "score": 80, "issues": []}],
+        asmt_id, site_a, [{"dimension": "adl", "score": 80, "issues": []}],
         80.0, {"summary": {}}, tenant_id=TENANT_A) is True
 
     # 本租户可读
@@ -59,25 +59,25 @@ async def test_assessment_cross_tenant_read_blocked():
 
 
 @pytest.mark.asyncio
-async def test_care_flow_report_cross_tenant_read_blocked():
+async def test_work_flow_report_cross_tenant_read_blocked():
     session_id = make_id("session")
 
-    assert await repo.save_care_flow_report(
-        session_id=session_id, elder_id=make_id("elder"), care_plan_id="",
+    assert await repo.save_work_flow_report(
+        session_id=session_id, site_id=make_id("site"), service_plan_id="",
         stage_reached="finished", total_turns=5, report={"score": 90},
         tenant_id=TENANT_A) is True
 
-    assert await repo.get_care_flow_report(session_id, tenant_id=TENANT_A) is not None
-    assert await repo.get_care_flow_report(session_id, tenant_id=TENANT_B) is None
+    assert await repo.get_work_flow_report(session_id, tenant_id=TENANT_A) is not None
+    assert await repo.get_work_flow_report(session_id, tenant_id=TENANT_B) is None
 
 
 @pytest.mark.asyncio
 async def test_alert_cross_tenant_read_and_dispatch_blocked():
     alert_id = make_id("alert")
-    elder_a = make_id("elder")
+    site_a = make_id("site")
 
     assert await repo.save_alert_triggered(
-        alert_id, elder_a, make_id("dev"), "fall_detected",
+        alert_id, site_a, make_id("dev"), "fall_detected",
         {"risk_level": "high"}, {}, tenant_id=TENANT_A) is True
 
     # 本租户可读
@@ -87,7 +87,7 @@ async def test_alert_cross_tenant_read_and_dispatch_blocked():
 
     # 跨租户派发（更新告警状态）→ 拒绝
     assert await repo.save_alert_dispatched(
-        alert_id, elder_a, {"order_id": make_id("order"),
+        alert_id, site_a, {"order_id": make_id("order"),
                             "status": "dispatched", "order_content": "x"},
         tenant_id=TENANT_B) is False
     # 状态未被跨租户篡改
@@ -96,7 +96,7 @@ async def test_alert_cross_tenant_read_and_dispatch_blocked():
 
     # 本租户派发 → 成功
     assert await repo.save_alert_dispatched(
-        alert_id, elder_a, {"order_id": make_id("order"),
+        alert_id, site_a, {"order_id": make_id("order"),
                             "status": "dispatched", "order_content": "x"},
         tenant_id=TENANT_A) is True
 
@@ -105,21 +105,21 @@ async def test_alert_cross_tenant_read_and_dispatch_blocked():
 
 @pytest.mark.asyncio
 async def test_cross_tenant_write_rejected():
-    elder_a = make_id("elder")
+    site_a = make_id("site")
     asmt_id = make_id("asmt")
 
     # 租户 A 创建老人（占位行归属 A）
-    assert await repo._ensure_elder(elder_a, tenant_id=TENANT_A) == TENANT_A
+    assert await repo._ensure_site(site_a, tenant_id=TENANT_A) == TENANT_A
 
     # 租户 B 对 A 的老人写入评估 → 拒绝，且不落库
     assert await repo.save_assessment_result(
-        asmt_id, elder_a, [], 50.0, {}, tenant_id=TENANT_B) is False
+        asmt_id, site_a, [], 50.0, {}, tenant_id=TENANT_B) is False
     assert await repo.get_assessment_result(asmt_id, tenant_id=TENANT_B) is None
     assert await repo.get_assessment_result(asmt_id, tenant_id=TENANT_A) is None
 
     # 告警同理：跨租户触发 → 拒绝
     assert await repo.save_alert_triggered(
-        make_id("alert"), elder_a, make_id("dev"), "fall_detected",
+        make_id("alert"), site_a, make_id("dev"), "fall_detected",
         {}, {}, tenant_id=TENANT_B) is False
 
 
@@ -127,23 +127,23 @@ async def test_cross_tenant_write_rejected():
 
 @pytest.mark.asyncio
 async def test_device_readings_tenant_filter():
-    elder_a = make_id("elder")
+    site_a = make_id("site")
     device_a = make_id("dev")
-    await repo._ensure_elder(elder_a, tenant_id=TENANT_A)
-    await repo._ensure_device(device_a, elder_a, TENANT_A)
+    await repo._ensure_site(site_a, tenant_id=TENANT_A)
+    await repo._ensure_device(device_a, site_a, TENANT_A)
 
     readings = [{"metric_name": "心率", "reading_value": "120",
                  "reading_unit": "bpm", "is_abnormal": True}]
     assert await iot_repo.save_device_readings(
-        elder_a, device_a, "心率手环", readings, tenant_id=TENANT_A) == 1
+        site_a, device_a, "心率手环", readings, tenant_id=TENANT_A) == 1
 
     # 本租户可查；跨租户查 → 空
     assert len(await iot_repo.get_recent_device_readings(
-        elder_a, limit=10, tenant_id=TENANT_A)) == 1
+        site_a, limit=10, tenant_id=TENANT_A)) == 1
     assert await iot_repo.get_recent_device_readings(
-        elder_a, limit=10, tenant_id=TENANT_B) == []
+        site_a, limit=10, tenant_id=TENANT_B) == []
     assert await iot_repo.get_recent_health_indicators(
-        elder_a, limit=8, tenant_id=TENANT_B) == []
+        site_a, limit=8, tenant_id=TENANT_B) == []
 
 
 # ── API 层：JWT 租户贯通 ────────────────────────────────────
@@ -156,7 +156,7 @@ async def test_api_cross_tenant_404():
 
     alert_id = make_id("alert")
     assert await repo.save_alert_triggered(
-        alert_id, make_id("elder"), make_id("dev"), "fall_detected",
+        alert_id, make_id("site"), make_id("dev"), "fall_detected",
         {"risk_level": "high"}, {}, tenant_id=TENANT_A) is True
 
     # 造一个租户 B 的站长账号
@@ -183,21 +183,21 @@ async def test_api_cross_tenant_404():
 
         # 跨租户读数 → 空列表
         resp = await client.get(
-            f"/api/v1/devices/elder/{make_id('none')}/readings", headers=headers)
+            f"/api/v1/devices/site/{make_id('none')}/readings", headers=headers)
         assert resp.status_code == 200
         assert resp.json()["readings"] == []
 
         # 跨租户上报读数给 A 的老人 → 403
-        elder_a = await _first_elder_of_tenant(TENANT_A)
+        site_a = await _first_site_of_tenant(TENANT_A)
         resp = await client.post(
             f"/api/v1/devices/{make_id('dev')}/readings", headers=headers,
-            json={"elder_id": elder_a, "device_type": "心率手环",
+            json={"site_id": site_a, "device_type": "心率手环",
                   "readings": [{"metric_name": "心率", "reading_value": "120"}]})
         assert resp.status_code == 403
 
 
-async def _first_elder_of_tenant(tenant_id: str) -> str:
+async def _first_site_of_tenant(tenant_id: str) -> str:
     async with AsyncSessionLocal() as session:
         return (await session.execute(sql_text(
-            "SELECT elder_id FROM elders WHERE tenant_id = :t AND elder_id LIKE 'pytest-%'"
+            "SELECT site_id FROM sites WHERE tenant_id = :t AND site_id LIKE 'pytest-%'"
             " LIMIT 1"), {"t": tenant_id})).scalar()

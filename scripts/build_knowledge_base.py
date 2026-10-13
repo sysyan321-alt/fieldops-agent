@@ -253,7 +253,7 @@ async def build_pipeline(
 ) -> None:
     """知识库建库完整流水线（四步 + 可选 Contextual RAG）。"""
     print(f"\n{'='*55}")
-    print(f" CareAgent 护理 SOP 知识库构建")
+    print(f" FieldOps 护理 SOP 知识库构建")
     print(f" 文件      ：{file_path}")
     print(f" SOP 类别  ：{course_id}")
     print(f" 文档 ID   ：{document_id}")
@@ -306,7 +306,7 @@ async def build_batch(
         return
 
     print(f"\n{'='*55}")
-    print(f" CareAgent 护理 SOP 知识库批量构建")
+    print(f" FieldOps 护理 SOP 知识库批量构建")
     print(f" 目录      ：{dir_path}")
     print(f" 文件数    ：{len(md_files)}")
     print(f" 租户      ：{tenant_id}")

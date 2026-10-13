@@ -109,7 +109,7 @@ async def run_assessment_full_flow():
     # ── 2. 构造初始 State ──
     initial_state = {
         "messages": [],
-        "elder_id":         "e001",
+        "site_id":         "e001",
         "tenant_id":        "tenant_default",
         "assessment_id":    "assess-test-001",
         "pdf_local_path":   pdf_path,
@@ -148,7 +148,7 @@ async def run_assessment_full_flow():
     print(f"    age:        {s.get('age')}")
     print(f"    gender:     {s.get('gender')}")
     print(f"    room_no:     {s.get('room_no')}")
-    print(f"    care_level: {s.get('care_level')}")
+    print(f"    risk_tier: {s.get('risk_tier')}")
 
     print(f"\n[6] ③ run_five_dimensions 产出（五维度并行评审）：")
     dim_scores = result.get("dimension_scores", [])
@@ -167,7 +167,7 @@ async def run_assessment_full_flow():
     print(f"\n[8] ⑤ generate_summary 产出（整体评价）：")
     summary = result.get("summary") or {}
     print(f"    综合评语:      {summary.get('overall_comment','')}")
-    print(f"    护理等级建议:  {summary.get('care_level_recommendation','')}")
+    print(f"    护理等级建议:  {summary.get('risk_tier_recommendation','')}")
     print(f"    亮点:")
     for h in summary.get("highlights", [])[:3]:
         print(f"      - {h}")
@@ -178,7 +178,7 @@ async def run_assessment_full_flow():
     print(f"\n[9] ⑥ save_results 产出（structured_output）：")
     so = result.get("structured_output") or {}
     print(f"    assessment_id:  {so.get('assessment_id')}")
-    print(f"    elder_id:        {so.get('elder_id')}")
+    print(f"    site_id:        {so.get('site_id')}")
     print(f"    weighted_score:  {so.get('weighted_score')}")
     print(f"    issues_count:    {len(so.get('issues', []))}")
     print(f"    fallback_used:   {result.get('fallback_used')}")

@@ -17,7 +17,7 @@ class SOPQAState(TypedDict):
     messages: Annotated[list[BaseMessage], add_messages]
 
     # ── ② 请求上下文（Orchestrator 注入，节点只读）───────────────
-    elder_id:    str            # 老人 ID
+    site_id:    str            # 老人 ID
     tenant_id:   str            # 租户 ID（Milvus / DB 多租户隔离）
     session_id:  str            # 会话 ID（用于构造 thread_id）
     org_id:      Optional[str]  # 机构 ID，限制检索范围；None = 全库检索

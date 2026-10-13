@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # scripts/export_public.sh
-# 把 care_agent 导出成一份可以公开的副本（白名单导出 + 泄漏扫描）。
+# 把 fieldops 导出成一份可以公开的副本（白名单导出 + 泄漏扫描）。
 #
 # 为什么是"导出"而不是"复制一份再手工删"：
 #   手工维护两份会漂移——改完这边忘了那边，公开那份很快过期；
@@ -8,7 +8,7 @@
 #   所以公开仓库由本脚本生成，**不要手工改公开那份**。
 #
 # 用法：
-#   ./scripts/export_public.sh                      # 导出到 ../care_agent-public
+#   ./scripts/export_public.sh                      # 导出到 ../fieldops-public
 #   ./scripts/export_public.sh --out /tmp/pub       # 指定输出目录（试跑用）
 #   ./scripts/export_public.sh --dry-run            # 只打印将导出/排除的清单
 #   ./scripts/export_public.sh --allow-warnings     # 泄漏扫描有"疑似"命中时仍继续
@@ -18,7 +18,7 @@
 set -euo pipefail
 
 SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-OUT="$SRC/../care_agent-public"
+OUT="$SRC/../fieldops-public"
 DRY_RUN=0
 ALLOW_WARNINGS=0
 
@@ -58,7 +58,7 @@ EXCLUDE_PRIVATE=(
   文档/当前项目面试题
   文档/项目总结-按迁移矩阵.md
   文档/面试问答-Agent专题.md
-  文档/CareAgent-项目完整文档.md
+  文档/FieldOps-项目完整文档.md
   文档/医小助-项目完整文档.md
   语音输入还没做.md
 )
@@ -224,4 +224,4 @@ say "✅ 泄漏扫描通过（致命 0 类，疑似 $warn_hits 类）"
 say ""
 say "下一步："
 say "  cd \"$OUT\" && git init && git add -A && git commit -m 'chore: initial public release'"
-say "  gh repo create care-agent --public --source=. --push"
+say "  gh repo create fieldops-agent --public --source=. --push"

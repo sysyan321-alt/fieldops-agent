@@ -13,9 +13,9 @@ logger = get_logger(__name__)
 
 # stateless_http + json_response：每次 POST 自包含，客户端无需握手，便于调试与横向扩展
 mcp = FastMCP(
-    name="CareAgent-SOPKnowledgeBase",
+    name="FieldOps-SOPKnowledgeBase",
     instructions=(
-        "CareAgent 护理能力工具 · 知识库检索（v1.0，只读，免鉴权）。"
+        "FieldOps 护理能力工具 · 知识库检索（v1.0，只读，免鉴权）。"
         "工具：search_sop（混合召回+精排检索）、list_sop_documents（列文档）、get_kb_status（知识库状态）。"
         "所有工具必须传 tenant_id。"
     ),

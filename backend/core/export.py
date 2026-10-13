@@ -51,11 +51,11 @@ def build_assessment_docx(payload: dict) -> bytes:
 
     _add_kv_table(doc, [
         ("评估编号", payload.get("assessment_id", "")),
-        ("老人编号", payload.get("elder_id", "")),
+        ("老人编号", payload.get("site_id", "")),
         ("综合得分", payload.get("weighted_score", 0)),
         ("评估时间", payload.get("created_at") or datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
         ("姓名 / 年龄段", f"{structured.get('name', '—')} / {structured.get('age', '—')}"),
-        ("照护等级建议", summary.get("care_level_recommendation", structured.get("care_level", "—"))),
+        ("照护等级建议", summary.get("risk_tier_recommendation", structured.get("risk_tier", "—"))),
     ])
 
     doc.add_heading("一、维度评分", level=1)
@@ -99,10 +99,10 @@ def build_assessment_docx(payload: dict) -> bytes:
     return buffer.getvalue()
 
 
-def build_care_flow_docx(payload: dict) -> bytes:
+def build_work_flow_docx(payload: dict) -> bytes:
     """照护流程报告 → Word。
 
-    入参结构来自 `repositories.get_care_flow_report`，`report` 字段是报告正文（字典或字符串）。
+    入参结构来自 `repositories.get_work_flow_report`，`report` 字段是报告正文（字典或字符串）。
     """
     report = payload.get("report") or {}
 
@@ -111,8 +111,8 @@ def build_care_flow_docx(payload: dict) -> bytes:
 
     _add_kv_table(doc, [
         ("会话编号", payload.get("session_id", "")),
-        ("老人编号", payload.get("elder_id", "")),
-        ("照护计划", payload.get("care_plan_id", "")),
+        ("老人编号", payload.get("site_id", "")),
+        ("照护计划", payload.get("service_plan_id", "")),
         ("到达阶段", payload.get("stage_reached", "")),
         ("总轮数", payload.get("total_turns", 0)),
         ("生成时间", payload.get("created_at") or datetime.now().strftime("%Y-%m-%d %H:%M:%S")),

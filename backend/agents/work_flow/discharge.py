@@ -1,4 +1,4 @@
-# backend/agents/care_flow/discharge.py
+# backend/agents/work_flow/discharge.py
 # 退住工单投递：把 SaaS 下发的工单写入指定会话的检查点状态（不推进对话）。
 #
 # 设计取舍：工单是"业务指令"而非对话内容——
@@ -6,12 +6,12 @@
 #   等护理员下一次 /chat 时由 check_stage_node 识别并触发阶段收敛（复评 → 出院评估）。
 #
 # 这样 SaaS 就能"主动通知"一个进行中的会话，而不必等护理员开口时把字段捎带进来。
-# MCP 工具（/mcp/care-flow 的 send_discharge_order）与 REST 回调
-# （POST /api/v1/care-flow/sessions/{sid}/discharge-order）共用本函数，落地逻辑只有一份。
+# MCP 工具（/mcp/work-flow 的 send_discharge_order）与 REST 回调
+# （POST /api/v1/work-flow/sessions/{sid}/discharge-order）共用本函数，落地逻辑只有一份。
 
 from backend.core.logger import get_logger
 from backend.core.memory import build_config
-from backend.db.repositories import get_care_flow_session
+from backend.db.repositories import get_work_flow_session
 
 logger = get_logger(__name__)
 
@@ -38,9 +38,9 @@ async def deliver_discharge_order(
     if not order:
         raise ValueError("discharge order 不能为空（dict 需至少含 order_type）")
 
-    row = await get_care_flow_session(session_id, tenant_id=tenant_id)
+    row = await get_work_flow_session(session_id, tenant_id=tenant_id)
     if row is None:
-        logger.info("care_flow.discharge_order_session_not_found",
+        logger.info("work_flow.discharge_order_session_not_found",
                     session_id=session_id, tenant_id=tenant_id)
         return {
             "found": False,
@@ -50,7 +50,7 @@ async def deliver_discharge_order(
         }
 
     if (row.get("status") or "") in _FINISHED_STATUS:
-        logger.info("care_flow.discharge_order_session_finished",
+        logger.info("work_flow.discharge_order_session_finished",
                     session_id=session_id, status=row.get("status"))
         return {
             "found": False,
@@ -61,15 +61,15 @@ async def deliver_discharge_order(
 
     try:
         # 局部导入：避免模块加载期就构建图（与 alert-ops 的 confirm_alert 同风格）
-        from backend.agents.care_flow.graph import build_care_flow_graph
-        graph = await build_care_flow_graph()
+        from backend.agents.work_flow.graph import build_work_flow_graph
+        graph = await build_work_flow_graph()
         # ★ thread_id / checkpoint_ns 必须与 Orchestrator 完全一致
-        #   （orchestrator.py 拼键为 build_config(elder_id or staff_id, session_id, agent_type)），
+        #   （orchestrator.py 拼键为 build_config(site_id or staff_id, session_id, agent_type)），
         #   否则工单会被写进另一行检查点，护理员那边永远读不到。
-        config = build_config(row["elder_id"], session_id, agent_type="care_flow")
+        config = build_config(row["site_id"], session_id, agent_type="work_flow")
         await graph.aupdate_state(config, {"discharge_order": order})
     except Exception as e:
-        logger.error("care_flow.discharge_order_delivery_failed",
+        logger.error("work_flow.discharge_order_delivery_failed",
                      session_id=session_id, error=str(e))
         return {
             "found": False,
@@ -78,13 +78,13 @@ async def deliver_discharge_order(
             "message": f"工单写入检查点失败: {e}",
         }
 
-    logger.info("care_flow.discharge_order_delivered",
-                session_id=session_id, elder_id=row["elder_id"],
+    logger.info("work_flow.discharge_order_delivered",
+                session_id=session_id, site_id=row["site_id"],
                 tenant_id=tenant_id, stage=row.get("current_stage"))
     return {
         "found": True,
         "session_id": session_id,
-        "elder_id": row["elder_id"],
+        "site_id": row["site_id"],
         "current_stage": row.get("current_stage"),
         "status": "delivered",
         "message": "工单已投递；护理员下一次对话时由状态机识别并收敛到 复评 → 出院评估",

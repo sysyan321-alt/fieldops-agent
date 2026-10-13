@@ -20,7 +20,7 @@ def test_default_users_hashes_are_bcrypt():
     from backend.db.repositories import DEFAULT_USERS
     for u in DEFAULT_USERS:
         assert u["password_hash"].startswith("$2b$")
-        assert u["username"] in ("caregiver", "supervisor", "admin")
+        assert u["username"] in ("worker", "supervisor", "admin")
 
 
 # ── 纯单元：JWT ──────────────────────────────────────────────

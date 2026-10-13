@@ -14,16 +14,16 @@
         label-position="top"
         style="max-width: 480px"
       >
-        <el-form-item label="老人 ID" prop="elder_id">
+        <el-form-item label="老人 ID" prop="site_id">
           <el-input
-            v-model="form.elder_id"
-            placeholder="例如：elder_001"
+            v-model="form.site_id"
+            placeholder="例如：site_001"
             :prefix-icon="User"
           />
         </el-form-item>
         <el-form-item label="照护计划 ID（可选）">
           <el-input
-            v-model="form.care_plan_id"
+            v-model="form.service_plan_id"
             placeholder="如已有照护计划可填写，用于流程注入"
           />
         </el-form-item>
@@ -71,15 +71,15 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { User } from '@element-plus/icons-vue'
-import { careFlowApi, type CareFlowActiveSession } from '@/api/careFlow'
+import { workFlowApi, type WorkFlowActiveSession } from '@/api/workFlow'
 
 const router = useRouter()
 
 const formRef = ref<FormInstance>()
 const loading = ref(false)
 const form = reactive({
-  elder_id: '',
-  care_plan_id: '',
+  site_id: '',
+  service_plan_id: '',
   initial_stage: 'admission_assessment',
   planned_discharge: false,
 })
@@ -92,7 +92,7 @@ const stageOptions = [
 ]
 
 const rules: FormRules = {
-  elder_id: [{ required: true, message: '请输入老人 ID', trigger: 'blur' }],
+  site_id: [{ required: true, message: '请输入老人 ID', trigger: 'blur' }],
 }
 
 function stageLabel(value: string): string {
@@ -102,9 +102,9 @@ function stageLabel(value: string): string {
 /** 发起前先查该老人是否已有进行中的流程，有则弹窗询问：继续原会话 or 重新开始。 */
 async function tryResumeActiveSession(): Promise<string> {
   let resumeSessionId = ''
-  let active: CareFlowActiveSession | null = null
+  let active: WorkFlowActiveSession | null = null
   try {
-    const { data } = await careFlowApi.getActiveSession(form.elder_id)
+    const { data } = await workFlowApi.getActiveSession(form.site_id)
     active = data.active ? data.session : null
   } catch {
     return '' // 查询失败不阻断发起
@@ -131,13 +131,13 @@ async function handleStart() {
   try {
     const resumeSessionId = await tryResumeActiveSession()
     if (resumeSessionId) {
-      router.push(`/care-flow/${resumeSessionId}`)
+      router.push(`/work-flow/${resumeSessionId}`)
       return
     }
 
-    const { data } = await careFlowApi.start({
-      elder_id: form.elder_id,
-      care_plan_id: form.care_plan_id || undefined,
+    const { data } = await workFlowApi.start({
+      site_id: form.site_id,
+      service_plan_id: form.service_plan_id || undefined,
       initial_stage: form.initial_stage,
       discharge_order: form.planned_discharge
         ? { order_type: 'discharge', reason: '入住时已知计划出院' }
@@ -145,12 +145,12 @@ async function handleStart() {
     })
     // 首条 AI 消息经 sessionStorage 传给对话页（后端无会话历史查询接口）
     sessionStorage.setItem(
-      `careflow_${data.session_id}`,
+      `workflow_${data.session_id}`,
       JSON.stringify({ aiMessage: data.ai_message, currentStage: data.current_stage }),
     )
-    router.push(`/care-flow/${data.session_id}`)
+    router.push(`/work-flow/${data.session_id}`)
   } catch (e) {
-    console.error('[CareFlow start]', e)
+    console.error('[WorkFlow start]', e)
     ElMessage.error('发起流程失败')
   } finally {
     loading.value = false

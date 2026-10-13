@@ -16,8 +16,8 @@
         <template #title>
           照护流程走到终态、告警派单/取消时，系统会把事件 POST 到该地址。
           投递走发件箱 + 指数退避重试（30s → 120s → 600s → 1800s），
-          请求头 <code>X-CareAgent-Signature</code> 为 HMAC-SHA256 签名，
-          <code>X-CareAgent-Event-Id</code> 供消费端幂等去重。
+          请求头 <code>X-FieldOps-Signature</code> 为 HMAC-SHA256 签名，
+          <code>X-FieldOps-Event-Id</code> 供消费端幂等去重。
         </template>
       </el-alert>
 
@@ -25,7 +25,7 @@
         <el-form-item label="回调地址">
           <el-input
             v-model="form.url"
-            placeholder="https://saas.example.com/hooks/care-agent"
+            placeholder="https://saas.example.com/hooks/fieldops-agent"
             clearable
           />
         </el-form-item>
@@ -108,7 +108,7 @@
 
       <div class="payload-tip">
         提示：点「重投」会把事件重置为等待投递状态；内容载荷（报告 / 工单）随事件存库，可通过
-        <code>GET /api/v1/care-flow/events</code> 查看。
+        <code>GET /api/v1/work-flow/events</code> 查看。
       </div>
     </el-card>
   </div>
@@ -118,7 +118,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Refresh } from '@element-plus/icons-vue'
-import { outboundApi, type OutboundEvent, type OutboundWebhookConfig } from '@/api/careFlow'
+import { outboundApi, type OutboundEvent, type OutboundWebhookConfig } from '@/api/workFlow'
 
 const configured = ref(false)
 const current = reactive<OutboundWebhookConfig>({

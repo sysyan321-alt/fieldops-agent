@@ -60,14 +60,14 @@ class BGEMEmbedder:
         # 但 transformers 4.51.0 用 torch_dtype=。此处把 dtype 转成 torch_dtype。
         # 全局 patch：仅在 from_pretrained 收到 dtype 时转换，其他调用不受影响。
         from transformers import AutoModel as _AutoModel
-        if not getattr(_AutoModel, "_care_agent_dtype_patched", False):
+        if not getattr(_AutoModel, "_fieldops_dtype_patched", False):
             _orig_fp = _AutoModel.from_pretrained.__func__
             def _patched_fp(cls, *args, **kwargs):
                 if "dtype" in kwargs and "torch_dtype" not in kwargs:
                     kwargs["torch_dtype"] = kwargs.pop("dtype")
                 return _orig_fp(cls, *args, **kwargs)
             _AutoModel.from_pretrained = classmethod(_patched_fp)
-            _AutoModel._care_agent_dtype_patched = True
+            _AutoModel._fieldops_dtype_patched = True
 
         import torch
         from FlagEmbedding import BGEM3FlagModel

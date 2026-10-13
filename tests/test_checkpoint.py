@@ -74,7 +74,7 @@ async def test_agent_namespaces_are_isolated(db_ready):
     saver = await get_memory_saver("sop_qa")
 
     sop_config = build_config("pytest-ns", session_id, agent_type="sop_qa")
-    cf_config = build_config("pytest-ns", session_id, agent_type="care_flow")
+    cf_config = build_config("pytest-ns", session_id, agent_type="work_flow")
     assert sop_config["configurable"]["thread_id"] == cf_config["configurable"]["thread_id"]
     assert sop_config["configurable"]["checkpoint_ns"] != cf_config["configurable"]["checkpoint_ns"]
 
@@ -91,7 +91,7 @@ async def test_delete_thread_removes_all_namespaces(db_ready):
     session_id = uuid.uuid4().hex[:8]
     saver = await get_memory_saver("sop_qa")
     sop_config = build_config("pytest-del", session_id, agent_type="sop_qa")
-    cf_config = build_config("pytest-del", session_id, agent_type="care_flow")
+    cf_config = build_config("pytest-del", session_id, agent_type="work_flow")
     thread_id = sop_config["configurable"]["thread_id"]
 
     await saver.aput(sop_config, _checkpoint(), {"source": "input", "step": 0}, {})

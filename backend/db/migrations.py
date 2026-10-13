@@ -20,19 +20,19 @@ _MIGRATIONS: list[str] = [
     "ALTER TABLE alerts ADD COLUMN IF NOT EXISTS three_tracks JSONB",
     # v1：照护流程报告表（save_report 节点落库）
     """
-    CREATE TABLE IF NOT EXISTS care_flow_reports (
+    CREATE TABLE IF NOT EXISTS work_flow_reports (
         report_id     VARCHAR(64) PRIMARY KEY,
         session_id    VARCHAR(64) NOT NULL UNIQUE,
-        elder_id      VARCHAR(64) NOT NULL,
-        care_plan_id  VARCHAR(64) DEFAULT '',
+        site_id      VARCHAR(64) NOT NULL,
+        service_plan_id  VARCHAR(64) DEFAULT '',
         stage_reached VARCHAR(50),
         total_turns   INTEGER DEFAULT 0,
         report        JSONB,
         created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (elder_id) REFERENCES elders(elder_id)
+        FOREIGN KEY (site_id) REFERENCES sites(site_id)
     )
     """,
-    "CREATE INDEX IF NOT EXISTS idx_care_flow_reports_elder ON care_flow_reports(elder_id)",
+    "CREATE INDEX IF NOT EXISTS idx_work_flow_reports_site ON work_flow_reports(site_id)",
     # v2：用户表（登录认证，DB + bcrypt）
     """
     CREATE TABLE IF NOT EXISTS users (
@@ -45,19 +45,19 @@ _MIGRATIONS: list[str] = [
     )
     """,
     "CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)",
-    # v4：多租户强制隔离——业务表贯通 tenant_id（elders/users 建表时已有）
+    # v4：多租户强制隔离——业务表贯通 tenant_id（sites/users 建表时已有）
     "ALTER TABLE devices ADD COLUMN IF NOT EXISTS tenant_id VARCHAR(64) NOT NULL DEFAULT 'tenant_default'",
     "ALTER TABLE alerts ADD COLUMN IF NOT EXISTS tenant_id VARCHAR(64) NOT NULL DEFAULT 'tenant_default'",
-    "ALTER TABLE care_plans ADD COLUMN IF NOT EXISTS tenant_id VARCHAR(64) NOT NULL DEFAULT 'tenant_default'",
-    "ALTER TABLE care_records ADD COLUMN IF NOT EXISTS tenant_id VARCHAR(64) NOT NULL DEFAULT 'tenant_default'",
+    "ALTER TABLE service_plans ADD COLUMN IF NOT EXISTS tenant_id VARCHAR(64) NOT NULL DEFAULT 'tenant_default'",
+    "ALTER TABLE service_records ADD COLUMN IF NOT EXISTS tenant_id VARCHAR(64) NOT NULL DEFAULT 'tenant_default'",
     "ALTER TABLE assessment_results ADD COLUMN IF NOT EXISTS tenant_id VARCHAR(64) NOT NULL DEFAULT 'tenant_default'",
-    "ALTER TABLE care_flow_reports ADD COLUMN IF NOT EXISTS tenant_id VARCHAR(64) NOT NULL DEFAULT 'tenant_default'",
+    "ALTER TABLE work_flow_reports ADD COLUMN IF NOT EXISTS tenant_id VARCHAR(64) NOT NULL DEFAULT 'tenant_default'",
     "ALTER TABLE dispatch_orders ADD COLUMN IF NOT EXISTS tenant_id VARCHAR(64) NOT NULL DEFAULT 'tenant_default'",
     "ALTER TABLE device_readings ADD COLUMN IF NOT EXISTS tenant_id VARCHAR(64) NOT NULL DEFAULT 'tenant_default'",
     "CREATE INDEX IF NOT EXISTS idx_alerts_tenant ON alerts(tenant_id)",
     "CREATE INDEX IF NOT EXISTS idx_assessment_tenant ON assessment_results(tenant_id)",
-    "CREATE INDEX IF NOT EXISTS idx_care_flow_tenant ON care_flow_reports(tenant_id)",
-    "CREATE INDEX IF NOT EXISTS idx_elders_tenant ON elders(tenant_id)",
+    "CREATE INDEX IF NOT EXISTS idx_work_flow_tenant ON work_flow_reports(tenant_id)",
+    "CREATE INDEX IF NOT EXISTS idx_sites_tenant ON sites(tenant_id)",
     "CREATE INDEX IF NOT EXISTS idx_dr_tenant ON device_readings(tenant_id)",
     # v5：出站通知（业务事件 → 外部 SaaS）——租户回调配置 + 事件发件箱
     """
@@ -107,7 +107,7 @@ _MIGRATIONS: list[str] = [
     "ALTER TABLE devices ADD COLUMN IF NOT EXISTS type_code VARCHAR(50)",
     "ALTER TABLE devices ADD COLUMN IF NOT EXISTS location VARCHAR(128) DEFAULT ''",
     "CREATE INDEX IF NOT EXISTS idx_devices_type ON devices(type_code)",
-    "ALTER TABLE alerts ADD COLUMN IF NOT EXISTS source VARCHAR(16) NOT NULL DEFAULT 'care'",
+    "ALTER TABLE alerts ADD COLUMN IF NOT EXISTS source VARCHAR(16) NOT NULL DEFAULT 'local'",
     "ALTER TABLE alerts ADD COLUMN IF NOT EXISTS external_alert_id VARCHAR(64)",
     "ALTER TABLE alerts ADD COLUMN IF NOT EXISTS location VARCHAR(128) DEFAULT ''",
     "ALTER TABLE alerts ADD COLUMN IF NOT EXISTS handled_by VARCHAR(64) DEFAULT ''",
@@ -116,15 +116,15 @@ _MIGRATIONS: list[str] = [
     "CREATE UNIQUE INDEX IF NOT EXISTS uniq_alert_external ON alerts(tenant_id, external_alert_id) "
     "WHERE external_alert_id IS NOT NULL",
     # v7：照护计划对齐机构 SaaS 的业务模型
-    #   elder_service_items —— 老人的照护服务项（对齐业务系统的服务内容 /
-    #                          addElderServiceContent：项目 + 频次 + 护理时间段 + 必选）
-    #   daily_care_plans    —— 每日照护计划（对齐业务系统：服务项目/老人/护理时间/
+    #   site_service_items —— 老人的照护服务项（对齐业务系统的服务内容 /
+    #                          addSiteServiceContent：项目 + 频次 + 护理时间段 + 必选）
+    #   daily_work_plans    —— 每日照护计划（对齐业务系统：服务项目/老人/护理时间/
     #                          服务人员/实际护理时间/状态）。care 侧**只读**：
     #                          生成规则属于业务侧（每日计划由业务系统生成）
     """
-    CREATE TABLE IF NOT EXISTS elder_service_items (
+    CREATE TABLE IF NOT EXISTS site_service_items (
         item_id         VARCHAR(64) PRIMARY KEY,
-        elder_id        VARCHAR(64) NOT NULL,
+        site_id        VARCHAR(64) NOT NULL,
         project_id      VARCHAR(64) DEFAULT '',
         project_name    VARCHAR(128) NOT NULL,
         frequency_id    VARCHAR(64) DEFAULT '',
@@ -133,42 +133,42 @@ _MIGRATIONS: list[str] = [
         nurse_time_slots JSONB DEFAULT '[]',
         price           NUMERIC(10, 2) DEFAULT 0,
         is_required     BOOLEAN NOT NULL DEFAULT TRUE,
-        care_level      VARCHAR(32) DEFAULT '',
+        risk_tier      VARCHAR(32) DEFAULT '',
         source          VARCHAR(16) NOT NULL DEFAULT 'template',
         active          BOOLEAN NOT NULL DEFAULT TRUE,
         tenant_id       VARCHAR(64) NOT NULL DEFAULT 'tenant_default',
         created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (elder_id) REFERENCES elders(elder_id)
+        FOREIGN KEY (site_id) REFERENCES sites(site_id)
     )
     """,
-    "CREATE INDEX IF NOT EXISTS idx_esi_elder ON elder_service_items(elder_id, active)",
-    "CREATE INDEX IF NOT EXISTS idx_esi_tenant ON elder_service_items(tenant_id)",
+    "CREATE INDEX IF NOT EXISTS idx_esi_site ON site_service_items(site_id, active)",
+    "CREATE INDEX IF NOT EXISTS idx_esi_tenant ON site_service_items(tenant_id)",
     """
-    CREATE TABLE IF NOT EXISTS daily_care_plans (
+    CREATE TABLE IF NOT EXISTS daily_work_plans (
         plan_item_id    VARCHAR(64) PRIMARY KEY,
-        elder_id        VARCHAR(64) NOT NULL,
+        site_id        VARCHAR(64) NOT NULL,
         plan_date       DATE NOT NULL,
         project_id      VARCHAR(64) DEFAULT '',
         project_name    VARCHAR(128) NOT NULL,
         nurse_time      VARCHAR(64) DEFAULT '',
-        carer_id        VARCHAR(64) DEFAULT '',
-        carer_name      VARCHAR(64) DEFAULT '',
+        worker_id        VARCHAR(64) DEFAULT '',
+        worker_name      VARCHAR(64) DEFAULT '',
         actual_care_time VARCHAR(64) DEFAULT '',
         status          VARCHAR(16) NOT NULL DEFAULT 'planned',
         tenant_id       VARCHAR(64) NOT NULL DEFAULT 'tenant_default',
         updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (elder_id) REFERENCES elders(elder_id)
+        FOREIGN KEY (site_id) REFERENCES sites(site_id)
     )
     """,
-    "CREATE INDEX IF NOT EXISTS idx_dcp_elder_date ON daily_care_plans(elder_id, plan_date DESC)",
-    "CREATE INDEX IF NOT EXISTS idx_dcp_tenant ON daily_care_plans(tenant_id)",
+    "CREATE INDEX IF NOT EXISTS idx_dcp_site_date ON daily_work_plans(site_id, plan_date DESC)",
+    "CREATE INDEX IF NOT EXISTS idx_dcp_tenant ON daily_work_plans(tenant_id)",
     # v8：护理等级 → 照护项目模板（对齐机构 SaaS 的 /care/config 照护模板配置）
     # 说明：在生产形态下这份配置由 SaaS 维护（按 nurseLevelName 组织），
     # care 只在 CARE_PLAN_PROVIDER=local（本地/演示）时用它兜住"该等级该做哪些服务"。
     """
-    CREATE TABLE IF NOT EXISTS care_level_configs (
+    CREATE TABLE IF NOT EXISTS service_tier_configs (
         config_id       VARCHAR(64) PRIMARY KEY,
-        care_level      VARCHAR(32) NOT NULL,
+        risk_tier      VARCHAR(32) NOT NULL,
         project_id      VARCHAR(64) DEFAULT '',
         project_name    VARCHAR(128) NOT NULL,
         frequency_id    VARCHAR(64) DEFAULT '',
@@ -183,7 +183,7 @@ _MIGRATIONS: list[str] = [
         created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     """,
-    "CREATE INDEX IF NOT EXISTS idx_clc_level ON care_level_configs(care_level, active)",
+    "CREATE INDEX IF NOT EXISTS idx_clc_level ON service_tier_configs(risk_tier, active)",
 ]
 
 
@@ -215,8 +215,8 @@ async def run_migrations():
     await ensure_device_types()
 
     # 幂等播种护理等级照护模板（本地 Provider 的演示配置；生产由 SaaS /care/config 提供）
-    from backend.db.repositories import ensure_care_level_configs
-    await ensure_care_level_configs()
+    from backend.db.repositories import ensure_service_tier_configs
+    await ensure_service_tier_configs()
 
     # 幂等播种默认账号：**默认关闭**（SEED_DEMO_USERS=false）。
     # 开源项目不能一启动就带上"人人皆知的默认口令"；需要直接体验时显式开启，
@@ -226,7 +226,7 @@ async def run_migrations():
         from backend.db.repositories import ensure_default_users
         await ensure_default_users()
         logger.warning("migrations.demo_users_seeded",
-                       message="已播种演示账号（caregiver/supervisor/admin），"
+                       message="已播种演示账号（worker/supervisor/admin），"
                                "仅用于本地演示，请勿在生产开启 SEED_DEMO_USERS")
     else:
         logger.info("migrations.demo_users_skipped",

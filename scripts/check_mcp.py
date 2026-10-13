@@ -5,7 +5,7 @@
 # 用法（后端已在 8000 端口运行）：
 #   python scripts/check_mcp.py                 # 校验全部 server
 #   python scripts/check_mcp.py --server sop-kb # 只校验知识库
-#   python scripts/check_mcp.py --elder-id e001 --tenant-id tenant_default
+#   python scripts/check_mcp.py --site-id e001 --tenant-id tenant_default
 #
 # 也可指向独立运行的 MCP Server：--base http://localhost:8011
 
@@ -49,23 +49,23 @@ async def check_sop_kb(base: str, tenant_id: str) -> bool:
     return True
 
 
-async def check_care_data(base: str, elder_id: str, tenant_id: str) -> bool:
+async def check_service_data(base: str, site_id: str, tenant_id: str) -> bool:
     print(f"\n=== 照护数据 MCP：{base}/mcp ===")
     tools = await list_mcp_tools(base)
     print("已注册工具：", [t["name"] for t in tools])
 
     profile = await call_mcp_tool(
-        base, "get_elder_profile", {"elder_id": elder_id, "tenant_id": tenant_id}
+        base, "get_site_profile", {"site_id": site_id, "tenant_id": tenant_id}
     )
-    print("老人档案：", {k: profile.get(k) for k in ("found", "name", "care_level", "room_no")})
+    print("老人档案：", {k: profile.get(k) for k in ("found", "name", "risk_tier", "room_no")})
 
     for tool, label in (
         ("get_recent_device_readings", "设备读数"),
-        ("get_recent_care_records", "照护记录"),
+        ("get_recent_service_records", "照护记录"),
         ("get_recent_health_indicators", "健康指标"),
     ):
         rows = await call_mcp_tool(
-            base, tool, {"elder_id": elder_id, "tenant_id": tenant_id, "limit": 3}
+            base, tool, {"site_id": site_id, "tenant_id": tenant_id, "limit": 3}
         )
         print(f"{label}：{len(rows)} 条")
 
@@ -88,15 +88,15 @@ async def check_web_search(base: str) -> bool:
     return True
 
 
-async def check_write_servers(base: str, token: str, tenant_id: str, elder_id: str) -> bool:
+async def check_write_servers(base: str, token: str, tenant_id: str, site_id: str) -> bool:
     """校验写工具：无 token 必须 401，有 token 才能列工具。"""
     ok = True
     labels = {
         "alert-ops": "告警触发与派单",
         "sop-kb-admin": "知识库管理",
-        "care-flow": "照护流程",
+        "work-flow": "照护流程",
     }
-    for name in ("alert-ops", "sop-kb-admin", "care-flow"):
+    for name in ("alert-ops", "sop-kb-admin", "work-flow"):
         url = f"{base}/{name}"
         print(f"\n=== 写工具 · {labels[name]}（{name}，需 Token）：{url}/mcp ===")
         try:
@@ -118,12 +118,12 @@ async def check_write_servers(base: str, token: str, tenant_id: str, elder_id: s
 
 
 async def main() -> int:
-    parser = argparse.ArgumentParser(description="CareAgent MCP Server 冒烟校验")
+    parser = argparse.ArgumentParser(description="FieldOps MCP Server 冒烟校验")
     parser.add_argument("--server", default="all",
-                        choices=["all", "sop-kb", "care-data", "web-search", "write"])
+                        choices=["all", "sop-kb", "service-data", "web-search", "write"])
     parser.add_argument("--base", default="http://localhost:8000/mcp")
     parser.add_argument("--tenant-id", default="tenant_default")
-    parser.add_argument("--elder-id", default="e001")
+    parser.add_argument("--site-id", default="e001")
     parser.add_argument("--admin-token", default="",
                         help="写工具 Bearer Token；留空则用 .env.local 里的 MCP_ADMIN_TOKEN")
     args = parser.parse_args()
@@ -133,12 +133,12 @@ async def main() -> int:
     try:
         if args.server in ("all", "sop-kb"):
             await check_sop_kb(f"{args.base}/sop-kb", args.tenant_id)
-        if args.server in ("all", "care-data"):
-            await check_care_data(f"{args.base}/care-data", args.elder_id, args.tenant_id)
+        if args.server in ("all", "service-data"):
+            await check_service_data(f"{args.base}/service-data", args.site_id, args.tenant_id)
         if args.server in ("all", "web-search"):
             await check_web_search(f"{args.base}/web-search")
         if args.server in ("all", "write"):
-            if not await check_write_servers(args.base, admin_token, args.tenant_id, args.elder_id):
+            if not await check_write_servers(args.base, admin_token, args.tenant_id, args.site_id):
                 return 1
     except Exception as e:
         print(f"\n❌ 校验失败：{type(e).__name__}: {e}")

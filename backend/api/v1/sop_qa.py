@@ -16,7 +16,7 @@ router = APIRouter(prefix="/sop-qa")
 
 class SOPQARequest(BaseModel):
     """SOP 问答请求。"""
-    elder_id:   str = ""
+    site_id:   str = ""
     session_id: str = ""
     query:      str
     org_id:     str | None = None
@@ -37,7 +37,7 @@ async def sop_qa_chat(
             orchestrator = get_orchestrator()
             request = AgentRequest(
                 staff_id=current_user["user_id"],
-                elder_id=req.elder_id,
+                site_id=req.site_id,
                 tenant_id=current_user["tenant_id"],
                 session_id=session_id,
                 agent_type="sop_qa",

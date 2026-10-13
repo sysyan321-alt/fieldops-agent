@@ -16,7 +16,7 @@ class ReadingItem(BaseModel):
 
 
 class ReadingsPayload(BaseModel):
-    elder_id: str
+    site_id: str
     device_type: str = "未知设备"
     readings: list[ReadingItem] = Field(min_length=1)
 
@@ -42,24 +42,24 @@ async def upload_readings(
                       "recorded_at": ts})
     # 租户守卫：老人归属其他租户时拒绝上报（403，不创建跨租户数据）
     tenant_id = current_user["tenant_id"]
-    from backend.db.repositories import _ensure_elder, _ensure_device
-    owner_tenant = await _ensure_elder(payload.elder_id, tenant_id=tenant_id)
+    from backend.db.repositories import _ensure_site, _ensure_device
+    owner_tenant = await _ensure_site(payload.site_id, tenant_id=tenant_id)
     if owner_tenant != tenant_id:
         raise HTTPException(403, "老人不属于当前租户")
-    await _ensure_device(device_id, payload.elder_id, tenant_id)
+    await _ensure_device(device_id, payload.site_id, tenant_id)
     n = await iot_repo.save_device_readings(
-        payload.elder_id, device_id, payload.device_type, items, tenant_id=tenant_id)
+        payload.site_id, device_id, payload.device_type, items, tenant_id=tenant_id)
     if n == 0:
         raise HTTPException(500, "写入失败")
     return {"device_id": device_id, "saved": n}
 
 
-@router.get("/elder/{elder_id}/readings")
+@router.get("/site/{site_id}/readings")
 async def get_readings(
-    elder_id: str,
+    site_id: str,
     limit: int = 10,
     current_user: dict = Depends(get_current_user),
 ):
     """查询老人最近设备读数（租户隔离，跨租户返回空列表）。"""
     return {"readings": await iot_repo.get_recent_device_readings(
-        elder_id, limit, tenant_id=current_user["tenant_id"])}
+        site_id, limit, tenant_id=current_user["tenant_id"])}

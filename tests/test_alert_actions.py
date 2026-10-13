@@ -58,7 +58,7 @@ async def test_assess_risk_node_backfills_empty_actions(monkeypatch):
     result = await assess_risk_node({
         "alert_type": "heart_rate_abnormal",
         "alert_timestamp": "2026-09-29 20:00:00",
-        "device_readings": [], "care_records": [], "health_indicators": [],
+        "device_readings": [], "service_records": [], "health_indicators": [],
     })
 
     risk = result["risk_assessment"]
@@ -81,6 +81,6 @@ async def test_assess_risk_node_keeps_model_actions(monkeypatch):
 
     result = await assess_risk_node({
         "alert_type": "glucose_abnormal", "alert_timestamp": "2026-09-29 20:00:00",
-        "device_readings": [], "care_records": [], "health_indicators": [],
+        "device_readings": [], "service_records": [], "health_indicators": [],
     })
     assert result["risk_assessment"]["recommended_actions"] == given

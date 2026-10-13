@@ -81,7 +81,7 @@ async def get_memory_saver(agent_type: str = "default"):
       memory   → 只用内存（单测 / 无库环境）
 
     Args:
-        agent_type: Agent 标识符，如 "sop_qa" / "alert" / "care_flow"；
+        agent_type: Agent 标识符，如 "sop_qa" / "alert" / "work_flow"；
                     内存后端用它隔离实例，PostgreSQL 后端仅用于日志
 
     Returns:
@@ -115,7 +115,7 @@ async def delete_thread_state(thread_id: str) -> dict:
     不要删历史。
 
     注意：删除按 thread_id 整体生效，会连带该线程下所有 Agent 命名空间的检查点，
-    因此调用方必须先做业务侧确认（见 DELETE /api/v1/chat/session/{elder_id}/{session_id}）。
+    因此调用方必须先做业务侧确认（见 DELETE /api/v1/chat/session/{site_id}/{session_id}）。
 
     Returns:
         {"thread_id": ..., "deleted": bool, "backend": "postgres"|"memory"}
@@ -146,30 +146,30 @@ async def close_memory_savers() -> None:
         _active_backend = "none"
 
 
-def build_thread_id(elder_id: str, session_id: str) -> str:
+def build_thread_id(site_id: str, session_id: str) -> str:
     """
     构建 LangGraph Checkpointer 使用的 thread_id。
 
-    格式：elder_{elder_id}_session_{session_id}
+    格式：site_{site_id}_session_{session_id}
     同一老人的不同会话有独立的历史，互不干扰。
 
     Example:
         build_thread_id("e001", "sess-abc")
-        → "elder_e001_session_sess-abc"
+        → "site_e001_session_sess-abc"
     """
-    return f"elder_{elder_id}_session_{session_id}"
+    return f"site_{site_id}_session_{session_id}"
 
 
-def build_config(elder_id: str, session_id: str, agent_type: Optional[str] = None) -> dict:
+def build_config(site_id: str, session_id: str, agent_type: Optional[str] = None) -> dict:
     """
     构建 LangGraph 调用所需的 config 字典。
 
     用法：
-        config = build_config(elder_id, session_id, agent_type="alert")
+        config = build_config(site_id, session_id, agent_type="alert")
         result = await graph.ainvoke(state, config=config)
 
     Args:
-        elder_id:   老人 ID
+        site_id:   老人 ID
         session_id: 会话 ID（告警场景传 alert_id）
         agent_type: Agent 标识。传入后写入 checkpoint_ns，
                     让同一 thread_id 下不同 Agent 的检查点互不覆盖（见文件头说明）。
@@ -177,10 +177,10 @@ def build_config(elder_id: str, session_id: str, agent_type: Optional[str] = Non
                     否则会读不到断点——和 thread_id 不一致是同一类错。
 
     Returns:
-        {"configurable": {"thread_id": "elder_xxx_session_yyy", "checkpoint_ns": "alert"}}
+        {"configurable": {"thread_id": "site_xxx_session_yyy", "checkpoint_ns": "alert"}}
     """
     configurable: dict[str, str] = {
-        "thread_id": build_thread_id(elder_id, session_id),
+        "thread_id": build_thread_id(site_id, session_id),
     }
     if agent_type:
         configurable["checkpoint_ns"] = agent_type

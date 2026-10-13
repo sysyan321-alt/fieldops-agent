@@ -215,7 +215,7 @@ def _login() -> str:
 
 def _ask(token: str, query: str, session_tag: str, timeout: int = 180) -> tuple[float, str, str]:
     """返回 (耗时ms, answer_mode, 回答正文)。"""
-    payload = {"elder_id": "e001", "session_id": f"{session_tag}-{time.time_ns()}", "query": query}
+    payload = {"site_id": "e001", "session_id": f"{session_tag}-{time.time_ns()}", "query": query}
     req = urllib.request.Request(
         BACKEND + "/api/v1/sop-qa/chat", data=json.dumps(payload).encode(),
         headers={"Content-Type": "application/json", "Authorization": "Bearer " + token},
@@ -333,13 +333,13 @@ def bench_read_endpoints(repeat: int) -> None:
         return
 
     cases = [
-        ("GET /devices/elder/e001/readings", "/api/v1/devices/elder/e001/readings"),
-        ("GET /care-flow/events", "/api/v1/care-flow/events"),
-        ("GET /care-flow/webhooks", "/api/v1/care-flow/webhooks"),
-        ("GET /care-flow/active/e001", "/api/v1/care-flow/active/e001"),
+        ("GET /devices/site/e001/readings", "/api/v1/devices/site/e001/readings"),
+        ("GET /work-flow/events", "/api/v1/work-flow/events"),
+        ("GET /work-flow/webhooks", "/api/v1/work-flow/webhooks"),
+        ("GET /work-flow/active/e001", "/api/v1/work-flow/active/e001"),
         ("GET /assessment/{不存在}", "/api/v1/assessment/asmt-not-exist"),
         ("GET /alert/{不存在}/review", "/api/v1/alert/alert-not-exist/review"),
-        ("GET /care-flow/{不存在}/report", "/api/v1/care-flow/sess-not-exist/report"),
+        ("GET /work-flow/{不存在}/report", "/api/v1/work-flow/sess-not-exist/report"),
     ]
 
     all_lat: list[float] = []
@@ -383,12 +383,12 @@ def bench_other_paths(repeat: int) -> None:
 
     plans = [
         ("⑥ 统一对话入口（意图路由）", "/api/v1/chat",
-         {"elder_id": "e001", "query": "压疮怎么护理"}, "⑥ 统一入口端到端"),
+         {"site_id": "e001", "query": "压疮怎么护理"}, "⑥ 统一入口端到端"),
         ("⑦ 告警研判（到 interrupt 暂停点）", "/api/v1/alert/trigger",
-         {"elder_id": "e001", "device_id": "dev-001", "alert_type": "heart_rate_abnormal"},
+         {"site_id": "e001", "device_id": "dev-001", "alert_type": "heart_rate_abnormal"},
          "⑦ 告警研判端到端"),
-        ("⑧ 照护流程 /start", "/api/v1/care-flow/start",
-         {"elder_id": "e001"}, "⑧ 照护流程端到端"),
+        ("⑧ 照护流程 /start", "/api/v1/work-flow/start",
+         {"site_id": "e001"}, "⑧ 照护流程端到端"),
     ]
 
     for label, path, payload, summary_key in plans:
@@ -436,12 +436,12 @@ def print_summary() -> None:
 
 def main() -> int:
     global LLM_OK
-    parser = argparse.ArgumentParser(description="CareAgent 延迟压测（数字均带口径）")
+    parser = argparse.ArgumentParser(description="FieldOps 延迟压测（数字均带口径）")
     parser.add_argument("--repeat", type=int, default=5, help="每段采样次数（默认 5）")
     parser.add_argument("--no-e2e", action="store_true", help="跳过需要后端的端到端段")
     args = parser.parse_args()
 
-    print("CareAgent 延迟压测 —— 所有数字均为本机实测，请连口径一起引用")
+    print("FieldOps 延迟压测 —— 所有数字均为本机实测，请连口径一起引用")
     LLM_OK, detail = preflight_llm()
     print(f"\n[预检] LLM: {'✅ 可用' if LLM_OK else '❌ 不可用'} —— {detail}")
     if not LLM_OK:

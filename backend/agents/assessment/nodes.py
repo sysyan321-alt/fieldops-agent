@@ -7,7 +7,7 @@ import json
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from backend.agents.assessment.state import (
-    AssessmentState, ElderBasicInfo, AssessmentDimension,
+    AssessmentState, SiteBasicInfo, AssessmentDimension,
     IssueList, AssessmentSummary, DiagnosisAndSummary,
 )
 from backend.agents.assessment.prompts import (
@@ -55,8 +55,8 @@ def _build_structured_summary(structured: dict) -> str:
         lines.append(f"性别：{structured['gender']}")
     if structured.get("room_no"):
         lines.append(f"房间号：{structured['room_no']}")
-    if structured.get("care_level"):
-        lines.append(f"当前护理等级：{structured['care_level']}")
+    if structured.get("risk_tier"):
+        lines.append(f"当前护理等级：{structured['risk_tier']}")
     return "\n".join(lines) if lines else "（结构化提取失败，请基于原文评审）"
 
 
@@ -165,7 +165,7 @@ async def extract_structured_node(state: AssessmentState) -> dict:
                     break
 
             raw_dict = json.loads(content)
-            structured_dict = ElderBasicInfo(**raw_dict).model_dump()
+            structured_dict = SiteBasicInfo(**raw_dict).model_dump()
             break
         except json.JSONDecodeError as e:
             logger.warning("extract_structured.json_error", attempt=attempt, error=str(e))
@@ -178,7 +178,7 @@ async def extract_structured_node(state: AssessmentState) -> dict:
 
     if structured_dict is None:
         logger.warning("extract_structured.fallback")
-        structured_dict = ElderBasicInfo(name="未能提取", age=0, gender="未知").model_dump()
+        structured_dict = SiteBasicInfo(name="未能提取", age=0, gender="未知").model_dump()
 
     logger.info("extract_structured.done", name=structured_dict.get("name", ""))
     return {"structured": structured_dict}
@@ -316,7 +316,7 @@ async def diagnose_and_summarize_node(state: AssessmentState) -> dict:
             "highlights": result.highlights,
             "core_improvements": result.core_improvements,
             "overall_comment": result.overall_comment,
-            "care_level_recommendation": result.care_level_recommendation,
+            "risk_tier_recommendation": result.risk_tier_recommendation,
         }
     except Exception as e:
         logger.warning("diagnose_and_summarize.failed", error=str(e))
@@ -330,7 +330,7 @@ async def diagnose_and_summarize_node(state: AssessmentState) -> dict:
             "highlights": ["评估内容已完整提交"],
             "core_improvements": ["请参考各维度建议制定照护计划"],
             "overall_comment": f"综合评分 {round(weighted_score, 1)} 分，请参考各维度详细反馈。",
-            "care_level_recommendation": "介助" if weighted_score < 80 else "自理",
+            "risk_tier_recommendation": "介助" if weighted_score < 80 else "自理",
         }
 
     # 按优先级排序
@@ -340,7 +340,7 @@ async def diagnose_and_summarize_node(state: AssessmentState) -> dict:
     logger.info("diagnose_and_summarize.done",
                 issues_count=len(issues),
                 high_count=sum(1 for i in issues if i.get("priority") == "high"),
-                care_level=summary_dict.get("care_level_recommendation"))
+                risk_tier=summary_dict.get("risk_tier_recommendation"))
 
     return {"issues": issues, "summary": summary_dict}
 
@@ -387,7 +387,7 @@ async def generate_summary_node(state: AssessmentState) -> dict:
             "highlights": ["评估内容已完整提交"],
             "core_improvements": high_issues[:2] if high_issues else ["请参考各维度建议制定照护计划"],
             "overall_comment": f"综合评分 {round(weighted_score, 1)} 分，请参考各维度详细反馈。",
-            "care_level_recommendation": "介助" if weighted_score < 80 else "自理",
+            "risk_tier_recommendation": "介助" if weighted_score < 80 else "自理",
         }
     logger.info("generate_summary.done", highlights_count=len(summary_dict.get("highlights", [])))
     return {"summary": summary_dict}
@@ -411,7 +411,7 @@ async def save_results_node(state: AssessmentState) -> dict:
     from backend.db.repositories import save_assessment_result
     saved = await save_assessment_result(
         assessment_id=assessment_id,
-        elder_id=state["elder_id"],
+        site_id=state["site_id"],
         dimension_scores=state.get("dimension_scores", []),
         weighted_score=state.get("weighted_score", 0),
         summary_payload=summary_payload,
@@ -422,7 +422,7 @@ async def save_results_node(state: AssessmentState) -> dict:
     # 留一份完整结果给上层（API 可直接用）
     structured_output = {
         "assessment_id": assessment_id,
-        "elder_id": state["elder_id"],
+        "site_id": state["site_id"],
         "structured": state.get("structured"),
         "weighted_score": state.get("weighted_score", 0),
         "dimension_scores": state.get("dimension_scores", []),

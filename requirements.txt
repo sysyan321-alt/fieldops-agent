@@ -1,4 +1,4 @@
-# CareAgent 依赖清单：一条命令装齐全部运行/测试依赖
+# FieldOps 依赖清单：一条命令装齐全部运行/测试依赖
 #   python -m pip install -r requirements.txt
 # 前置：Python 3.11+（scipy>=1.16 不再提供 3.10 轮子；旧版 scipy 在 macOS 26+/27 上 _propack 无法加载）
 

@@ -131,7 +131,7 @@ async def _fetch_device_data(state: AlertState) -> list[dict]:
     from backend.core.device_types import metrics_of
     from backend.db.iot_repo import get_recent_device_readings
 
-    elder_id = state.get("elder_id", "")
+    site_id = state.get("site_id", "")
     device_id = state.get("device_id", "")
     tenant_id = state.get("tenant_id") or "tenant_default"
     profile = state.get("device_profile") or {}
@@ -139,28 +139,28 @@ async def _fetch_device_data(state: AlertState) -> list[dict]:
     # 先按告警设备 + 该设备类型的指标取；取不到再放宽到该老人全部设备
     metrics = metrics_of(profile.get("type_code")) or None
     readings = await get_recent_device_readings(
-        elder_id, limit=10, tenant_id=tenant_id, device_id=device_id, metrics=metrics)
+        site_id, limit=10, tenant_id=tenant_id, device_id=device_id, metrics=metrics)
     if not readings and metrics:
         readings = await get_recent_device_readings(
-            elder_id, limit=10, tenant_id=tenant_id, metrics=metrics)
+            site_id, limit=10, tenant_id=tenant_id, metrics=metrics)
     if not readings:
         readings = await get_recent_device_readings(
-            elder_id, limit=10, tenant_id=tenant_id, device_id=device_id)
+            site_id, limit=10, tenant_id=tenant_id, device_id=device_id)
     if not readings:
-        readings = await get_recent_device_readings(elder_id, limit=10, tenant_id=tenant_id)
+        readings = await get_recent_device_readings(site_id, limit=10, tenant_id=tenant_id)
 
-    logger.info("fetch_device_data.done", elder_id=elder_id, device_id=device_id,
+    logger.info("fetch_device_data.done", site_id=site_id, device_id=device_id,
                 count=len(readings), filtered_by_metrics=bool(metrics and readings))
     return readings
 
 
-async def _fetch_care_records(state: AlertState) -> list[dict]:
+async def _fetch_service_records(state: AlertState) -> list[dict]:
     """第二轨：采集近期照护记录（只读真实记录，查不到返回空让研判知道"没有记录"）。"""
-    elder_id = state.get("elder_id", "")
-    from backend.db.iot_repo import get_recent_care_records
-    records = await get_recent_care_records(
-        elder_id, limit=8, tenant_id=state.get("tenant_id") or "tenant_default")
-    logger.info("fetch_care_records.done", elder_id=elder_id, count=len(records))
+    site_id = state.get("site_id", "")
+    from backend.db.iot_repo import get_recent_service_records
+    records = await get_recent_service_records(
+        site_id, limit=8, tenant_id=state.get("tenant_id") or "tenant_default")
+    logger.info("fetch_service_records.done", site_id=site_id, count=len(records))
     return records
 
 
@@ -168,7 +168,7 @@ async def _fetch_health_indicators(state: AlertState) -> list[dict]:
     """第三轨：采集健康指标（只读真实读数，查不到返回空）。"""
     from backend.db.iot_repo import get_recent_health_indicators
     indicators = await get_recent_health_indicators(
-        state.get("elder_id", ""), limit=8,
+        state.get("site_id", ""), limit=8,
         tenant_id=state.get("tenant_id") or "tenant_default")
     logger.info("fetch_health_indicators.done", count=len(indicators))
     return indicators
@@ -199,7 +199,7 @@ def _format_assessment_snapshot(snapshot: dict | None) -> str:
         f"- 评估时间：{snapshot.get('created_at', '未知')}\n"
         f"- 加权总分：{snapshot.get('weighted_score', '未知')}\n"
         f"- 维度得分：{dim_text}\n"
-        f"- 照护等级建议：{summary.get('care_level_recommendation', '未给出')}\n"
+        f"- 照护等级建议：{summary.get('risk_tier_recommendation', '未给出')}\n"
         f"- 主要问题：{issue_text}"
     )
 
@@ -211,23 +211,23 @@ async def _fetch_assessment_snapshot(state: AlertState) -> dict | None:
     """
     from backend.db.repositories import get_latest_assessment
 
-    elder_id = state.get("elder_id", "")
+    site_id = state.get("site_id", "")
     tenant_id = state.get("tenant_id") or "tenant_default"
-    if not elder_id:
+    if not site_id:
         return None
 
-    snapshot = await get_latest_assessment(elder_id, tenant_id=tenant_id)
+    snapshot = await get_latest_assessment(site_id, tenant_id=tenant_id)
     if snapshot:
         logger.info("fetch_assessment_snapshot.done",
                     assessment_id=snapshot.get("assessment_id", ""),
                     weighted_score=snapshot.get("weighted_score"))
     else:
-        logger.info("fetch_assessment_snapshot.empty", elder_id=elder_id)
+        logger.info("fetch_assessment_snapshot.empty", site_id=site_id)
     return snapshot
 
 
 # ──────────────────────────────────────────────────────────────
-# 节点：fetch_device_data_node / fetch_care_records_node / fetch_health_indicators_node
+# 节点：fetch_device_data_node / fetch_service_records_node / fetch_health_indicators_node
 # （独立暴露，供 run_four_tracks_node 并行调用）
 # ──────────────────────────────────────────────────────────────
 
@@ -237,10 +237,10 @@ async def fetch_device_data_node(state: AlertState) -> dict:
     return {"device_readings": readings}
 
 
-async def fetch_care_records_node(state: AlertState) -> dict:
+async def fetch_service_records_node(state: AlertState) -> dict:
     """第二轨节点：采集照护记录。"""
-    records = await _fetch_care_records(state)
-    return {"care_records": records}
+    records = await _fetch_service_records(state)
+    return {"service_records": records}
 
 
 async def fetch_health_indicators_node(state: AlertState) -> dict:
@@ -285,18 +285,18 @@ async def run_four_tracks_node(state: AlertState) -> dict:
 
     raw = await asyncio.gather(
         _fetch_device_data(enriched),
-        _fetch_care_records(enriched),
+        _fetch_service_records(enriched),
         _fetch_health_indicators(enriched),
         _fetch_assessment_snapshot(enriched),
         return_exceptions=True,
     )
 
     device_readings = raw[0] if not isinstance(raw[0], Exception) else []
-    care_records = raw[1] if not isinstance(raw[1], Exception) else []
+    service_records = raw[1] if not isinstance(raw[1], Exception) else []
     health_indicators = raw[2] if not isinstance(raw[2], Exception) else []
     assessment_snapshot = raw[3] if not isinstance(raw[3], Exception) else None
 
-    for name, exc in zip(["device", "care", "health", "assessment"], raw):
+    for name, exc in zip(["device", "service", "health", "assessment"], raw):
         if isinstance(exc, Exception):
             logger.error(f"four_tracks.{name}_failed", error=str(exc))
 
@@ -304,7 +304,7 @@ async def run_four_tracks_node(state: AlertState) -> dict:
     gaps = []
     if not device_readings:
         gaps.append("设备读数")
-    if not care_records:
+    if not service_records:
         gaps.append("照护记录")
     if not health_indicators:
         gaps.append("健康指标")
@@ -320,7 +320,7 @@ async def run_four_tracks_node(state: AlertState) -> dict:
     logger.info(
         "four_tracks.done",
         device=len(device_readings),
-        care=len(care_records),
+        care=len(service_records),
         health=len(health_indicators),
         assessment=bool(assessment_snapshot),
         evidence_quality=evidence_quality,
@@ -329,7 +329,7 @@ async def run_four_tracks_node(state: AlertState) -> dict:
 
     return {
         "device_readings": device_readings,
-        "care_records": care_records,
+        "service_records": service_records,
         "health_indicators": health_indicators,
         "assessment_snapshot": assessment_snapshot,
         "device_profile": profile,
@@ -345,13 +345,13 @@ async def run_four_tracks_node(state: AlertState) -> dict:
 async def aggregate_tracks_node(state: AlertState) -> dict:
     """汇总四轨采集结果，为风险评估准备数据。"""
     device_readings = state.get("device_readings", [])
-    care_records = state.get("care_records", [])
+    service_records = state.get("service_records", [])
     health_indicators = state.get("health_indicators", [])
 
     logger.info(
         "aggregate_tracks.done",
         device=len(device_readings),
-        care=len(care_records),
+        care=len(service_records),
         health=len(health_indicators),
     )
     return {}  # 四轨数据已在 State 中，无需额外处理
@@ -366,7 +366,7 @@ async def assess_risk_node(state: AlertState) -> dict:
     alert_type = state.get("alert_type", "unknown")
     alert_timestamp = state.get("alert_timestamp", "")
     device_readings = state.get("device_readings", [])
-    care_records = state.get("care_records", [])
+    service_records = state.get("service_records", [])
     health_indicators = state.get("health_indicators", [])
 
     # 格式化四轨数据为文本
@@ -377,9 +377,9 @@ async def assess_risk_node(state: AlertState) -> dict:
         for r in device_readings
     ]) or "（无设备数据）"
 
-    care_text = "\n".join([
-        f"- [{r.get('care_type', '')}] {r.get('content', '')} ({r.get('timestamp', '')})"
-        for r in care_records
+    service_text = "\n".join([
+        f"- [{r.get('service_type', '')}] {r.get('content', '')} ({r.get('timestamp', '')})"
+        for r in service_records
     ]) or "（无照护记录）"
 
     health_text = "\n".join([
@@ -408,7 +408,7 @@ async def assess_risk_node(state: AlertState) -> dict:
         evidence_quality=evidence_quality,
         evidence_gaps=evidence_gap_text,
         device_readings=device_text,
-        care_records=care_text,
+        service_records=service_text,
         health_indicators=health_text,
         assessment_snapshot=assessment_text,
     )
@@ -458,13 +458,13 @@ async def notify_supervisor_node(state: AlertState) -> dict:
     profile = state.get("device_profile") or {}
     saved = await save_alert_triggered(
         alert_id=alert_id,
-        elder_id=state.get("elder_id", ""),
+        site_id=state.get("site_id", ""),
         device_id=state.get("device_id", ""),
         alert_type=state.get("alert_type", ""),
         risk_assessment=risk_assessment,
         tenant_id=state.get("tenant_id") or "tenant_default",
         # 来源与 SaaS 报警 ID：SaaS 下发的报警处置完成后要按 external_alert_id 回调
-        source=state.get("source") or "care",
+        source=state.get("source") or "local",
         external_alert_id=state.get("external_alert_id") or None,
         location=state.get("alert_location") or profile.get("location", ""),
         device_type=profile.get("type_name", ""),
@@ -472,7 +472,7 @@ async def notify_supervisor_node(state: AlertState) -> dict:
         # 列名沿用早期的 three_tracks（历史命名，没做 DDL 重命名），里面存的是四轨
         three_tracks={
             "device_readings": state.get("device_readings", []),
-            "care_records": state.get("care_records", []),
+            "service_records": state.get("service_records", []),
             "health_indicators": state.get("health_indicators", []),
             "assessment_snapshot": state.get("assessment_snapshot"),
             "device_profile": profile,
@@ -503,12 +503,12 @@ async def supervisor_review_node(state: AlertState) -> dict:
 
     display_data = {
         "alert_id":          state.get("alert_id", ""),
-        "elder_id":          state.get("elder_id", ""),
+        "site_id":          state.get("site_id", ""),
         "alert_type":        state.get("alert_type", ""),
         "alert_timestamp":   state.get("alert_timestamp", ""),
         "risk_assessment":   risk_assessment,
         "device_readings":   state.get("device_readings", []),
-        "care_records":      state.get("care_records", []),
+        "service_records":      state.get("service_records", []),
         "health_indicators": state.get("health_indicators", []),
         "message":           "请检查告警风险评估结果，确认后点击派发工单。",
     }
@@ -601,7 +601,7 @@ async def dispatch_order_node(state: AlertState) -> dict:
     dispatch_order = {
         "order_id": f"order-{uuid.uuid4().hex[:12]}",
         "alert_id": state.get("alert_id", ""),
-        "elder_id": state.get("elder_id", ""),
+        "site_id": state.get("site_id", ""),
         "risk_level": risk_level,
         "actions": final_actions,
         "order_content": order_content,
@@ -613,7 +613,7 @@ async def dispatch_order_node(state: AlertState) -> dict:
     from backend.db.repositories import mark_alert_handled, save_alert_dispatched
     saved = await save_alert_dispatched(
         alert_id=state.get("alert_id", ""),
-        elder_id=state.get("elder_id", ""),
+        site_id=state.get("site_id", ""),
         dispatch_order=dispatch_order,
         tenant_id=state.get("tenant_id") or "tenant_default",
     )
@@ -634,13 +634,13 @@ async def dispatch_order_node(state: AlertState) -> dict:
     profile = state.get("device_profile") or {}
     await enqueue_alert_decision(
         alert_id=state.get("alert_id", ""),
-        elder_id=state.get("elder_id", ""),
+        site_id=state.get("site_id", ""),
         tenant_id=state.get("tenant_id") or "tenant_default",
         dispatch_order=dispatch_order,
         device_id=state.get("device_id", ""),
         alert_type=state.get("alert_type", ""),
         external_alert_id=state.get("external_alert_id") or "",
-        source=state.get("source") or "care",
+        source=state.get("source") or "local",
         handled_by=supervisor_id,
         device_type=profile.get("type_name", ""),
         location=state.get("alert_location") or profile.get("location", ""),

@@ -36,7 +36,7 @@ _AGENT_MODEL_ROUTING: dict[str, str] = {
     "assessment":  "qwen",     # 老年人能力评估
     "sop_qa":      "qwen",     # 护理 SOP 问答
     "alert":       "qwen",     # 告警研判
-    "care_flow":   "qwen",     # 照护流程
+    "work_flow":   "qwen",     # 照护流程
     "intent":      "qwen",     # 意图识别
     "summarize":   "qwen",     # 对话摘要压缩
 }

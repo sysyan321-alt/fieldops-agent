@@ -17,7 +17,7 @@ from backend.core.logger import get_logger
 
 logger = get_logger(__name__)
 
-_KEY_PREFIX = "careagent"
+_KEY_PREFIX = "fieldops"
 _FAILURE_COOLDOWN_SECONDS = 60
 
 
@@ -28,7 +28,7 @@ def hash_text(text: str) -> str:
 
 
 def make_key(*parts: Any) -> str:
-    """拼缓存 key：careagent:<段1>:<段2>..."""
+    """拼缓存 key：fieldops:<段1>:<段2>..."""
     return ":".join([_KEY_PREFIX, *[str(p) for p in parts if p not in (None, "")]])
 
 

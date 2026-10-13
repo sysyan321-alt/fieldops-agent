@@ -23,20 +23,20 @@ def _get_mcp_apps() -> dict[str, object]:
     """构建并缓存 MCP 子应用（可用 MCP_ENABLED=false 关闭）。"""
     if not _mcp_apps and get_settings().mcp_enabled:
         from backend.mcp.alert_ops_server import mcp as alert_ops_mcp
-        from backend.mcp.care_data_server import mcp as care_data_mcp
-        from backend.mcp.care_flow_server import mcp as care_flow_mcp
+        from backend.mcp.service_data_server import mcp as service_data_mcp
+        from backend.mcp.work_flow_server import mcp as work_flow_mcp
         from backend.mcp.sop_kb_admin_server import mcp as sop_kb_admin_mcp
         from backend.mcp.sop_kb_server import mcp as sop_kb_mcp
         from backend.mcp.web_search_server import mcp as web_search_mcp
         from backend.mcp.auth import BearerTokenMiddleware
 
         _mcp_apps["sop-kb"] = sop_kb_mcp.streamable_http_app()
-        _mcp_apps["care-data"] = care_data_mcp.streamable_http_app()
+        _mcp_apps["service-data"] = service_data_mcp.streamable_http_app()
         _mcp_apps["web-search"] = web_search_mcp.streamable_http_app()
         # 写工具：外面套一层 Bearer Token 门禁（未配置 MCP_ADMIN_TOKEN 时一律 503，fail-closed）
         _mcp_apps["sop-kb-admin"] = BearerTokenMiddleware(sop_kb_admin_mcp.streamable_http_app())
         _mcp_apps["alert-ops"] = BearerTokenMiddleware(alert_ops_mcp.streamable_http_app())
-        _mcp_apps["care-flow"] = BearerTokenMiddleware(care_flow_mcp.streamable_http_app())
+        _mcp_apps["work-flow"] = BearerTokenMiddleware(work_flow_mcp.streamable_http_app())
     return _mcp_apps
 
 
@@ -86,7 +86,7 @@ def create_app() -> FastAPI:
     settings = get_settings()
 
     app = FastAPI(
-        title="CareAgent API",
+        title="FieldOps API",
         description="养老机构 AI 照护智能体系统",
         version="1.0.0",
         lifespan=lifespan,
@@ -131,7 +131,7 @@ def create_app() -> FastAPI:
     #          /health/ready 是就绪探针（真探 DB/Redis/Milvus，不就绪返回 503）
     @app.get("/health")
     async def health_check():
-        return {"status": "ok", "service": "CareAgent", "version": "1.0.0"}
+        return {"status": "ok", "service": "FieldOps", "version": "1.0.0"}
 
     @app.get("/health/ready")
     async def health_ready():
@@ -140,7 +140,7 @@ def create_app() -> FastAPI:
         from backend.core.health import readiness
 
         payload, ready = await readiness()
-        payload.update({"service": "CareAgent", "version": "1.0.0"})
+        payload.update({"service": "FieldOps", "version": "1.0.0"})
         return JSONResponse(status_code=200 if ready else 503, content=payload)
 
     return app

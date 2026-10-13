@@ -1,15 +1,15 @@
-# scripts/test_care_flow.py
+# scripts/test_work_flow.py
 # 照护流程 Agent 端到端测试（状态机范式）
 # 测试 3 个场景：① 单轮日常照护 ② 多轮触发阶段流转 ③ FINISHED 触发报告生成
 #
-# 用法：cd <项目根目录> && PYTHONPATH=. python scripts/test_care_flow.py
+# 用法：cd <项目根目录> && PYTHONPATH=. python scripts/test_work_flow.py
 
 import asyncio
 
 from langchain_core.messages import HumanMessage
 
-from backend.agents.care_flow.graph import build_care_flow_graph
-from backend.agents.care_flow.state import CareStage
+from backend.agents.work_flow.graph import build_work_flow_graph
+from backend.agents.work_flow.state import WorkStage
 from backend.core.memory import build_config
 from backend.core.logger import configure_logging, get_logger
 
@@ -24,16 +24,16 @@ def _build_initial_state(session_id: str, stage: str = None, max_turns: int = 40
     """构造初始 State。"""
     return {
         "messages":              [HumanMessage(content="")],  # 占位，调用方覆盖
-        "elder_id":               ELDER_ID,
+        "site_id":               ELDER_ID,
         "tenant_id":              "tenant_default",
         "session_id":             session_id,
-        "care_plan_id":           f"plan-{session_id}",
-        "current_stage":          stage or CareStage.ADMISSION_ASSESSMENT.value,
+        "service_plan_id":           f"plan-{session_id}",
+        "current_stage":          stage or WorkStage.ADMISSION_ASSESSMENT.value,
         "stage_turn_count":       stage_turn,
         "total_turn_count":       total_turn,
         "max_turns":              max_turns,
-        "care_plan":              None,
-        "care_history":           [],
+        "service_plan":              None,
+        "service_history":           [],
         "last_response_quality":  "",
         "followup_count":         0,
         "existing_summary":       None,
@@ -63,9 +63,9 @@ async def run_single_turn_care():
     print("  照护流程 Agent - 用例①：单轮日常照护（入住评估阶段）")
     print("=" * 60)
 
-    graph = await build_care_flow_graph()
-    session_id = "care-single"
-    config = build_config(ELDER_ID, session_id, agent_type="care_flow")
+    graph = await build_work_flow_graph()
+    session_id = "work-single"
+    config = build_config(ELDER_ID, session_id, agent_type="work_flow")
 
     state = _build_initial_state(session_id)
     state["messages"] = [HumanMessage(content="老人今天精神状态不错，晨间护理已完成，进食量正常。")]
@@ -83,8 +83,8 @@ async def run_single_turn_care():
     print(f"    stage_turn_count:       {result.get('stage_turn_count')}")
     print(f"    total_turn_count:       {result.get('total_turn_count')}")
     print(f"    last_response_quality: {result.get('last_response_quality')}")
-    cp = result.get("care_plan") or {}
-    print(f"    care_plan.level:        {cp.get('care_level')}")
+    cp = result.get("service_plan") or {}
+    print(f"    service_plan.level:        {cp.get('risk_tier')}")
 
     print("\n" + "=" * 60)
     print("  ✅ 单轮日常照护链路跑通！")
@@ -100,9 +100,9 @@ async def run_stage_transition():
     print("  照护流程 Agent - 用例②：多轮触发阶段流转")
     print("=" * 60)
 
-    graph = await build_care_flow_graph()
-    session_id = "care-transition"
-    config = build_config(ELDER_ID, session_id, agent_type="care_flow")
+    graph = await build_work_flow_graph()
+    session_id = "work-transition"
+    config = build_config(ELDER_ID, session_id, agent_type="work_flow")
 
     # 用极小 max_turns=2 触发流转
     base = _build_initial_state(session_id, max_turns=2)
@@ -150,13 +150,13 @@ async def run_report_generation():
     print("  照护流程 Agent - 用例③：FINISHED 触发报告生成")
     print("=" * 60)
 
-    graph = await build_care_flow_graph()
-    session_id = "care-report"
-    config = build_config(ELDER_ID, session_id, agent_type="care_flow")
+    graph = await build_work_flow_graph()
+    session_id = "work-report"
+    config = build_config(ELDER_ID, session_id, agent_type="work_flow")
 
     state = _build_initial_state(
         session_id,
-        stage=CareStage.FINISHED.value,   # 关键：直接 FINISHED
+        stage=WorkStage.FINISHED.value,   # 关键：直接 FINISHED
         total_turn=20,
     )
     state["messages"] = [HumanMessage(content="照护流程已全部完成。")]
@@ -180,13 +180,13 @@ async def run_report_generation():
     for im in report.get("improvements", [])[:3]:
         print(f"    - {im}")
     print(f"    ── 照护建议 ──")
-    for cs in report.get("care_suggestions", [])[:3]:
+    for cs in report.get("service_suggestions", [])[:3]:
         print(f"    - {cs}")
 
     print(f"\n[3] structured_output:")
     so = result.get("structured_output") or {}
-    print(f"    care_plan_id: {so.get('care_plan_id')}")
-    print(f"    elder_id:     {so.get('elder_id')}")
+    print(f"    service_plan_id: {so.get('service_plan_id')}")
+    print(f"    site_id:     {so.get('site_id')}")
 
     print("\n" + "=" * 60)
     print("  ✅ 报告生成分支跑通！")

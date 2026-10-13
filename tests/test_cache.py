@@ -20,7 +20,7 @@ def test_hash_text_stable_and_short():
 
 def test_make_key_skips_empty_parts_and_prefixes():
     key = make_key("retrieval", "tenant_default", None, "r10", "k3", "abc123")
-    assert key == "careagent:retrieval:tenant_default:r10:k3:abc123"
+    assert key == "fieldops:retrieval:tenant_default:r10:k3:abc123"
 
 
 @pytest.mark.asyncio
@@ -55,6 +55,6 @@ async def test_cache_fail_open_when_disabled(monkeypatch):
     cache._client = None
     cache._down_until = 0.0
 
-    assert await cache.get_json("careagent:test:disabled") is None
-    assert await cache.set_json("careagent:test:disabled", {"a": 1}, ttl_seconds=10) is False
+    assert await cache.get_json("fieldops:test:disabled") is None
+    assert await cache.set_json("fieldops:test:disabled", {"a": 1}, ttl_seconds=10) is False
     assert await cache.ping() is False

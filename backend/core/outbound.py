@@ -5,11 +5,11 @@
 #   ① 外部系统抖动不该拖慢 / 搞挂照护流程（最后一步不该被网络拖死）；
 #   ② 进程崩溃会丢事件——先落库再投递，重启后自动续投；
 #   ③ 需要重试、幂等、审计（谁在什么时候投了几次、失败原因）。
-# 投递语义是「至少一次」：SaaS 侧用 X-CareAgent-Event-Id 做消费端去重。
+# 投递语义是「至少一次」：SaaS 侧用 X-FieldOps-Event-Id 做消费端去重。
 #
 # 与上行（SaaS → Agent）的对称关系：
 #   上行 = 请求体 / 专属回调把业务信号写进 state（discharge_order）；
-#   下行 = 本模块把 Agent 的终态结果推回 SaaS（care_flow.finished）。
+#   下行 = 本模块把 Agent 的终态结果推回 SaaS（work_flow.finished）。
 
 import asyncio
 import contextlib
@@ -27,7 +27,7 @@ from backend.db import repositories as repo
 logger = get_logger(__name__)
 
 # ── 事件类型 ─────────────────────────────────────────────────
-EVENT_CARE_FLOW_FINISHED = "care_flow.finished"   # 照护流程走到终态、报告已落库
+EVENT_CARE_FLOW_FINISHED = "work_flow.finished"   # 照护流程走到终态、报告已落库
 EVENT_ALERT_DISPATCHED = "alert.dispatched"       # 告警研判通过站长确认、工单已派发
 EVENT_ALERT_DISMISSED = "alert.dismissed"         # 告警被站长取消处置（不派单）
 
@@ -49,14 +49,14 @@ def build_headers(event: dict, body: bytes, secret: str) -> dict:
     """构造投递头：事件标识 + 时间戳 + 可选 HMAC 签名。"""
     headers = {
         "Content-Type": "application/json",
-        "X-CareAgent-Event": str(event.get("event_type", "")),
-        "X-CareAgent-Event-Id": str(event.get("event_id", "")),
-        "X-CareAgent-Delivery-Attempt": str(int(event.get("attempts", 0)) + 1),
-        "X-CareAgent-Timestamp": str(int(datetime.now(timezone.utc).timestamp())),
+        "X-FieldOps-Event": str(event.get("event_type", "")),
+        "X-FieldOps-Event-Id": str(event.get("event_id", "")),
+        "X-FieldOps-Delivery-Attempt": str(int(event.get("attempts", 0)) + 1),
+        "X-FieldOps-Timestamp": str(int(datetime.now(timezone.utc).timestamp())),
     }
     signature = sign_payload(secret, body)
     if signature:
-        headers["X-CareAgent-Signature"] = f"sha256={signature}"
+        headers["X-FieldOps-Signature"] = f"sha256={signature}"
     return headers
 
 
@@ -124,30 +124,30 @@ async def dispatch_pending(limit: int | None = None) -> dict:
 
 # ── 业务侧便捷入口 ───────────────────────────────────────────
 
-async def enqueue_care_flow_finished(
+async def enqueue_work_flow_finished(
     session_id: str,
-    elder_id: str,
+    site_id: str,
     tenant_id: str,
-    care_plan_id: str,
+    service_plan_id: str,
     stage_reached: str,
     total_turns: int,
     report: dict,
     discharge_driven: bool = False,
 ) -> str | None:
-    """照护流程终态 → 落一条 care_flow.finished 事件（报告已随载荷内联）。
+    """照护流程终态 → 落一条 work_flow.finished 事件（报告已随载荷内联）。
 
     幂等：同一 session 重复落库不会产生第二条（发件箱唯一索引兜底）。
     """
     payload = {
         "event": EVENT_CARE_FLOW_FINISHED,
         "session_id": session_id,
-        "elder_id": elder_id,
-        "care_plan_id": care_plan_id or "",
+        "site_id": site_id,
+        "service_plan_id": service_plan_id or "",
         "stage_reached": stage_reached or "",
         "total_turns": int(total_turns or 0),
         "discharge_driven": bool(discharge_driven),   # 是否由 SaaS 退住工单驱动
         "report": report or {},
-        "report_url": f"/api/v1/care-flow/{session_id}/report",
+        "report_url": f"/api/v1/work-flow/{session_id}/report",
         "occurred_at": datetime.now(timezone.utc).isoformat(),
     }
     return await repo.enqueue_outbound_event(
@@ -160,20 +160,20 @@ async def enqueue_care_flow_finished(
 
 async def enqueue_alert_decision(
     alert_id: str,
-    elder_id: str,
+    site_id: str,
     tenant_id: str,
     dispatch_order: dict,
     device_id: str = "",
     alert_type: str = "",
     external_alert_id: str = "",
-    source: str = "care",
+    source: str = "local",
     handled_by: str = "",
     device_type: str = "",
     location: str = "",
 ) -> str | None:
     """告警处置终态 → 落一条出站事件（派单或取消）。
 
-    与 care_flow.finished 共用同一发件箱与投递器：告警是"AI 研判 + 人审决断"的链路，
+    与 work_flow.finished 共用同一发件箱与投递器：告警是"AI 研判 + 人审决断"的链路，
     站长一按确认，工单就该同步到业务系统，而不是让 SaaS 轮询告警接口。
     幂等键用 order_id（每张派发工单唯一）；dismiss 不派单但仍通知业务方"已取消处置"。
 
@@ -190,13 +190,13 @@ async def enqueue_alert_decision(
     payload = {
         "event": event_type,
         "alert_id": alert_id,
-        "elder_id": elder_id,
+        "site_id": site_id,
         "order_id": (dispatch_order or {}).get("order_id", ""),
         "device_id": device_id,
         "device_type": device_type,
         "alert_type": alert_type,
         # 对接机构 SaaS 报警记录：来源、SaaS 报警 ID、报警位置、处理人
-        "source": source or "care",
+        "source": source or "local",
         "external_alert_id": external_alert_id or "",
         "location": location or "",
         "handled_by": handled_by or (dispatch_order or {}).get("supervisor_id", ""),

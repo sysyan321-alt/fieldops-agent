@@ -2,7 +2,7 @@
 # 意图识别升级测试：验证 LLM 驱动 + 三层 fallback + clarify 分支
 #
 # 覆盖：
-#   1. 4 个 Agent 直达用例（assessment/sop_qa/alert/care_flow）
+#   1. 4 个 Agent 直达用例（assessment/sop_qa/alert/work_flow）
 #   2. 跨域冲突样本（"评估跌倒风险" → SOP_QA 而非 ASSESSMENT）
 #   3. 闲聊兜底（"你是谁" → SOP_QA）
 #   4. LLM 失败 fallback（mock 抛异常 → 关键词降级）
@@ -276,7 +276,7 @@ async def test_clarification_trigger():
         and IntentAgentType.CARE_FLOW in r3.candidates
     )
     print(f"\n  {'✅' if ok3 else '❌'} [5-3] candidates 不含 agent_type → 补 agent_type 到候选")
-    print(f"     原始 candidates=['care_flow']（缺 agent_type）")
+    print(f"     原始 candidates=['work_flow']（缺 agent_type）")
     print(f"     修复后 candidates={[c.value for c in r3.candidates]}")
     if ok3: passed += 1
 

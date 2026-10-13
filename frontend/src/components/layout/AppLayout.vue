@@ -5,7 +5,7 @@
     </el-aside>
     <el-container direction="vertical">
       <el-header class="app-header">
-        <span class="header-title">CareAgent</span>
+        <span class="header-title">FieldOps</span>
         <div class="header-right">
           <el-tag size="small" :type="roleTagType">{{ roleLabel }}</el-tag>
           <span class="username">{{ auth.user?.username ?? auth.user?.userId }}</span>

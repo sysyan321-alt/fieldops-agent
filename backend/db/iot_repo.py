@@ -11,7 +11,7 @@ logger = get_logger(__name__)
 DEFAULT_TENANT = "tenant_default"
 
 
-async def save_device_readings(elder_id, device_id, device_type, readings,
+async def save_device_readings(site_id, device_id, device_type, readings,
                                tenant_id=DEFAULT_TENANT):
     """批量写入设备读数，返回成功条数。readings: [{metric_name, reading_value, reading_unit, is_abnormal, recorded_at}]"""
     rows = 0
@@ -19,11 +19,11 @@ async def save_device_readings(elder_id, device_id, device_type, readings,
         async with AsyncSessionLocal() as s:
             for r in readings:
                 await s.execute(text(
-                    "INSERT INTO device_readings (reading_id, device_id, elder_id, device_type,"
+                    "INSERT INTO device_readings (reading_id, device_id, site_id, device_type,"
                     " metric_name, reading_value, reading_unit, is_abnormal, recorded_at, tenant_id)"
                     " VALUES (:rid,:did,:eid,:dt,:mn,:rv,:ru,:ab,:ts,:tid)"), {
                     "rid": f"dr-{uuid.uuid4().hex[:12]}",
-                    "did": device_id, "eid": elder_id, "dt": device_type,
+                    "did": device_id, "eid": site_id, "dt": device_type,
                     "mn": r.get("metric_name",""), "rv": str(r.get("reading_value","")),
                     "ru": r.get("reading_unit",""), "ab": bool(r.get("is_abnormal",False)),
                     "ts": r.get("recorded_at") or datetime.now(), "tid": tenant_id})
@@ -31,11 +31,11 @@ async def save_device_readings(elder_id, device_id, device_type, readings,
             await s.commit()
     except Exception as e:
         logger.error("iot.readings_save_failed", error=str(e))
-    logger.info("iot.readings_saved", elder_id=elder_id, rows=rows)
+    logger.info("iot.readings_saved", site_id=site_id, rows=rows)
     return rows
 
 
-async def get_recent_device_readings(elder_id, limit=10, tenant_id=DEFAULT_TENANT,
+async def get_recent_device_readings(site_id, limit=10, tenant_id=DEFAULT_TENANT,
                                      device_id=None, metrics=None):
     """按老人查最近设备读数（第一轨数据源，强制租户过滤）。
 
@@ -49,8 +49,8 @@ async def get_recent_device_readings(elder_id, limit=10, tenant_id=DEFAULT_TENAN
     try:
         sql = ("SELECT device_id, device_type, metric_name, reading_value,"
                " reading_unit, is_abnormal, recorded_at"
-               " FROM device_readings WHERE elder_id = :eid AND tenant_id = :tid")
-        params = {"eid": elder_id, "tid": tenant_id, "lim": limit}
+               " FROM device_readings WHERE site_id = :eid AND tenant_id = :tid")
+        params = {"eid": site_id, "tid": tenant_id, "lim": limit}
         if device_id:
             sql += " AND device_id = :did"
             params["did"] = device_id
@@ -71,22 +71,22 @@ async def get_recent_device_readings(elder_id, limit=10, tenant_id=DEFAULT_TENAN
         return []
 
 
-async def get_recent_care_records(elder_id, limit=8, tenant_id=DEFAULT_TENANT):
+async def get_recent_service_records(site_id, limit=8, tenant_id=DEFAULT_TENANT):
     """按老人查最近照护记录（第二轨数据源，强制租户过滤）。"""
     try:
         async with AsyncSessionLocal() as s:
             rows = (await s.execute(text(
-                "SELECT record_id, care_type, content, caregiver_id, created_at"
-                " FROM care_records WHERE elder_id = :eid AND tenant_id = :tid"
+                "SELECT record_id, service_type, content, worker_id, created_at"
+                " FROM service_records WHERE site_id = :eid AND tenant_id = :tid"
                 " ORDER BY created_at DESC LIMIT :lim"),
-                {"eid": elder_id, "tid": tenant_id, "lim": limit})).fetchall()
-        return [{"record_id": r.record_id, "elder_id": elder_id,
-                 "care_type": r.care_type, "content": r.content or "",
-                 "caregiver_id": r.caregiver_id,
+                {"eid": site_id, "tid": tenant_id, "lim": limit})).fetchall()
+        return [{"record_id": r.record_id, "site_id": site_id,
+                 "service_type": r.service_type, "content": r.content or "",
+                 "worker_id": r.worker_id,
                  "timestamp": r.created_at.strftime("%Y-%m-%d %H:%M:%S")}
                 for r in rows]
     except Exception as e:
-        logger.error("iot.care_get_failed", error=str(e))
+        logger.error("iot.service_get_failed", error=str(e))
         return []
 
 
@@ -96,16 +96,16 @@ _VITAL_RANGES = {
 }
 
 
-async def get_recent_health_indicators(elder_id, limit=8, tenant_id=DEFAULT_TENANT):
+async def get_recent_health_indicators(site_id, limit=8, tenant_id=DEFAULT_TENANT):
     """从 device_readings 提取生命体征类读数（第三轨，强制租户过滤）。"""
     try:
         async with AsyncSessionLocal() as s:
             rows = (await s.execute(text(
                 "SELECT metric_name, reading_value, reading_unit, is_abnormal, recorded_at"
-                " FROM device_readings WHERE elder_id = :eid AND tenant_id = :tid"
+                " FROM device_readings WHERE site_id = :eid AND tenant_id = :tid"
                 " AND metric_name = ANY(:names)"
                 " ORDER BY recorded_at DESC LIMIT :lim"),
-                {"eid": elder_id, "tid": tenant_id, "names": list(_VITAL_RANGES),
+                {"eid": site_id, "tid": tenant_id, "names": list(_VITAL_RANGES),
                  "lim": limit})).fetchall()
         out, seen = [], set()
         for r in rows:

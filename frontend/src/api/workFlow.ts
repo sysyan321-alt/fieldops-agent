@@ -1,23 +1,23 @@
 import client from './client'
 
-export interface CareFlowStartRequest {
-  elder_id: string
-  care_plan_id?: string
+export interface WorkFlowStartRequest {
+  site_id: string
+  service_plan_id?: string
   initial_stage?: string
   discharge_order?: Record<string, unknown>  // SaaS 退住工单（入住时已知要出院可注入）
 }
 
-export interface CareFlowStartResponse {
+export interface WorkFlowStartResponse {
   session_id: string
   current_stage: string
   ai_message: string
   structured_output: unknown
 }
 
-export interface CareFlowReport {
+export interface WorkFlowReport {
   session_id: string
-  elder_id: string
-  care_plan_id?: string
+  site_id: string
+  service_plan_id?: string
   stage_reached?: string
   total_turns?: number
   status?: string
@@ -25,9 +25,9 @@ export interface CareFlowReport {
   created_at?: string
 }
 
-export interface CareFlowActiveSession {
+export interface WorkFlowActiveSession {
   session_id: string
-  elder_id: string
+  site_id: string
   staff_id: string
   current_stage: string
   total_turns: number
@@ -35,20 +35,20 @@ export interface CareFlowActiveSession {
   updated_at?: string
 }
 
-export interface CareFlowActiveResponse {
+export interface WorkFlowActiveResponse {
   active: boolean
-  session: CareFlowActiveSession | null
+  session: WorkFlowActiveSession | null
 }
 
-export const careFlowApi = {
-  start: (data: CareFlowStartRequest) =>
-    client.post<CareFlowStartResponse>('/care-flow/start', data),
+export const workFlowApi = {
+  start: (data: WorkFlowStartRequest) =>
+    client.post<WorkFlowStartResponse>('/work-flow/start', data),
 
-  getActiveSession: (elderId: string) =>
-    client.get<CareFlowActiveResponse>(`/care-flow/active/${elderId}`),
+  getActiveSession: (siteId: string) =>
+    client.get<WorkFlowActiveResponse>(`/work-flow/active/${siteId}`),
 
   getReport: (sessionId: string) =>
-    client.get<CareFlowReport>(`/care-flow/${sessionId}/report`),
+    client.get<WorkFlowReport>(`/work-flow/${sessionId}/report`),
 }
 
 // ── 照护计划（护理等级 → 服务项 → 当天执行）──────────────────
@@ -61,7 +61,7 @@ export interface ServiceItem {
   times_per_day?: number
   nurse_time_slots?: Array<{ startTime?: string; endTime?: string }>
   is_required?: boolean
-  care_level?: string
+  risk_tier?: string
   source?: string
 }
 
@@ -70,7 +70,7 @@ export interface DailyPlanItem {
   plan_item_id: string
   project_name: string
   nurse_time?: string
-  carer_name?: string
+  worker_name?: string
   actual_care_time?: string
   status: 'planned' | 'done' | 'missed'
 }
@@ -87,10 +87,10 @@ export type PlanSource = 'service_items' | 'ai_assessment' | 'merged' | 'pipelin
 
 export interface PlanOverview {
   session_id: string
-  elder_id: string
+  site_id: string
   plan_missing: boolean
   plan_source: PlanSource
-  care_level: string
+  risk_tier: string
   special_notes: string
   service_items: ServiceItem[]
   today_plan: DailyPlanItem[]
@@ -98,17 +98,17 @@ export interface PlanOverview {
   message: string
 }
 
-export const carePlanApi = {
+export const servicePlanApi = {
   /** 计划总览：护理等级 + 服务项 + 当天计划与进度（不跑 LLM，很快） */
   getOverview: (sessionId: string) =>
-    client.get<PlanOverview>(`/care-flow/sessions/${sessionId}/plan-overview`),
+    client.get<PlanOverview>(`/work-flow/sessions/${sessionId}/plan-overview`),
 
   /** 护工回写执行结果：done=完成 / missed=该做没做 */
   confirmItem: (
     planItemId: string,
-    data: { status: 'done' | 'missed'; carer_name?: string; actual_care_time?: string },
+    data: { status: 'done' | 'missed'; worker_name?: string; actual_care_time?: string },
   ) => client.post<{ plan_item_id: string; status: string; confirmed: boolean }>(
-    `/care-flow/plan-items/${planItemId}/confirm`, data,
+    `/work-flow/plan-items/${planItemId}/confirm`, data,
   ),
 }
 
@@ -144,23 +144,23 @@ export const outboundApi = {
   /** 读取本租户回调配置（密钥打码） */
   getWebhook: () =>
     client.get<{ configured: boolean; webhook: OutboundWebhookConfig | null }>(
-      '/care-flow/webhooks',
+      '/work-flow/webhooks',
     ),
 
   /** 保存回调配置：secret 省略 = 不改动现有密钥 */
   saveWebhook: (data: { url: string; secret?: string; enabled?: boolean }) =>
     client.put<{ configured: boolean; url: string; enabled: boolean }>(
-      '/care-flow/webhooks',
+      '/work-flow/webhooks',
       data,
     ),
 
   /** 出站事件列表（发件箱审计） */
   listEvents: (limit = 50) =>
-    client.get<OutboundEventList>('/care-flow/events', { params: { limit } }),
+    client.get<OutboundEventList>('/work-flow/events', { params: { limit } }),
 
   /** 把失败 / 已发事件重置为待投递，交给投递器重发 */
   redeliver: (eventId: string) =>
     client.post<{ event_id: string; status: string; message: string }>(
-      `/care-flow/events/${eventId}/redeliver`,
+      `/work-flow/events/${eventId}/redeliver`,
     ),
 }

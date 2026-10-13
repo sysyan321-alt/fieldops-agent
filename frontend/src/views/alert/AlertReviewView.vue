@@ -7,7 +7,7 @@
       </template>
       <el-form :inline="true" :model="form">
         <el-form-item label="老人 ID">
-          <el-input v-model="form.elder_id" placeholder="elder_001" style="width: 160px" />
+          <el-input v-model="form.site_id" placeholder="site_001" style="width: 160px" />
         </el-form-item>
         <el-form-item label="设备 ID">
           <el-input v-model="form.device_id" placeholder="device_001" style="width: 160px" />
@@ -21,7 +21,7 @@
           <el-button
             type="primary"
             :loading="triggering"
-            :disabled="!form.elder_id || !form.device_id"
+            :disabled="!form.site_id || !form.device_id"
             @click="handleTrigger"
           >
             {{ triggering ? 'AI 研判中…' : '触发研判' }}
@@ -58,8 +58,8 @@
         <el-collapse-item title="设备实时数据（device_readings）" name="device">
           <pre class="track-json">{{ pretty(review.device_readings) }}</pre>
         </el-collapse-item>
-        <el-collapse-item title="照护记录（care_records）" name="care">
-          <pre class="track-json">{{ pretty(review.care_records) }}</pre>
+        <el-collapse-item title="照护记录（service_records）" name="service">
+          <pre class="track-json">{{ pretty(review.service_records) }}</pre>
         </el-collapse-item>
         <el-collapse-item title="健康指标趋势（health_indicators）" name="health">
           <pre class="track-json">{{ pretty(review.health_indicators) }}</pre>
@@ -115,7 +115,7 @@ import { useAuthStore } from '@/stores/auth'
 const auth = useAuthStore()
 
 const form = reactive({
-  elder_id: '',
+  site_id: '',
   device_id: '',
   alert_type: 'heart_rate_abnormal',
 })

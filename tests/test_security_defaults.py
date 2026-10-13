@@ -221,7 +221,7 @@ def test_create_user_script_compiles_and_exposes_roles():
 
     src = Path("scripts/create_user.py").read_text(encoding="utf-8")
     ast.parse(src)                      # 语法正确
-    assert "caregiver" in src and "supervisor" in src and "admin" in src
+    assert "worker" in src and "supervisor" in src and "admin" in src
     assert "getpass" in src, "密码应支持交互输入，避免进 shell 历史"
     assert "--reset" in src
 

@@ -1,12 +1,12 @@
-# backend/agents/care_flow/graph.py
+# backend/agents/work_flow/graph.py
 # 照护流程 Agent 的 LangGraph 状态图构建
 
 from langgraph.graph import StateGraph, START, END
 
-from backend.agents.care_flow.state import (
-    CareFlowState, CareStage,
+from backend.agents.work_flow.state import (
+    WorkFlowState, WorkStage,
 )
-from backend.agents.care_flow.nodes import (
+from backend.agents.work_flow.nodes import (
     load_context_node,
     notify_missing_plan_node,
     check_stage_node,
@@ -19,28 +19,28 @@ from backend.agents.care_flow.nodes import (
 from backend.core.memory import get_memory_saver
 
 
-def _route_after_check_stage(state: CareFlowState) -> list[str] | str:
+def _route_after_check_stage(state: WorkFlowState) -> list[str] | str:
     """
     check_stage 之后的条件路由。
     FINISHED → generate_report（生成报告）
     其它     → evaluate_response + generate_response（并行，节省 1 轮 LLM 调用）
     """
     current_stage = state.get("current_stage", "")
-    if current_stage == CareStage.FINISHED.value:
+    if current_stage == WorkStage.FINISHED.value:
         return "generate_report"
     return ["evaluate_response", "generate_response"]
 
 
-def _route_after_load_context(state: CareFlowState) -> str:
+def _route_after_load_context(state: WorkFlowState) -> str:
     """load_context 之后：没有照护计划就不该推进状态机。
 
     改造前这里会用 mock 计划兜底继续跑，等于让一份编造的照护计划驱动"日常工作"——
     现在改为如实告知并结束本轮，由业务侧去补数据。
     """
-    return "notify_missing_plan" if state.get("care_plan_missing") else "check_stage"
+    return "notify_missing_plan" if state.get("service_plan_missing") else "check_stage"
 
 
-async def build_care_flow_graph():
+async def build_work_flow_graph():
     """
     构建并编译照护流程 Agent 的 LangGraph 状态图。
 
@@ -56,7 +56,7 @@ async def build_care_flow_graph():
         - END 后通过同 thread_id 再次 ainvoke 可继续下一轮
         - 当 current_stage 变为 FINISHED 时走报告生成分支
     """
-    builder = StateGraph(CareFlowState)
+    builder = StateGraph(WorkFlowState)
 
     # 注册节点
     builder.add_node("load_context",     load_context_node)
@@ -100,13 +100,13 @@ async def build_care_flow_graph():
     builder.add_edge("save_memory",        END)
 
     # 编译（绑定 checkpointer：默认 AsyncPostgresSaver，阶段状态跨重启存活）
-    checkpointer = await get_memory_saver("care_flow")
+    checkpointer = await get_memory_saver("work_flow")
     return builder.compile(checkpointer=checkpointer)
 
 
 if __name__ == '__main__':
     import asyncio
-    g = asyncio.run(build_care_flow_graph())
+    g = asyncio.run(build_work_flow_graph())
     nodes = [n for n in g.get_graph().nodes if n not in ("__start__", "__end__")]
     print("图编译成功:", g is not None)
     print("节点数:", len(nodes))

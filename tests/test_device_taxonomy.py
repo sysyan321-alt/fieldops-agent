@@ -5,7 +5,7 @@
 #   ③ 证据缺失与设备可信度必须进入研判提示词（否则模型会对假数据下结论）；
 #   ④ SaaS 下行报警的类型推断。
 #
-# 背景：改造前 _fetch_device_data/_fetch_care_records/_fetch_health_indicators 在库里
+# 背景：改造前 _fetch_device_data/_fetch_service_records/_fetch_health_indicators 在库里
 # 查不到数据时会现场生成硬编码读数（心率永远 135、离床永远 15 分钟），
 # 导致风险等级由常量决定。这组用例就是防止那个行为回归。
 
@@ -73,13 +73,13 @@ async def test_tracks_return_empty_instead_of_mock_data(monkeypatch):
         return []
 
     monkeypatch.setattr(iot_repo, "get_recent_device_readings", _no_readings)
-    monkeypatch.setattr(iot_repo, "get_recent_care_records", _no_readings)
+    monkeypatch.setattr(iot_repo, "get_recent_service_records", _no_readings)
     monkeypatch.setattr(iot_repo, "get_recent_health_indicators", _no_readings)
 
-    state = {"elder_id": "e-none", "device_id": "dev-none",
+    state = {"site_id": "e-none", "device_id": "dev-none",
              "tenant_id": "tenant_default", "alert_type": "heart_rate_abnormal"}
     readings = await alert_nodes._fetch_device_data(state)
-    records = await alert_nodes._fetch_care_records(state)
+    records = await alert_nodes._fetch_service_records(state)
     indicators = await alert_nodes._fetch_health_indicators(state)
 
     assert readings == [], "设备读数查不到时必须返回空，不得生成模拟读数"
@@ -96,7 +96,7 @@ async def test_missing_evidence_is_recorded_as_gap(monkeypatch):
         return None
 
     monkeypatch.setattr(alert_nodes, "_fetch_device_data", _empty)
-    monkeypatch.setattr(alert_nodes, "_fetch_care_records", _empty)
+    monkeypatch.setattr(alert_nodes, "_fetch_service_records", _empty)
     monkeypatch.setattr(alert_nodes, "_fetch_health_indicators", _empty)
     monkeypatch.setattr(alert_nodes, "_fetch_assessment_snapshot", _no_assessment)
 
@@ -119,7 +119,7 @@ async def test_partial_evidence_quality(monkeypatch):
         return {"weighted_score": 62.0, "summary": {}}
 
     monkeypatch.setattr(alert_nodes, "_fetch_device_data", _devices)
-    monkeypatch.setattr(alert_nodes, "_fetch_care_records", _empty)
+    monkeypatch.setattr(alert_nodes, "_fetch_service_records", _empty)
     monkeypatch.setattr(alert_nodes, "_fetch_health_indicators", _empty)
     monkeypatch.setattr(alert_nodes, "_fetch_assessment_snapshot", _snapshot)
 
@@ -139,7 +139,7 @@ async def test_device_profile_is_resolved_and_carried(monkeypatch):
         return None
 
     monkeypatch.setattr(alert_nodes, "_fetch_device_data", _empty)
-    monkeypatch.setattr(alert_nodes, "_fetch_care_records", _empty)
+    monkeypatch.setattr(alert_nodes, "_fetch_service_records", _empty)
     monkeypatch.setattr(alert_nodes, "_fetch_health_indicators", _empty)
     monkeypatch.setattr(alert_nodes, "_fetch_assessment_snapshot", _snapshot)
 
@@ -192,7 +192,7 @@ async def test_declared_device_type_wins_over_alert_type_inference(monkeypatch):
 async def test_declared_type_wins_and_mismatch_is_logged(monkeypatch, caplog):
     """报警声明的类型与本地登记不一致时：采信声明，但必须留痕（登记可能过期）。"""
     async def _device(*_a, **_kw):
-        return {"device_id": "dev-001", "elder_id": "e001",
+        return {"device_id": "dev-001", "site_id": "e001",
                 "device_type": "心率手环", "type_code": "bracelet",
                 "location": "3号楼201", "status": "active"}
 
@@ -211,7 +211,7 @@ async def test_declared_type_wins_and_mismatch_is_logged(monkeypatch, caplog):
 async def test_falls_back_to_device_registry(monkeypatch):
     """报警没带设备类型时，回到设备登记表。"""
     async def _device(*_a, **_kw):
-        return {"device_id": "dev-002", "elder_id": "e001", "device_type": "离床传感器",
+        return {"device_id": "dev-002", "site_id": "e001", "device_type": "离床传感器",
                 "type_code": "", "location": "", "status": "active"}
 
     monkeypatch.setattr("backend.db.repositories.get_device", _device)
@@ -250,7 +250,7 @@ async def test_ingest_is_idempotent_on_external_id(monkeypatch):
     from backend.api.v1.alert import AlertIngestRequest, ingest_alert
 
     async def _existing(external_alert_id, tenant_id="tenant_default"):
-        return {"alert_id": "alert-known", "elder_id": "e1", "device_id": "d1",
+        return {"alert_id": "alert-known", "site_id": "e1", "device_id": "d1",
                 "alert_type": "fall_detected", "status": "reviewing", "risk_level": "high"}
 
     ran = {"assessment": False}
@@ -263,7 +263,7 @@ async def test_ingest_is_idempotent_on_external_id(monkeypatch):
     monkeypatch.setattr("backend.api.v1.alert._run_alert_assessment", _no_run)
 
     out = await ingest_alert(
-        AlertIngestRequest(external_alert_id="EXT-1", device_id="d1", elder_id="e1"),
+        AlertIngestRequest(external_alert_id="EXT-1", device_id="d1", site_id="e1"),
         current_user=_USER)
 
     assert out["duplicated"] is True
@@ -288,7 +288,7 @@ async def test_ingest_runs_assessment_and_carries_external_id(monkeypatch):
     monkeypatch.setattr("backend.api.v1.alert._run_alert_assessment", _run)
 
     out = await ingest_alert(
-        AlertIngestRequest(external_alert_id="EXT-2", device_id="dev-9", elder_id="e2",
+        AlertIngestRequest(external_alert_id="EXT-2", device_id="dev-9", site_id="e2",
                            device_type="跌倒雷达", alert_content="检测到跌倒事件",
                            location="3号楼201-2床", alert_time="2026-10-13 16:00:00"),
         current_user=_USER)

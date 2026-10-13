@@ -27,7 +27,7 @@
 import { computed } from 'vue'
 import { Check } from '@element-plus/icons-vue'
 
-// 与后端 CareStage 枚举一一对应（异常处理已并入日常照护子模式）
+// 与后端 WorkStage 枚举一一对应（异常处理已并入日常照护子模式）
 const stages = [
   { key: 'admission_assessment', label: '入住评估' },
   { key: 'daily_care',           label: '日常照护' },

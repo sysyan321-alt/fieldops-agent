@@ -1,4 +1,4 @@
-# tests/test_care_flow_webhook.py
+# tests/test_work_flow_webhook.py
 # 出站通知（Agent → SaaS）：签名 / 投递 / 重试退避 / 跳过未配置 / 发件箱幂等。
 #
 # 单元用例用 fake repo + fake httpx，不依赖 DB / 网络；
@@ -18,7 +18,7 @@ from backend.db import repositories as repo
 from backend.dependencies import AsyncSessionLocal
 
 TENANT = "tenant_default"
-HOOK_URL = "https://saas.example.com/hooks/care-agent"
+HOOK_URL = "https://saas.example.com/hooks/fieldops-agent"
 
 
 # ── 测试替身 ─────────────────────────────────────────────────
@@ -29,7 +29,7 @@ def _event(**overrides) -> dict:
         "tenant_id": TENANT,
         "event_type": outbound_mod.EVENT_CARE_FLOW_FINISHED,
         "aggregate_id": "cf-test-1",
-        "payload": {"event": "care_flow.finished", "session_id": "cf-test-1"},
+        "payload": {"event": "work_flow.finished", "session_id": "cf-test-1"},
         "status": "pending",
         "attempts": 0,
         "last_error": "",
@@ -141,16 +141,16 @@ def test_sign_payload_matches_hmac_reference():
 def test_build_headers_carries_event_id_and_signature():
     body = b"{}"
     headers = outbound_mod.build_headers(_event(attempts=2), body, "s3cr3t")
-    assert headers["X-CareAgent-Event"] == outbound_mod.EVENT_CARE_FLOW_FINISHED
-    assert headers["X-CareAgent-Event-Id"] == "evt-test-1"
-    assert headers["X-CareAgent-Delivery-Attempt"] == "3"   # 投递前 attempts=2 → 本次是第 3 次
-    assert headers["X-CareAgent-Signature"].startswith("sha256=")
-    assert "X-CareAgent-Timestamp" in headers
+    assert headers["X-FieldOps-Event"] == outbound_mod.EVENT_CARE_FLOW_FINISHED
+    assert headers["X-FieldOps-Event-Id"] == "evt-test-1"
+    assert headers["X-FieldOps-Delivery-Attempt"] == "3"   # 投递前 attempts=2 → 本次是第 3 次
+    assert headers["X-FieldOps-Signature"].startswith("sha256=")
+    assert "X-FieldOps-Timestamp" in headers
 
 
 def test_build_headers_omits_signature_without_secret():
     headers = outbound_mod.build_headers(_event(), b"{}", "")
-    assert "X-CareAgent-Signature" not in headers
+    assert "X-FieldOps-Signature" not in headers
 
 
 # ── 投递与重试策略 ───────────────────────────────────────────
@@ -167,7 +167,7 @@ async def test_dispatch_sends_and_marks_sent(monkeypatch):
     assert fake.sent == ["evt-test-1"]
     assert _FakeAsyncClient.captured["url"] == HOOK_URL
     # 载荷是事件 payload 本身，不是整个事件行
-    assert b"care_flow.finished" in _FakeAsyncClient.captured["content"]
+    assert b"work_flow.finished" in _FakeAsyncClient.captured["content"]
 
 
 @pytest.mark.asyncio
@@ -250,15 +250,15 @@ async def test_dispatch_skips_disabled_webhook(monkeypatch):
 # ── 事件构造 ─────────────────────────────────────────────────
 
 @pytest.mark.asyncio
-async def test_enqueue_care_flow_finished_builds_payload(monkeypatch):
+async def test_enqueue_work_flow_finished_builds_payload(monkeypatch):
     """终态事件载荷含报告与回查地址，且带上是否由退住工单驱动。"""
     fake = _patch(monkeypatch, _FakeRepo())
 
-    event_id = await outbound_mod.enqueue_care_flow_finished(
+    event_id = await outbound_mod.enqueue_work_flow_finished(
         session_id="cf-abc",
-        elder_id="e001",
+        site_id="e001",
         tenant_id=TENANT,
-        care_plan_id="plan-1",
+        service_plan_id="plan-1",
         stage_reached="finished",
         total_turns=18,
         report={"overall_score": 88},
@@ -271,7 +271,7 @@ async def test_enqueue_care_flow_finished_builds_payload(monkeypatch):
     assert call["aggregate_id"] == "cf-abc"          # 幂等键就是 session_id
     payload = call["payload"]
     assert payload["report"] == {"overall_score": 88}
-    assert payload["report_url"] == "/api/v1/care-flow/cf-abc/report"
+    assert payload["report_url"] == "/api/v1/work-flow/cf-abc/report"
     assert payload["discharge_driven"] is True
     assert payload["total_turns"] == 18
 
@@ -283,7 +283,7 @@ async def test_enqueue_alert_dispatched_event(monkeypatch):
 
     await outbound_mod.enqueue_alert_decision(
         alert_id="alert-1",
-        elder_id="e001",
+        site_id="e001",
         tenant_id=TENANT,
         dispatch_order={
             "order_id": "order-9",
@@ -313,7 +313,7 @@ async def test_enqueue_alert_dismissed_event(monkeypatch):
 
     await outbound_mod.enqueue_alert_decision(
         alert_id="alert-2",
-        elder_id="e002",
+        site_id="e002",
         tenant_id=TENANT,
         dispatch_order={"order_id": "order-10", "status": "dismissed"},
     )
@@ -328,7 +328,7 @@ async def test_enqueue_alert_falls_back_to_alert_id_without_order(monkeypatch):
     fake = _patch(monkeypatch, _FakeRepo())
 
     await outbound_mod.enqueue_alert_decision(
-        alert_id="alert-3", elder_id="e003", tenant_id=TENANT,
+        alert_id="alert-3", site_id="e003", tenant_id=TENANT,
         dispatch_order={"status": "dispatched"},
     )
 
@@ -355,10 +355,10 @@ async def test_outbound_event_enqueue_is_idempotent(_cleanup):
     tenant_id = make_id("tenant")
 
     first = await repo.enqueue_outbound_event(
-        event_type="care_flow.finished", aggregate_id=session_id,
+        event_type="work_flow.finished", aggregate_id=session_id,
         payload={"session_id": session_id}, tenant_id=tenant_id)
     second = await repo.enqueue_outbound_event(
-        event_type="care_flow.finished", aggregate_id=session_id,
+        event_type="work_flow.finished", aggregate_id=session_id,
         payload={"session_id": session_id}, tenant_id=tenant_id)
 
     assert first is not None
@@ -387,7 +387,7 @@ async def test_tenant_webhook_roundtrip_and_redelivery(_cleanup):
     assert hook["enabled"] is False
 
     event_id = await repo.enqueue_outbound_event(
-        event_type="care_flow.finished", aggregate_id=session_id,
+        event_type="work_flow.finished", aggregate_id=session_id,
         payload={"session_id": session_id}, tenant_id=tenant_id)
     assert await repo.mark_outbound_event_failed(event_id, "HTTP 500") is True
 

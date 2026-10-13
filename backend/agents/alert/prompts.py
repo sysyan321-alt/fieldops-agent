@@ -13,7 +13,7 @@ SYSTEM_PROMPT = """你是一位养老机构告警研判 AI 助手，专门辅助
 # ──────────────────────────────────────────────────────────────
 # 风险评估   占位符：{alert_type} {alert_timestamp} {device_profile}
 #            {evidence_quality} {evidence_gaps} {device_readings}
-#            {care_records} {health_indicators} {assessment_snapshot}
+#            {service_records} {health_indicators} {assessment_snapshot}
 # 用于：assess_risk 节点
 # ──────────────────────────────────────────────────────────────
 
@@ -32,7 +32,7 @@ RISK_ASSESS_PROMPT = """请基于以下四轨数据，评估本次告警的风�
 {device_readings}
 
 【第二轨：近期照护记录】
-{care_records}
+{service_records}
 
 【第三轨：健康指标】
 {health_indicators}
