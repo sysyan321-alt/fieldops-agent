@@ -46,7 +46,7 @@ class IntentClassification(BaseModel):
         description=(
             "路由目标 Agent。"
             "assessment=点位风险评级（明确要做评估/复评动作）；"
-            "alert=设备告警/心率异常/跌倒事件实时研判；"
+            "alert=设备告警/过载/设备离线/人员跌倒实时研判；"
             "work_flow=服务计划/建档退场流程执行；"
             "sop_qa=作业规范知识问答或通用闲聊兜底。"
         ),
@@ -134,11 +134,11 @@ def _build_user_prompt(query: str, history: Optional[list[dict]] = None) -> str:
 # 三、关键词匹配降级（Layer 1 fallback）
 # ──────────────────────────────────────────────────────────────
 
-# 关键词优先级：评估 > 告警 > 照护流程 > SOP_QA 兜底
+# 关键词优先级：评估 > 告警 > 作业流程 > SOP_QA 兜底
 # 注意：跨域冲突样本（如"评估跌倒风险"）关键词无法处理，会落到 SOP_QA 兜底
 _KEYWORD_MAP: list[tuple[list[str], IntentAgentType]] = [
-    (["评估", "评分", "能力评估", "建档评估", "复评", "ADL"], IntentAgentType.ASSESSMENT),
-    (["告警", "报警", "心率异常", "跌倒告警", "离床", "设备报警"], IntentAgentType.ALERT),
+    (["评估", "评分", "风险评估", "建档评估", "复评", "ADL"], IntentAgentType.ASSESSMENT),
+    (["告警", "报警", "过载", "设备离线", "人员跌倒", "设备报警"], IntentAgentType.ALERT),
     (["作业流程", "服务计划", "日常巡检", "建档流程", "退场"], IntentAgentType.WORK_FLOW),
 ]
 

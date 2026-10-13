@@ -1,4 +1,4 @@
-# docker-compose.yml — FieldOps 养老照护智能体本地开发环境
+# docker-compose.yml — FieldOps 养老作业智能体本地开发环境
 # 启动：docker compose up -d（默认值与 .env.local 一致，亦可 --env-file .env.local 覆盖）
 
 services:

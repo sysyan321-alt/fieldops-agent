@@ -19,10 +19,10 @@ logger = get_logger(__name__)
 
 class AgentType(str, Enum):
     """支持的 Agent 类型。"""
-    ASSESSMENT = "assessment"   # 老年人能力评估
-    SOP_QA     = "sop_qa"       # 护理 SOP 问答
+    ASSESSMENT = "assessment"   # 点位风险评估
+    SOP_QA     = "sop_qa"       # 作业规范 问答
     ALERT      = "alert"        # 告警研判
-    WORK_FLOW  = "work_flow"   # 照护流程
+    WORK_FLOW  = "work_flow"   # 作业流程
 
 
 class ExecutionMode(str, Enum):
@@ -34,19 +34,19 @@ class ExecutionMode(str, Enum):
 
 class AgentRequest(BaseModel):
     """统一的 Agent 请求模型。"""
-    staff_id:   str               # 护理员/站长 ID
-    site_id:   str = Field(default="")  # 老人 ID（评估/告警/照护流程用）
+    staff_id:   str               # 作业人员/值班主管 ID
+    site_id:   str = Field(default="")  # 点位 ID（评估/告警/作业流程用）
     tenant_id:  str = Field(default="")  # 租户 ID
     session_id: str               # 会话 ID
     agent_type: Optional[str] = None  # 指定 Agent（None = 由意图识别路由）
-    query:      str = Field(default="")  # 护理员输入
+    query:      str = Field(default="")  # 作业人员输入
     mode:       str = "single"    # single / pipeline
     pipeline:   Optional[str] = None  # Pipeline 名称
     context:    dict = Field(default_factory=dict)  # 附加上下文
 
     @property
     def thread_id(self) -> str:
-        """构造 thread_id（护理员维度隔离）。"""
+        """构造 thread_id（作业人员维度隔离）。"""
         return f"staff_{self.staff_id}_session_{self.session_id}"
 
 
@@ -55,7 +55,7 @@ class AgentRequest(BaseModel):
 # ──────────────────────────────────────────────────────────────
 
 PIPELINES: dict[str, list[AgentType]] = {
-    # 先评估再制定照护流程
+    # 先评估再制定作业流程
     "service_workflow": [AgentType.ASSESSMENT, AgentType.WORK_FLOW],
 }
 
@@ -136,7 +136,7 @@ class Orchestrator:
             state["device_id"] = request.context.get("device_id", "")
             state["alert_type"] = request.context.get("alert_type", "heart_rate_abnormal")
             state["alert_timestamp"] = request.context.get("alert_timestamp", "")
-            # 下行来源：机构 SaaS 下发的报警（报警记录）带 external_alert_id 与报警位置，
+            # 下行来源：业务系统 下发的报警（报警记录）带 external_alert_id 与报警位置，
             # 处置完成后按 external_alert_id 回写 Handle报警记录；care 自触发时为 care/空
             state["source"] = request.context.get("source", "local")
             state["external_alert_id"] = request.context.get("external_alert_id", "")
@@ -194,13 +194,13 @@ class Orchestrator:
 
         work_flow 的 service_plan 字段（plan_id/site_id/risk_tier/daily_tasks/special_notes）
         必须保留，以兼容 prompt 模板；同时把评估的核心结果作为附加字段嵌入，
-        让 work_flow 的 LLM 能基于评估结论给出针对性照护指导。
+        让 work_flow 的 LLM 能基于评估结论给出针对性服务指导。
 
         **职责边界**（这条改动前后不一致，值得留意）：
           改造前 daily_tasks 由评估的 issues 派生（"[HIGH] 建议xxx"）——等于让 AI 决定
-          "该做什么服务"，与"服务项目/频次属于机构业务配置"的边界冲突。
-          现在 daily_tasks 只来自该护理等级绑定的**服务项**（service_items），
-          评估结论退回到它该在的位置：护理等级 + 问题清单 + 注意事项。
+          "该做什么服务"，与"服务项目/频次属于业务配置"的边界冲突。
+          现在 daily_tasks 只来自该风险等级绑定的**服务项**（service_items），
+          评估结论退回到它该在的位置：风险等级 + 问题清单 + 注意事项。
 
         service_items 为空时 daily_tasks 为空（work_flow 会提示计划缺失），
         不再用评估问题拼一份看起来像计划的清单。
@@ -269,8 +269,8 @@ class Orchestrator:
                 assessment_result = result.get("structured_output")
                 context["assessment_result"] = assessment_result
 
-                # 评估结论 → 护理等级 → 该等级的服务项落到老人名下（业务配置驱动）
-                # 这一步让 work_flow 的任务清单来自机构配置，而不是评估问题的复述
+                # 评估结论 → 风险等级 → 该等级的服务项落到点位名下（业务配置驱动）
+                # 这一步让 work_flow 的任务清单来自服务组织配置，而不是评估问题的复述
                 risk_tier = (
                     ((assessment_result or {}).get("summary") or {})
                     .get("risk_tier_recommendation", "")

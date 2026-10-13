@@ -1,5 +1,5 @@
 # scripts/mock_frontend.py
-# 前端联调 mock：模拟护理员对话场景，端到端验证
+# 前端联调 mock：模拟作业人员对话场景，端到端验证
 #   - JWT 登录 → SSE 对话 → clarify 候选选择 → 多轮对话
 #
 # 这个脚本会：
@@ -281,10 +281,10 @@ def extract_clarify(events: list[dict]) -> Optional[dict]:
 # ──────────────────────────────────────────────────────────────
 
 def scenario_a_auto_route_sop_qa(client: FrontendMock) -> bool:
-    """场景 A：自动路由到 SOP_QA（护理知识问答）。"""
-    print_section("场景 A：自动路由 → SOP_QA（护理知识问答）")
-    print("  query='鼻饲管日常怎么维护'  agent_type=None（让意图识别自动路由）")
-    events = client.chat(query="鼻饲管日常怎么维护", session_id="mock-A-001")
+    """场景 A：自动路由到 SOP_QA（作业规范知识问答）。"""
+    print_section("场景 A：自动路由 → SOP_QA（作业规范知识问答）")
+    print("  query='配电间日常怎么巡检'  agent_type=None（让意图识别自动路由）")
+    events = client.chat(query="配电间日常怎么巡检", session_id="mock-A-001")
     print_events(events)
     answer = extract_answer(events)
     if not answer:
@@ -301,7 +301,7 @@ def scenario_b_auto_route_work_flow(client: FrontendMock) -> bool:
 
     注意：work_flow 不一定有真实 service_plan，可能走 mock 兜底，但流程应能跑通。
     """
-    print_section("场景 B：自动路由 → WORK_FLOW（照护流程）")
+    print_section("场景 B：自动路由 → WORK_FLOW（作业流程）")
     print("  query='明天执行入住流程第二阶段'  agent_type=None")
     events = client.chat(
         query="明天执行入住流程第二阶段",
@@ -328,8 +328,8 @@ def scenario_c_multi_turn(client: FrontendMock) -> bool:
 
     # ── 轮 1 ──
     print(f"\n  ── 轮 1 ──")
-    print(f"  query='压疮怎么分期？'  session_id={session_id}")
-    events1 = client.chat(query="压疮怎么分期？", session_id=session_id)
+    print(f"  query='设备温升怎么分期？'  session_id={session_id}")
+    events1 = client.chat(query="设备温升怎么分期？", session_id=session_id)
     print_events(events1, max_content_len=180)
     answer1 = extract_answer(events1)
     if not answer1:
@@ -362,8 +362,8 @@ def scenario_d_clarify(client: FrontendMock) -> bool:
     若 LLM 直接给了主意图，也算通过（说明 LLM 比 mock 更激进）。
     """
     print_section("场景 D：clarify 触发（跨域 query）")
-    print("  query='评估照护流程'（评估 + 照护流程 跨域）  agent_type=None")
-    events = client.chat(query="评估照护流程", session_id="mock-D-001")
+    print("  query='评估作业流程'（评估 + 作业流程 跨域）  agent_type=None")
+    events = client.chat(query="评估作业流程", session_id="mock-D-001")
     print_events(events)
 
     clarify = extract_clarify(events)
@@ -395,9 +395,9 @@ def scenario_e_direct_alert(client: FrontendMock) -> bool:
     注：alert 流程含 HitL interrupt，这里只验证有结构化输出（jurisdiction_result）。
     """
     print_section("场景 E：显式指定 agent_type=alert（绕过意图识别）")
-    print("  query='301 房老人心率 130'  agent_type=alert（显式）")
+    print("  query='B1 配电间过载告警'  agent_type=alert（显式）")
     events = client.chat(
-        query="301 房老人心率 130",
+        query="B1 配电间过载告警",
         session_id="mock-E-001",
         agent_type="alert",
         site_id="s001",

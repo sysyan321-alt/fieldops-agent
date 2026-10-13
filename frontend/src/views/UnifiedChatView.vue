@@ -122,16 +122,16 @@ const sessionId = ref(`unified_${auth.user?.userId ?? 'guest'}`)
 const isStreaming = ref(false)
 
 const exampleQueries = [
-  '老人跌倒后应该如何处置？',
-  '帮我评估这位老人的照护等级',
-  '鼻饲管的护理规范是什么？',
+  '点位跌倒后应该如何处置？',
+  '帮我评估这位点位的风险等级',
+  '配电间的作业规范是什么？',
 ]
 
 const AGENT_DISPLAY: Record<string, string> = {
   sop_qa: 'SOP 问答',
   alert: '告警研判',
-  assessment: '老人评估',
-  work_flow: '照护流程',
+  assessment: '点位评估',
+  work_flow: '作业流程',
   auto: '自动路由',
 }
 

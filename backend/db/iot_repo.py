@@ -1,4 +1,4 @@
-# IoT 设备读数数据访问层：上报写入 + 前三轨查询（告警 Agent 使用；第四轨是能力评估，见 repositories.get_latest_assessment）
+# IoT 设备读数数据访问层：上报写入 + 前三轨查询（告警 Agent 使用；第四轨是风险评估，见 repositories.get_latest_assessment）
 import uuid
 from datetime import datetime
 from sqlalchemy import text
@@ -37,13 +37,13 @@ async def save_device_readings(site_id, device_id, device_type, readings,
 
 async def get_recent_device_readings(site_id, limit=10, tenant_id=DEFAULT_TENANT,
                                      device_id=None, metrics=None):
-    """按老人查最近设备读数（第一轨数据源，强制租户过滤）。
+    """按点位查最近设备读数（第一轨数据源，强制租户过滤）。
 
     Args:
-        device_id: 只看这台设备的读数（告警指定了设备时用；None=该老人全部设备）。
-        metrics:   只看这些指标名（按设备类型过滤，如智能床垫只看心率/呼吸/离床）。
+        device_id: 只看这台设备的读数（告警指定了设备时用；None=该点位全部设备）。
+        metrics:   只看这些指标名（按设备类型过滤，如配电监测只看电流/电压/温度）。
 
-    返回的字典**包含 metric_name**：研判 prompt 需要"心率: 135bpm"这样的可读证据，
+    返回的字典**包含 metric_name**：研判 prompt 需要"电流: 320A"这样的可读证据，
     只给设备名会让模型把"设备类型"当成"指标含义"。
     """
     try:
@@ -72,7 +72,7 @@ async def get_recent_device_readings(site_id, limit=10, tenant_id=DEFAULT_TENANT
 
 
 async def get_recent_service_records(site_id, limit=8, tenant_id=DEFAULT_TENANT):
-    """按老人查最近照护记录（第二轨数据源，强制租户过滤）。"""
+    """按点位查最近服务记录（第二轨数据源，强制租户过滤）。"""
     try:
         async with AsyncSessionLocal() as s:
             rows = (await s.execute(text(
@@ -90,14 +90,19 @@ async def get_recent_service_records(site_id, limit=8, tenant_id=DEFAULT_TENANT)
         return []
 
 
-_VITAL_RANGES = {
-    "心率": ("bpm", "60-100"), "血压": ("mmHg", "90-140/60-90"),
-    "体温": ("℃", "36-37.2"), "血氧": ("%", "95-100"),
+# 第三轨（运行参数）的指标与参考范围。
+# 参考值按园区常见设备环境给出，真实部署应按设备说明书与本单位标准校准。
+_OPERATION_RANGES = {
+    "设备温度": ("℃", "≤55"), "环境湿度": ("%RH", "≤75"),
+    "电流": ("A", "≤额定85%"), "电压": ("V", "额定±10%"),
 }
 
 
 async def get_recent_health_indicators(site_id, limit=8, tenant_id=DEFAULT_TENANT):
-    """从 device_readings 提取生命体征类读数（第三轨，强制租户过滤）。"""
+    """从 device_readings 提取运行参数类读数（第三轨，强制租户过滤）。
+
+    命名保留 health_indicators（历史命名，接口层沿用），语义是"运行/环境参数"。
+    """
     try:
         async with AsyncSessionLocal() as s:
             rows = (await s.execute(text(
@@ -105,14 +110,14 @@ async def get_recent_health_indicators(site_id, limit=8, tenant_id=DEFAULT_TENAN
                 " FROM device_readings WHERE site_id = :eid AND tenant_id = :tid"
                 " AND metric_name = ANY(:names)"
                 " ORDER BY recorded_at DESC LIMIT :lim"),
-                {"eid": site_id, "tid": tenant_id, "names": list(_VITAL_RANGES),
+                {"eid": site_id, "tid": tenant_id, "names": list(_OPERATION_RANGES),
                  "lim": limit})).fetchall()
         out, seen = [], set()
         for r in rows:
             if r.metric_name in seen:
                 continue
             seen.add(r.metric_name)
-            unit, ref = _VITAL_RANGES.get(r.metric_name, (r.reading_unit, ""))
+            unit, ref = _OPERATION_RANGES.get(r.metric_name, (r.reading_unit, ""))
             out.append({"indicator_name": r.metric_name, "value": r.reading_value,
                         "unit": unit, "reference_range": ref,
                         "status": "abnormal" if r.is_abnormal else "normal",

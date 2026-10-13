@@ -29,11 +29,11 @@ logger = get_logger(__name__)
 # 那等于用一个可选字段的格式问题换掉整份评估结论。更划算的做法是保留宽松 schema、
 # 在节点里按风险等级补保底动作：模型的具体措施优先，缺失才补通用动作，并打警告留下可观测信号。
 DEFAULT_ACTIONS_BY_RISK: dict[str, list[str]] = {
-    "high":   ["立即派人现场查看老人状况", "通知值班医生评估是否需要转诊", "持续监测生命体征并记录"],
-    "medium": ["尽快派人查看老人状况", "监测生命体征并记录变化"],
-    "low":    ["按常规巡视安排观察", "记录老人状态变化"],
+    "high":   ["立即派人现场查看点位状况", "通知值班医生评估是否需要转诊", "持续监测生命体征并记录"],
+    "medium": ["尽快派人查看点位状况", "监测生命体征并记录变化"],
+    "low":    ["按常规巡视安排观察", "记录点位状态变化"],
 }
-DEFAULT_ACTIONS_FALLBACK: list[str] = ["立即派人现场查看老人状况", "持续监测生命体征并记录"]
+DEFAULT_ACTIONS_FALLBACK: list[str] = ["立即派人现场查看点位状况", "持续监测生命体征并记录"]
 
 
 def ensure_actions(risk_level: str, actions: list[str] | None) -> list[str]:
@@ -124,7 +124,7 @@ async def resolve_device_profile(state: AlertState) -> dict:
 async def _fetch_device_data(state: AlertState) -> list[dict]:
     """第一轨：采集设备读数。
 
-    改造前这里在库里查不到数据时**现场编造模拟读数**（心率永远 135、离床永远 15 分钟），
+    改造前这里在库里查不到数据时**现场编造模拟读数**（电流永远 320A、水位永远正常），
     导致研判结论由硬编码常量决定。现在：查不到就返回空，由 run_four_tracks 记成
     「证据缺失」，让风险等级体现"证据不足"，而不是让模型对着假数据下结论。
     """
@@ -136,7 +136,7 @@ async def _fetch_device_data(state: AlertState) -> list[dict]:
     tenant_id = state.get("tenant_id") or "tenant_default"
     profile = state.get("device_profile") or {}
 
-    # 先按告警设备 + 该设备类型的指标取；取不到再放宽到该老人全部设备
+    # 先按告警设备 + 该设备类型的指标取；取不到再放宽到该点位全部设备
     metrics = metrics_of(profile.get("type_code")) or None
     readings = await get_recent_device_readings(
         site_id, limit=10, tenant_id=tenant_id, device_id=device_id, metrics=metrics)
@@ -155,7 +155,7 @@ async def _fetch_device_data(state: AlertState) -> list[dict]:
 
 
 async def _fetch_service_records(state: AlertState) -> list[dict]:
-    """第二轨：采集近期照护记录（只读真实记录，查不到返回空让研判知道"没有记录"）。"""
+    """第二轨：采集近期服务记录（只读真实记录，查不到返回空让研判知道"没有记录"）。"""
     site_id = state.get("site_id", "")
     from backend.db.iot_repo import get_recent_service_records
     records = await get_recent_service_records(
@@ -175,7 +175,7 @@ async def _fetch_health_indicators(state: AlertState) -> list[dict]:
 
 
 # ──────────────────────────────────────────────────────────────
-# 第四轨：老人最近一次能力评估（DB 读取）
+# 第四轨：点位最近一次风险评估（DB 读取）
 # ──────────────────────────────────────────────────────────────
 
 def _format_assessment_snapshot(snapshot: dict | None) -> str:
@@ -199,13 +199,13 @@ def _format_assessment_snapshot(snapshot: dict | None) -> str:
         f"- 评估时间：{snapshot.get('created_at', '未知')}\n"
         f"- 加权总分：{snapshot.get('weighted_score', '未知')}\n"
         f"- 维度得分：{dim_text}\n"
-        f"- 照护等级建议：{summary.get('risk_tier_recommendation', '未给出')}\n"
+        f"- 风险等级建议：{summary.get('risk_tier_recommendation', '未给出')}\n"
         f"- 主要问题：{issue_text}"
     )
 
 
 async def _fetch_assessment_snapshot(state: AlertState) -> dict | None:
-    """第四轨：读取老人最近一次能力评估，作为风险研判的基线背景。
+    """第四轨：读取点位最近一次风险评估，作为风险研判的基线背景。
 
     没有评估记录不算失败：返回 None，让研判只按当前三轨判断（第一至第三轨）。
     """
@@ -238,7 +238,7 @@ async def fetch_device_data_node(state: AlertState) -> dict:
 
 
 async def fetch_service_records_node(state: AlertState) -> dict:
-    """第二轨节点：采集照护记录。"""
+    """第二轨节点：采集服务记录。"""
     records = await _fetch_service_records(state)
     return {"service_records": records}
 
@@ -250,7 +250,7 @@ async def fetch_health_indicators_node(state: AlertState) -> dict:
 
 
 async def fetch_assessment_snapshot_node(state: AlertState) -> dict:
-    """第四轨节点：读取老人最近一次能力评估。"""
+    """第四轨节点：读取点位最近一次风险评估。"""
     snapshot = await _fetch_assessment_snapshot(state)
     return {"assessment_snapshot": snapshot}
 
@@ -263,15 +263,15 @@ async def run_four_tracks_node(state: AlertState) -> dict:
     """
     四轨并行数据采集：
         第一轨：设备读数
-        第二轨：照护记录
+        第二轨：服务记录
         第三轨：健康指标
-        第四轨：老人最近一次能力评估（跌倒风险 / ADL / 认知等基线）
+        第四轨：点位最近一次风险评估（跌倒风险 / ADL / 认知等基线）
 
     为什么要第四轨：设备告警只说明"当下异常"，评估结果说明"这个人本来有多脆弱"——
-    跌倒高风险或 ADL 低分的老人，同样的心率异常要按更高等级处理。
+    风险等级高或历史缺陷多的点位，同样的过载告警要按更高等级处理。
 
     为什么要记「证据缺失」：三条数据轨都可能查不到数据（设备没上报、护工没记录、
-    老人没做过评估）。缺证据是真实状态，必须显式传给研判——改造前是现场编造模拟数据，
+    点位没做过评估）。缺证据是真实状态，必须显式传给研判——改造前是现场编造模拟数据，
     等于用硬编码常量冒充现场证据，风险等级会因此系统性失真。
 
     asyncio.gather(return_exceptions=True)：
@@ -305,11 +305,11 @@ async def run_four_tracks_node(state: AlertState) -> dict:
     if not device_readings:
         gaps.append("设备读数")
     if not service_records:
-        gaps.append("照护记录")
+        gaps.append("服务记录")
     if not health_indicators:
         gaps.append("健康指标")
     if not assessment_snapshot:
-        gaps.append("最近一次能力评估")
+        gaps.append("最近一次风险评估")
     if len(gaps) >= 3:
         evidence_quality = "insufficient"
     elif gaps:
@@ -380,7 +380,7 @@ async def assess_risk_node(state: AlertState) -> dict:
     service_text = "\n".join([
         f"- [{r.get('service_type', '')}] {r.get('content', '')} ({r.get('timestamp', '')})"
         for r in service_records
-    ]) or "（无照护记录）"
+    ]) or "（无服务记录）"
 
     health_text = "\n".join([
         f"- {h.get('indicator_name', '')}: {h.get('value', '')}{h.get('unit', '')} "
@@ -445,11 +445,11 @@ async def assess_risk_node(state: AlertState) -> dict:
 
 
 # ──────────────────────────────────────────────────────────────
-# 节点：notify_supervisor — 通知站长
+# 节点：notify_supervisor — 通知值班主管
 # ──────────────────────────────────────────────────────────────
 
 async def notify_supervisor_node(state: AlertState) -> dict:
-    """落库告警记录（含风险评估与四轨数据），并通知站长审核（模拟通知）。"""
+    """落库告警记录（含风险评估与四轨数据），并通知值班主管审核（模拟通知）。"""
     alert_id = state.get("alert_id", "")
     risk_assessment = state.get("risk_assessment", {})
 
@@ -493,10 +493,10 @@ async def supervisor_review_node(state: AlertState) -> dict:
     Human-in-the-Loop 核心节点。
 
     interrupt(display_data) 做两件事：
-        1. 把 display_data 暴露给外部（站长可通过 GET 接口读取）
+        1. 把 display_data 暴露给外部（值班主管可通过 GET 接口读取）
         2. 冻结图执行，State 自动保存到 checkpointer（默认 AsyncPostgresSaver，落 PostgreSQL）
 
-    图在此暂停，直到站长通过 POST 接口传入 Command(resume=decision) 恢复。
+    图在此暂停，直到值班主管通过 POST 接口传入 Command(resume=decision) 恢复。
     恢复后，interrupt() 的返回值就是 decision（supervisor_decision 字段）。
     """
     risk_assessment = state.get("risk_assessment", {})
@@ -526,14 +526,14 @@ async def supervisor_review_node(state: AlertState) -> dict:
 
 
 # ──────────────────────────────────────────────────────────────
-# 节点：apply_supervisor_decision — 应用站长决策
+# 节点：apply_supervisor_decision — 应用值班主管决策
 # ──────────────────────────────────────────────────────────────
 
 async def apply_supervisor_decision_node(state: AlertState) -> dict:
     """
-    将站长决策合并到处置措施中。
+    将值班主管决策合并到处置措施中。
     approve → 使用 AI 推荐措施
-    modify  → 应用站长修改的措施
+    modify  → 应用值班主管修改的措施
     dismiss → 取消处置（仅记录）
     """
     decision = state.get("supervisor_decision", {})
@@ -545,7 +545,7 @@ async def apply_supervisor_decision_node(state: AlertState) -> dict:
         final_actions = risk_assessment.get("recommended_actions", [])
         logger.info("apply_supervisor_decision.approve", actions=len(final_actions))
     elif action == "modify":
-        # 使用站长修改的措施
+        # 使用值班主管修改的措施
         final_actions = decision.get("modified_actions", [])
         if not final_actions:
             final_actions = risk_assessment.get("recommended_actions", [])
@@ -576,7 +576,7 @@ async def dispatch_order_node(state: AlertState) -> dict:
     else:
         final_actions = recommended_actions
 
-    # 第二道防线：即使上游漏了措施（或站长 modify 传了空列表），
+    # 第二道防线：即使上游漏了措施（或值班主管 modify 传了空列表），
     # 只要不是"驳回"，派发出去的工单必须有可执行动作
     if action != "dismiss":
         final_actions = ensure_actions(risk_level, final_actions)

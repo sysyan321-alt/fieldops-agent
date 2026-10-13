@@ -1,5 +1,5 @@
 # tests/test_work_flow_mcp_tools.py
-# 照护流程 MCP Server 的工具注册契约（依赖 mcp 包，缺包时整文件跳过）。
+# 作业流程 MCP Server 的工具注册契约（依赖 mcp 包，缺包时整文件跳过）。
 
 import pytest
 

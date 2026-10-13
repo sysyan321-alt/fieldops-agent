@@ -3,7 +3,7 @@
     <el-card class="setup-card">
       <template #header>
         <div class="card-header">
-          <span>发起照护流程</span>
+          <span>发起作业流程</span>
         </div>
       </template>
 
@@ -14,17 +14,17 @@
         label-position="top"
         style="max-width: 480px"
       >
-        <el-form-item label="老人 ID" prop="site_id">
+        <el-form-item label="点位 ID" prop="site_id">
           <el-input
             v-model="form.site_id"
             placeholder="例如：site_001"
             :prefix-icon="User"
           />
         </el-form-item>
-        <el-form-item label="照护计划 ID（可选）">
+        <el-form-item label="服务计划 ID（可选）">
           <el-input
             v-model="form.service_plan_id"
-            placeholder="如已有照护计划可填写，用于流程注入"
+            placeholder="如已有服务计划可填写，用于流程注入"
           />
         </el-form-item>
         <el-form-item label="起始阶段">
@@ -59,8 +59,8 @@
         type="info"
         :closable="false"
         style="margin-top: 16px"
-        title="照护流程包含四个阶段：建档评估 → 日常巡检 → 阶段复评 → 退场评估"
-        description="日常巡检内含异常子模式；阶段复评后由 SaaS 退住工单驱动出院 or 续住循环。结束后自动生成照护报告并落库。"
+        title="作业流程包含四个阶段：建档评估 → 日常巡检 → 阶段复评 → 退场评估"
+        description="日常巡检内含异常子模式；阶段复评后由 SaaS 退住工单驱动出院 or 续住循环。结束后自动生成服务报告并落库。"
       />
     </el-card>
   </div>
@@ -92,14 +92,14 @@ const stageOptions = [
 ]
 
 const rules: FormRules = {
-  site_id: [{ required: true, message: '请输入老人 ID', trigger: 'blur' }],
+  site_id: [{ required: true, message: '请输入点位 ID', trigger: 'blur' }],
 }
 
 function stageLabel(value: string): string {
   return stageOptions.find((s) => s.value === value)?.label ?? value
 }
 
-/** 发起前先查该老人是否已有进行中的流程，有则弹窗询问：继续原会话 or 重新开始。 */
+/** 发起前先查该点位是否已有进行中的流程，有则弹窗询问：继续原会话 or 重新开始。 */
 async function tryResumeActiveSession(): Promise<string> {
   let resumeSessionId = ''
   let active: WorkFlowActiveSession | null = null
@@ -113,9 +113,9 @@ async function tryResumeActiveSession(): Promise<string> {
 
   try {
     await ElMessageBox.confirm(
-      `该老人有一场进行中的照护流程：当前阶段「${stageLabel(active.current_stage)}」，已进行 ${active.total_turns} 轮。` +
+      `该点位有一场进行中的作业流程：当前阶段「${stageLabel(active.current_stage)}」，已进行 ${active.total_turns} 轮。` +
         '继续将接续原会话进度；重新开始则另起新流程（原流程保留）。',
-      '发现未完成的照护流程',
+      '发现未完成的作业流程',
       { confirmButtonText: '继续原流程', cancelButtonText: '重新开始', type: 'warning' },
     )
     resumeSessionId = active.session_id

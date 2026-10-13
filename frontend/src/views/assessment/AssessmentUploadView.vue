@@ -3,7 +3,7 @@
     <el-card class="upload-card">
       <template #header>
         <div class="card-header">
-          <span>上传老人评估表</span>
+          <span>上传点位评估表</span>
         </div>
       </template>
 
@@ -14,7 +14,7 @@
         label-position="top"
         style="max-width: 480px"
       >
-        <el-form-item label="老人 ID" prop="site_id">
+        <el-form-item label="点位 ID" prop="site_id">
           <el-input v-model="form.site_id" placeholder="例如：site_001" :prefix-icon="User" />
         </el-form-item>
         <el-form-item label="评估表 PDF" prop="file">
@@ -46,7 +46,7 @@
         type="info"
         :closable="false"
         style="margin-top: 16px"
-        title="五维度照护等级评定"
+        title="五维度风险等级评定"
         description="ADL 日常生活活动能力、认知、情绪、社交、安全，加权综合评分 + 问题清单。"
       />
     </el-card>
@@ -68,7 +68,7 @@ const file = ref<File | null>(null)
 const form = reactive({ site_id: '' })
 
 const rules: FormRules = {
-  site_id: [{ required: true, message: '请输入老人 ID', trigger: 'blur' }],
+  site_id: [{ required: true, message: '请输入点位 ID', trigger: 'blur' }],
 }
 
 function handleFileChange(f: UploadFile) {

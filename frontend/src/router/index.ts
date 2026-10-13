@@ -30,13 +30,13 @@ const router = createRouter({
           name: 'chat',
           component: () => import('@/views/UnifiedChatView.vue'),
         },
-        // 护理 SOP 问答
+        // 作业规范 问答
         {
           path: 'sop-qa',
           name: 'sop-qa',
           component: () => import('@/views/sop_qa/SOPQAChatView.vue'),
         },
-        // 照护流程
+        // 作业流程
         {
           path: 'work-flow',
           name: 'work-flow',
@@ -47,7 +47,7 @@ const router = createRouter({
           name: 'work-flow-chat',
           component: () => import('@/views/work_flow/WorkFlowChatView.vue'),
         },
-        // 照护计划：护理等级 / 服务项 / 当天执行进度（只读 + 执行回写）
+        // 服务计划：风险等级 / 服务项 / 当天执行进度（只读 + 执行回写）
         {
           path: 'work-flow/:sessionId/plan',
           name: 'service-plan',
@@ -60,7 +60,7 @@ const router = createRouter({
           component: () => import('@/views/work_flow/OutboundWebhookView.vue'),
           meta: { requiresSupervisor: true },
         },
-        // 老人评估
+        // 点位评估
         {
           path: 'assessment',
           name: 'assessment',

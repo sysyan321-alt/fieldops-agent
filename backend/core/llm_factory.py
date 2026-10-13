@@ -33,10 +33,10 @@ _HTTP_SYNC_CLIENT = httpx.Client(                     # 同步客户端（给 in
 #   deepseek → settings.deepseek_model_chat（DEEPSEEK_MODEL_CHAT）
 # 想换模型，改 .env.local 的 QWEN_MODEL_CHAT / DEEPSEEK_MODEL_CHAT 即可，无需动代码。
 _AGENT_MODEL_ROUTING: dict[str, str] = {
-    "assessment":  "qwen",     # 老年人能力评估
-    "sop_qa":      "qwen",     # 护理 SOP 问答
+    "assessment":  "qwen",     # 点位风险评估
+    "sop_qa":      "qwen",     # 作业规范 问答
     "alert":       "qwen",     # 告警研判
-    "work_flow":   "qwen",     # 照护流程
+    "work_flow":   "qwen",     # 作业流程
     "intent":      "qwen",     # 意图识别
     "summarize":   "qwen",     # 对话摘要压缩
 }
@@ -89,7 +89,7 @@ class LLMFactory:
         cls,
         agent_type: str,             # Agent 类型，必须在路由表里
         temperature: float = 0,      # 温度：对话类可传 0.3~0.7，评分类保持 0
-        streaming: bool = False,     # 是否流式输出（问答/照护流程对话用）
+        streaming: bool = False,     # 是否流式输出（问答/作业流程对话用）
     ) -> BaseChatModel:
         """按 Agent 类型获取模型实例（带缓存）。
         相同 (模型, 温度, 是否流式) 的组合只会创建一次，之后复用。"""

@@ -14,7 +14,7 @@
 
       <el-alert type="info" :closable="false" show-icon class="hint">
         <template #title>
-          照护流程走到终态、告警派单/取消时，系统会把事件 POST 到该地址。
+          作业流程走到终态、告警派单/取消时，系统会把事件 POST 到该地址。
           投递走发件箱 + 指数退避重试（30s → 120s → 600s → 1800s），
           请求头 <code>X-FieldOps-Signature</code> 为 HMAC-SHA256 签名，
           <code>X-FieldOps-Event-Id</code> 供消费端幂等去重。

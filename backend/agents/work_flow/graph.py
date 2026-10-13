@@ -1,5 +1,5 @@
 # backend/agents/work_flow/graph.py
-# 照护流程 Agent 的 LangGraph 状态图构建
+# 作业流程 Agent 的 LangGraph 状态图构建
 
 from langgraph.graph import StateGraph, START, END
 
@@ -32,9 +32,9 @@ def _route_after_check_stage(state: WorkFlowState) -> list[str] | str:
 
 
 def _route_after_load_context(state: WorkFlowState) -> str:
-    """load_context 之后：没有照护计划就不该推进状态机。
+    """load_context 之后：没有服务计划就不该推进状态机。
 
-    改造前这里会用 mock 计划兜底继续跑，等于让一份编造的照护计划驱动"日常工作"——
+    改造前这里会用 mock 计划兜底继续跑，等于让一份编造的服务计划驱动"日常工作"——
     现在改为如实告知并结束本轮，由业务侧去补数据。
     """
     return "notify_missing_plan" if state.get("service_plan_missing") else "check_stage"
@@ -42,7 +42,7 @@ def _route_after_load_context(state: WorkFlowState) -> str:
 
 async def build_work_flow_graph():
     """
-    构建并编译照护流程 Agent 的 LangGraph 状态图。
+    构建并编译作业流程 Agent 的 LangGraph 状态图。
 
     图拓扑（状态机模式）：
         START → load_context → check_stage
@@ -94,7 +94,7 @@ async def build_work_flow_graph():
     builder.add_edge("generate_report", "save_report")
     builder.add_edge("save_report",     END)
 
-    # 照护分支：evaluate_response 与 generate_response 并行，汇合到 save_memory
+    # 服务分支：evaluate_response 与 generate_response 并行，汇合到 save_memory
     builder.add_edge("evaluate_response", "save_memory")
     builder.add_edge("generate_response",  "save_memory")
     builder.add_edge("save_memory",        END)

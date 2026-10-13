@@ -33,7 +33,7 @@ passlib[bcrypt]==1.7.4
 bcrypt==4.0.1
 # ── 联网搜索（sop_qa Agent web_search 节点）──
 duckduckgo-search>=6.0.0
-# ── MCP 能力层（知识库 / 照护数据 MCP Server，见 docs/mcp.md）──
+# ── MCP 能力层（知识库 / 服务数据 MCP Server，见 docs/mcp.md）──
 mcp>=1.18,<2
 # ── 测试 ──
 pytest>=8.0

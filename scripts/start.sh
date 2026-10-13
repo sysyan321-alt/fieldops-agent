@@ -153,7 +153,7 @@ ensure_seed_data() {
     log "种子数据已存在（sites=${count}），跳过"
     return 0
   fi
-  log "导入种子数据（老人/设备/照护记录）…"
+  log "导入种子数据（点位/设备/服务记录）…"
   run "$PYTHON" scripts/seed_data.py
 }
 
@@ -282,4 +282,4 @@ ensure_knowledge_base
 start_backend
 [ "$WITH_FRONTEND" = "1" ] && start_frontend
 
-log "全部就绪。默认账号：supervisor / Supervisor@123（站长）"
+log "全部就绪。默认账号：supervisor / Supervisor@123（值班主管）"

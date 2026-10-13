@@ -113,7 +113,7 @@ async def test_missing_evidence_is_recorded_as_gap(monkeypatch):
 
     assert result["evidence_quality"] == "insufficient"
     assert set(result["evidence_gaps"]) == {
-        "设备读数", "照护记录", "健康指标", "最近一次能力评估"}
+        "设备读数", "服务记录", "健康指标", "最近一次风险评估"}
 
 
 async def test_partial_evidence_quality(monkeypatch):
@@ -136,7 +136,7 @@ async def test_partial_evidence_quality(monkeypatch):
         {"alert_type": "overcurrent", "device_id": "", "tenant_id": "tenant_default"})
 
     assert result["evidence_quality"] == "partial"
-    assert set(result["evidence_gaps"]) == {"照护记录", "健康指标"}
+    assert set(result["evidence_gaps"]) == {"服务记录", "健康指标"}
 
 
 async def test_device_profile_is_resolved_and_carried(monkeypatch):

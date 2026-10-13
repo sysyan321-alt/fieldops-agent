@@ -1,6 +1,6 @@
 # backend/core/reranker.py
 # BGE-Reranker 精排服务 + Hybrid 召回 → 精排一体化 retrieve Pipeline
-# 护理 SOP 检索精排服务。
+# 作业规范 检索精排服务。
 
 import os
 from dataclasses import dataclass
@@ -36,7 +36,7 @@ class BGEReranker:
     用法：
         reranker = BGEReranker.get_instance()
         docs, confidence = reranker.rerank_with_confidence(
-            query="鼻饲管日常维护步骤？",
+            query="配电间日常维护步骤？",
             documents=candidates,
             top_k=3,
         )
@@ -179,7 +179,7 @@ def retrieve(
 
 
 if __name__ == '__main__':
-    query = "鼻饲管置管后的日常维护操作步骤是什么？"
+    query = "配电间巡检的操作步骤是什么？"
     results = retrieve(query, tenant_id="tenant_default")
     print(f"results 数量: {len(results[0])}")
     print(f"confidence: {results[1]}")

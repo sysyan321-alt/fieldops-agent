@@ -1,5 +1,5 @@
 # scripts/test_work_flow.py
-# 照护流程 Agent 端到端测试（状态机范式）
+# 作业流程 Agent 端到端测试（状态机范式）
 # 测试 3 个场景：① 单轮日常巡检 ② 多轮触发阶段流转 ③ FINISHED 触发报告生成
 #
 # 用法：cd <项目根目录> && PYTHONPATH=. python scripts/test_work_flow.py
@@ -60,7 +60,7 @@ def _last_ai_content(result: dict) -> str:
 
 async def run_single_turn_care():
     print("\n" + "=" * 60)
-    print("  照护流程 Agent - 用例①：单轮日常巡检（建档评估阶段）")
+    print("  作业流程 Agent - 用例①：单轮日常巡检（建档评估阶段）")
     print("=" * 60)
 
     graph = await build_work_flow_graph()
@@ -68,9 +68,9 @@ async def run_single_turn_care():
     config = build_config(ELDER_ID, session_id, agent_type="work_flow")
 
     state = _build_initial_state(session_id)
-    state["messages"] = [HumanMessage(content="老人今天精神状态不错，晨间护理已完成，进食量正常。")]
+    state["messages"] = [HumanMessage(content="点位今天精神状态不错，早班巡检已完成，进食量正常。")]
 
-    print(f"\n[1] 护理员输入：{state['messages'][0].content}")
+    print(f"\n[1] 作业人员输入：{state['messages'][0].content}")
     print(f"    初始阶段：{state['current_stage']}")
 
     result = await graph.ainvoke(state, config=config)
@@ -97,7 +97,7 @@ async def run_single_turn_care():
 
 async def run_stage_transition():
     print("\n" + "=" * 60)
-    print("  照护流程 Agent - 用例②：多轮触发阶段流转")
+    print("  作业流程 Agent - 用例②：多轮触发阶段流转")
     print("=" * 60)
 
     graph = await build_work_flow_graph()
@@ -108,14 +108,14 @@ async def run_stage_transition():
     base = _build_initial_state(session_id, max_turns=2)
 
     turns = [
-        "老人今早生命体征平稳，已完成入住体检。",
+        "点位今早生命体征平稳，已完成入住体检。",
         "个人物品已核对，家属已介绍完毕。",
         "建档评估完成，请进入下一阶段。",   # 这轮 check_stage 会触发流转
     ]
 
     for i, content in enumerate(turns, 1):
         state = {**base, "messages": [HumanMessage(content=content)]}
-        print(f"\n[第 {i} 轮] 护理员：{content}")
+        print(f"\n[第 {i} 轮] 作业人员：{content}")
         print(f"    （传入 stage={state['current_stage']}, "
               f"stage_turn={state['stage_turn_count']}, "
               f"total_turn={state['total_turn_count']}）")
@@ -147,7 +147,7 @@ async def run_stage_transition():
 
 async def run_report_generation():
     print("\n" + "=" * 60)
-    print("  照护流程 Agent - 用例③：FINISHED 触发报告生成")
+    print("  作业流程 Agent - 用例③：FINISHED 触发报告生成")
     print("=" * 60)
 
     graph = await build_work_flow_graph()
@@ -159,7 +159,7 @@ async def run_report_generation():
         stage=WorkStage.FINISHED.value,   # 关键：直接 FINISHED
         total_turn=20,
     )
-    state["messages"] = [HumanMessage(content="照护流程已全部完成。")]
+    state["messages"] = [HumanMessage(content="作业流程已全部完成。")]
 
     print(f"\n[1] 直接进入 FINISHED 阶段，触发报告生成分支")
     print(f"    current_stage: {state['current_stage']}")
@@ -179,7 +179,7 @@ async def run_report_generation():
     print(f"    ── 改进方向 ──")
     for im in report.get("improvements", [])[:3]:
         print(f"    - {im}")
-    print(f"    ── 照护建议 ──")
+    print(f"    ── 服务建议 ──")
     for cs in report.get("service_suggestions", [])[:3]:
         print(f"    - {cs}")
 

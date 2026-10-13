@@ -288,7 +288,7 @@ async def test_enqueue_alert_dispatched_event(monkeypatch):
         dispatch_order={
             "order_id": "order-9",
             "risk_level": "high",
-            "actions": ["立即翻身", "通知家属"],
+            "actions": ["立即断电检查", "通知使用方"],
             "order_content": "风险等级：high",
             "supervisor_id": "sup-1",
             "status": "dispatched",
@@ -302,13 +302,13 @@ async def test_enqueue_alert_dispatched_event(monkeypatch):
     assert call["aggregate_id"] == "order-9"
     assert call["payload"]["alert_id"] == "alert-1"
     assert call["payload"]["device_id"] == "dev-1"
-    assert call["payload"]["actions"] == ["立即翻身", "通知家属"]
+    assert call["payload"]["actions"] == ["立即断电检查", "通知使用方"]
     assert call["payload"]["status"] == "dispatched"
 
 
 @pytest.mark.asyncio
 async def test_enqueue_alert_dismissed_event(monkeypatch):
-    """站长取消处置 → alert.dismissed（虽不派单，仍要通知业务方"已取消"）。"""
+    """值班主管取消处置 → alert.dismissed（虽不派单，仍要通知业务方"已取消"）。"""
     fake = _patch(monkeypatch, _FakeRepo())
 
     await outbound_mod.enqueue_alert_decision(

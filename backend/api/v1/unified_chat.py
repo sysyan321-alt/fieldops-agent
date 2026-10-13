@@ -102,12 +102,12 @@ async def delete_chat_session(
 ):
     """删除整个会话线程的检查点（含暂停中的断点与所有 Agent 命名空间）。
 
-    什么时候用：确认该照护周期已彻底结束，且审计期已过，不再需要任何会话状态。
+    什么时候用：确认该服务周期已彻底结束，且审计期已过，不再需要任何会话状态。
 
     什么时候别用：只是"想重新开始一轮对话"——那就换个 session_id，不要删历史；
     一旦删除不可恢复，暂停中的告警断点也会一起消失。
 
-    权限：仅 admin（破坏性操作）；租户：老人必须归属当前租户，跨租户视为不存在。
+    权限：仅 admin（破坏性操作）；租户：点位必须归属当前租户，跨租户视为不存在。
     """
     if current_user["role"] != "admin":
         raise HTTPException(status_code=403, detail="仅管理员可删除会话状态")
@@ -115,7 +115,7 @@ async def delete_chat_session(
     from backend.db.repositories import get_site_tenant
     owner_tenant = await get_site_tenant(site_id)
     if owner_tenant is None or owner_tenant != current_user["tenant_id"]:
-        raise HTTPException(status_code=404, detail=f"老人不存在: {site_id}")
+        raise HTTPException(status_code=404, detail=f"点位不存在: {site_id}")
 
     thread_id = build_thread_id(site_id, session_id)
     result = await delete_thread_state(thread_id)

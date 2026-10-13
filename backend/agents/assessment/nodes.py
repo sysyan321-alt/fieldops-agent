@@ -56,7 +56,7 @@ def _build_structured_summary(structured: dict) -> str:
     if structured.get("location"):
         lines.append(f"房间号：{structured['location']}")
     if structured.get("risk_tier"):
-        lines.append(f"当前护理等级：{structured['risk_tier']}")
+        lines.append(f"当前风险等级：{structured['risk_tier']}")
     return "\n".join(lines) if lines else "（结构化提取失败，请基于原文评审）"
 
 
@@ -129,11 +129,11 @@ async def parse_pdf_node(state: AssessmentState) -> dict:
 
 
 # ──────────────────────────────────────────────────────────────
-# 节点2：extract_structured — LLM 结构化提取老人基本信息
+# 节点2：extract_structured — LLM 结构化提取点位基本信息
 # ──────────────────────────────────────────────────────────────
 
 async def extract_structured_node(state: AssessmentState) -> dict:
-    """用 LLM 把评估表文本提取成结构化老人基本信息。"""
+    """用 LLM 把评估表文本提取成结构化点位基本信息。"""
     raw_text = state["raw_text"]
     text_for_llm = raw_text[:4000] if len(raw_text) > 4000 else raw_text
 
@@ -260,7 +260,7 @@ async def diagnose_issues_node(state: AssessmentState) -> dict:
         logger.warning("diagnose_issues.failed", error=str(e))
         issues = [
             {"priority": "medium", "dimension": dim["dimension"], "description": issue,
-             "location": "评估表全文", "suggestion": "请参考评审建议制定照护措施"}
+             "location": "评估表全文", "suggestion": "请参考评审建议制定处置措施"}
             for dim in dimension_scores for issue in dim.get("issues", [])
         ]
 
@@ -323,12 +323,12 @@ async def diagnose_and_summarize_node(state: AssessmentState) -> dict:
         # fallback：与原 diagnose_issues 兜底逻辑一致
         issues = [
             {"priority": "medium", "dimension": dim["dimension"], "description": issue,
-             "location": "评估表全文", "suggestion": "请参考评审建议制定照护措施"}
+             "location": "评估表全文", "suggestion": "请参考评审建议制定处置措施"}
             for dim in dimension_scores for issue in dim.get("issues", [])
         ]
         summary_dict = {
             "highlights": ["评估内容已完整提交"],
-            "core_improvements": ["请参考各维度建议制定照护计划"],
+            "core_improvements": ["请参考各维度建议制定服务计划"],
             "overall_comment": f"综合评分 {round(weighted_score, 1)} 分，请参考各维度详细反馈。",
             "risk_tier_recommendation": "二级" if weighted_score < 80 else "三级",
         }
@@ -350,7 +350,7 @@ async def diagnose_and_summarize_node(state: AssessmentState) -> dict:
 # ──────────────────────────────────────────────────────────────
 
 async def generate_summary_node(state: AssessmentState) -> dict:
-    """综合结构化信息、评分、问题，生成面向护理团队的整体评价。"""
+    """综合结构化信息、评分、问题，生成面向作业团队的整体评价。"""
     structured = state.get("structured") or {}
     dimension_scores = state.get("dimension_scores", [])
     issues = state.get("issues", [])
@@ -385,7 +385,7 @@ async def generate_summary_node(state: AssessmentState) -> dict:
     if summary_dict is None:
         summary_dict = {
             "highlights": ["评估内容已完整提交"],
-            "core_improvements": high_issues[:2] if high_issues else ["请参考各维度建议制定照护计划"],
+            "core_improvements": high_issues[:2] if high_issues else ["请参考各维度建议制定服务计划"],
             "overall_comment": f"综合评分 {round(weighted_score, 1)} 分，请参考各维度详细反馈。",
             "risk_tier_recommendation": "二级" if weighted_score < 80 else "三级",
         }
@@ -401,7 +401,7 @@ async def save_results_node(state: AssessmentState) -> dict:
     """保存评估结果到数据库（尽力而为：失败不中断流程，仅记日志）。"""
     assessment_id = state["assessment_id"]
 
-    # summary 列存全量附加数据（structured / issues / summary / 护理等级建议）
+    # summary 列存全量附加数据（structured / issues / summary / 风险等级建议）
     summary_payload = {
         "structured": state.get("structured"),
         "issues": state.get("issues", []),

@@ -25,8 +25,8 @@
     <div class="chat-panel">
       <div class="chat-messages" ref="messagesEl">
         <div v-if="messages.length === 0 && !isStreaming" class="empty-hint">
-          <p>🧑‍⚕️ 你好！我是护理 SOP 助手</p>
-          <p>跌倒预防、鼻饲、用药、口腔、体位、压疮等问题，随时问我</p>
+          <p>🧑‍⚕️ 你好！我是作业规范 助手</p>
+          <p>高处作业、配电巡检、消防检查、设备保养、受限空间、水浸处置等问题，随时问我</p>
         </div>
 
         <ChatBubble
@@ -42,7 +42,7 @@
         <ChatBubble v-if="isStreaming" role="assistant">
           <span class="thinking">
             <span class="dot" /><span class="dot" /><span class="dot" />
-            正在检索护理知识库
+            正在检索作业规范知识库
           </span>
         </ChatBubble>
       </div>
@@ -52,7 +52,7 @@
           v-model="inputText"
           type="textarea"
           :rows="3"
-          placeholder="输入护理问题，Enter 发送，Shift+Enter 换行"
+          placeholder="输入作业问题，Enter 发送，Shift+Enter 换行"
           resize="none"
           :disabled="isStreaming"
           @keydown="handleKeydown"

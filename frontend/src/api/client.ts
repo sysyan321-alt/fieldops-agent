@@ -6,7 +6,7 @@ import { API_BASE } from './base'
 
 const client = axios.create({
   baseURL: API_BASE + '/api/v1',
-  timeout: 120_000,  // 评估/照护链路含多轮 LLM 调用，放宽超时
+  timeout: 120_000,  // 评估/服务链路含多轮 LLM 调用，放宽超时
 })
 
 // 请求拦截器：注入 JWT（懒加载 store 避免循环依赖）

@@ -9,13 +9,13 @@ from pydantic import BaseModel, Field
 
 
 # ──────────────────────────────────────────────────────────────
-# 一、四轨数据采集的结构化模型（第四轨为能力评估快照，见 AlertState.assessment_snapshot）
+# 一、四轨数据采集的结构化模型（第四轨为风险评估快照，见 AlertState.assessment_snapshot）
 # ──────────────────────────────────────────────────────────────
 
 class DeviceReading(BaseModel):
     """单条设备读数。"""
     device_id:     str = Field(description="设备 ID")
-    device_type:   str = Field(description="设备类型：心率手环/离床传感器/跌倒检测/温湿度")
+    device_type:   str = Field(description="设备类型：配电监测/视频行为分析/水位监测/环境监测站/门禁")
     reading_value: str = Field(description="读数值")
     reading_unit:  str = Field(description="读数单位")
     timestamp:     str = Field(description="采集时间")
@@ -23,18 +23,18 @@ class DeviceReading(BaseModel):
 
 
 class ServiceRecord(BaseModel):
-    """单条照护记录。"""
+    """单条服务记录。"""
     record_id:    str = Field(description="记录 ID")
-    site_id:     str = Field(description="老人 ID")
-    service_type:    str = Field(description="照护类型：翻身/喂药/进食/如厕/巡视")
-    content:      str = Field(description="照护内容")
-    worker_id: str = Field(description="护理员 ID")
+    site_id:     str = Field(description="点位 ID")
+    service_type:    str = Field(description="服务类型：翻身/喂药/进食/如厕/巡视")
+    content:      str = Field(description="服务内容")
+    worker_id: str = Field(description="作业人员 ID")
     timestamp:    str = Field(description="记录时间")
 
 
 class HealthIndicator(BaseModel):
     """单条健康指标。"""
-    indicator_name:  str = Field(description="指标名称，如心率/血压/体温/血氧")
+    indicator_name:  str = Field(description="指标名称，如设备温度/环境湿度/电流/电压")
     value:           str = Field(description="指标值")
     unit:            str = Field(description="单位")
     reference_range: str = Field(description="参考范围")
@@ -62,15 +62,15 @@ class RiskAssessment(BaseModel):
 
 
 # ──────────────────────────────────────────────────────────────
-# 三、站长确认决策
+# 三、值班主管确认决策
 # ──────────────────────────────────────────────────────────────
 
 class SupervisorDecision(BaseModel):
-    """站长确认决策（interrupt 恢复时传入）。"""
+    """值班主管确认决策（interrupt 恢复时传入）。"""
     action:           str = Field(description="approve / modify / dismiss")
     modified_actions: list[dict] = Field(default_factory=list, description="修改后的处置措施")
-    supervisor_id:    str = Field(description="站长 ID")
-    comment:          str = Field(default="", description="站长备注")
+    supervisor_id:    str = Field(description="值班主管 ID")
+    comment:          str = Field(default="", description="值班主管备注")
 
 
 # ──────────────────────────────────────────────────────────────
@@ -89,7 +89,7 @@ class AlertState(TypedDict):
     device_id:         str         # 触发告警的设备 ID
     alert_type:        str         # heart_rate_abnormal / off_bed_timeout / fall_detected / room_temp_abnormal
     alert_timestamp:   str         # 告警触发时间
-    source:            str         # 来源：care=care 自触发 / saas=机构 SaaS 下发报警记录
+    source:            str         # 来源：care=care 自触发 / saas=业务系统 下发报警记录
     external_alert_id:         str         # SaaS 侧报警记录 ID（回写处置结果时用）
     alert_location:    str         # 报警位置（对齐 SaaS 报警记录 的"报警位置"）
     device_type_declared: str      # 报警自带的设备类型声明（SaaS 报警记录 的"设备类型"）
@@ -99,9 +99,9 @@ class AlertState(TypedDict):
 
     # ── 四轨数据采集结果 ──
     device_readings:     list[dict]        # 第一轨：设备读数列表
-    service_records:        list[dict]        # 第二轨：近期照护记录列表
+    service_records:        list[dict]        # 第二轨：近期服务记录列表
     health_indicators:   list[dict]        # 第三轨：健康指标列表
-    assessment_snapshot: Optional[dict]    # 第四轨：老人最近一次能力评估（含五维得分与问题清单）
+    assessment_snapshot: Optional[dict]    # 第四轨：点位最近一次风险评估（含五维得分与问题清单）
     evidence_gaps:       list[str]         # 缺失的证据轨（显式声明，不允许脑补）
     evidence_quality:    str               # complete / partial / insufficient
 

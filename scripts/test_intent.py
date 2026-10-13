@@ -32,9 +32,9 @@ logger = get_logger(__name__)
 
 # 1. 4 个 Agent 直达用例
 DIRECT_CASES = [
-    ("对老人做能力评估",                    IntentAgentType.ASSESSMENT, "评估动作"),
-    ("鼻饲管日常怎么维护",                  IntentAgentType.SOP_QA,     "护理 SOP"),
-    ("301 房老人心率 130 触发告警",         IntentAgentType.ALERT,      "实时告警"),
+    ("对点位做风险评估",                    IntentAgentType.ASSESSMENT, "评估动作"),
+    ("配电间日常怎么巡检",                  IntentAgentType.SOP_QA,     "作业规范"),
+    ("B1 配电间过载告警",         IntentAgentType.ALERT,      "实时告警"),
     ("明天执行入住流程第三阶段",            IntentAgentType.WORK_FLOW,  "流程执行"),
 ]
 
@@ -42,8 +42,8 @@ DIRECT_CASES = [
 CONFLICT_CASES = [
     # (query, expected_agent, description)
     ("评估跌倒风险",   IntentAgentType.SOP_QA, "问的是跌倒预防知识，不是要做评估"),
-    ("跌倒后怎么处理", IntentAgentType.SOP_QA, "问护理处置 SOP，不是告警事件"),
-    ("评估老人的营养状况", IntentAgentType.ASSESSMENT, "明确是评估动作"),
+    ("跌倒后怎么处理", IntentAgentType.SOP_QA, "问作业处置 SOP，不是告警事件"),
+    ("评估点位的营养状况", IntentAgentType.ASSESSMENT, "明确是评估动作"),
 ]
 
 # 3. 闲聊兜底
@@ -142,8 +142,8 @@ async def test_llm_failure_fallback():
 
     # 4-1: 关键词能命中 → 应降级到对应 Agent（confidence <= 0.5）
     keyword_cases = [
-        ("请对老人做能力评估",  IntentAgentType.ASSESSMENT, "评估"),
-        ("301 房心率异常告警", IntentAgentType.ALERT,      "告警"),
+        ("请对点位做风险评估",  IntentAgentType.ASSESSMENT, "评估"),
+        ("配电间过载告警", IntentAgentType.ALERT,      "告警"),
         ("明天执行入住流程",    IntentAgentType.WORK_FLOW,  "建档流程"),
     ]
     for query, expected, kw in keyword_cases:
@@ -225,9 +225,9 @@ async def test_clarification_trigger():
         confidence=0.4,
         needs_clarification=True,
         candidates=[IntentAgentType.ASSESSMENT, IntentAgentType.WORK_FLOW],
-        reasoning="跨域：评估 + 照护流程",
+        reasoning="跨域：评估 + 作业流程",
     )
-    r1 = await _run_mock(mock1, "评估照护流程", "5-1")
+    r1 = await _run_mock(mock1, "评估作业流程", "5-1")
     ok1 = (
         r1.needs_clarification is True
         and len(r1.candidates) == 2
@@ -245,9 +245,9 @@ async def test_clarification_trigger():
         confidence=0.4,
         needs_clarification=True,
         candidates=[IntentAgentType.ASSESSMENT],   # 只有 1 个，违反约束
-        reasoning="跨域：评估 + 照护流程，无法判断主意图",
+        reasoning="跨域：评估 + 作业流程，无法判断主意图",
     )
-    r2 = await _run_mock(mock2, "评估照护流程", "5-2")
+    r2 = await _run_mock(mock2, "评估作业流程", "5-2")
     ok2 = (
         r2.needs_clarification is True
         and len(r2.candidates) >= 2          # post-process 补到 >=2
@@ -266,9 +266,9 @@ async def test_clarification_trigger():
         confidence=0.4,
         needs_clarification=True,
         candidates=[IntentAgentType.WORK_FLOW],   # 不含 agent_type
-        reasoning="跨域：评估 + 照护流程",
+        reasoning="跨域：评估 + 作业流程",
     )
-    r3 = await _run_mock(mock3, "评估照护流程", "5-3")
+    r3 = await _run_mock(mock3, "评估作业流程", "5-3")
     ok3 = (
         r3.needs_clarification is True
         and len(r3.candidates) == 2
@@ -327,7 +327,7 @@ async def test_orchestrator_execute_clarify():
         request = AgentRequest(
             staff_id="staff_test_001",
             session_id="clarify-test-001",
-            query="评估照护流程",
+            query="评估作业流程",
             mode="single",
             agent_type=None,   # 触发意图识别
         )
@@ -362,7 +362,7 @@ async def test_orchestrator_execute_normal_route():
         confidence=0.95,
         needs_clarification=False,
         candidates=[],
-        reasoning="明确问护理操作",
+        reasoning="明确问作业操作",
     )
     captured_agent_type = []
 
@@ -376,7 +376,7 @@ async def test_orchestrator_execute_normal_route():
         request = AgentRequest(
             staff_id="staff_test_001",
             session_id="route-test-001",
-            query="鼻饲管怎么维护",
+            query="配电间怎么巡检",
             mode="single",
             agent_type=None,
         )

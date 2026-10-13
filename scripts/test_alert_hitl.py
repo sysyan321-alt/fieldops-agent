@@ -1,6 +1,6 @@
 # scripts/test_alert_hitl.py
 # 告警研判 Agent 端到端 HitL 测试
-# 完整跑通：四轨并行采集 → 风险评估 → interrupt暂停 → 站长确认 → 派发工单
+# 完整跑通：四轨并行采集 → 风险评估 → interrupt暂停 → 值班主管确认 → 派发工单
 #
 # 用法：cd <项目根目录> && python scripts/test_alert_hitl.py
 
@@ -67,7 +67,7 @@ async def run_full_hitl_flow():
 
     # 图在 supervisor_review_node 的 interrupt() 处暂停
     # ainvoke 返回的是当前 State 快照（包含 interrupt 暴露的数据）
-    print(f"\n[2] 图已在 interrupt() 处暂停，等待站长确认")
+    print(f"\n[2] 图已在 interrupt() 处暂停，等待值班主管确认")
     print(f"    当前 State 关键字段：")
 
     risk = result.get("risk_assessment", {})
@@ -80,7 +80,7 @@ async def run_full_hitl_flow():
     print(f"    - confidence:      {risk.get('confidence', 'N/A')}")
     print(f"    - supervisor_notified: {result.get('supervisor_notified', False)}")
 
-    # ── 第二步：站长确认（approve），用 Command(resume=...) 恢复 ──
+    # ── 第二步：值班主管确认（approve），用 Command(resume=...) 恢复 ──
 
     decision = {
         "action":           "approve",
@@ -89,7 +89,7 @@ async def run_full_hitl_flow():
         "comment":          "同意 AI 风险评估，立即派发工单",
     }
 
-    print(f"\n[3] 站长确认：approve")
+    print(f"\n[3] 值班主管确认：approve")
     print(f"    decision={json.dumps(decision, ensure_ascii=False, indent=2)}")
 
     final = await graph.ainvoke(Command(resume=decision), config=CONFIG)
@@ -131,10 +131,10 @@ async def run_full_hitl_flow():
 
 
 async def run_modify_flow():
-    """用例②：站长修改处置措施后恢复。"""
+    """用例②：值班主管修改处置措施后恢复。"""
 
     print("\n" + "=" * 60)
-    print("  告警研判 Agent - 用例②：站长修改措施")
+    print("  告警研判 Agent - 用例②：值班主管修改措施")
     print("=" * 60)
 
     graph = await build_alert_graph()
@@ -150,7 +150,7 @@ async def run_modify_flow():
     for i, a in enumerate(risk.get("recommended_actions", []), 1):
         print(f"    {i}. {a}")
 
-    # 站长修改：增加一条急救准备
+    # 值班主管修改：增加一条急救准备
     decision = {
         "action": "modify",
         "modified_actions": risk.get("recommended_actions", []) + ["准备急救药品待命"],
@@ -158,7 +158,7 @@ async def run_modify_flow():
         "comment": "增加急救药品准备，其他措施不变",
     }
 
-    print(f"\n[2] 站长修改措施：增加「准备急救药品待命」")
+    print(f"\n[2] 值班主管修改措施：增加「准备急救药品待命」")
 
     final = await graph.ainvoke(Command(resume=decision), config=config)
 

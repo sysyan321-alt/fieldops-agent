@@ -1,5 +1,5 @@
 # tests/test_service_plan_mcp_tools.py
-# 照护计划相关 MCP 工具的契约：
+# 服务计划相关 MCP 工具的契约：
 #   只读工具（服务项 / 等级配置 / 当日计划）在 service-data，不需要 Token；
 #   回写工具（确认执行）在 work-flow，必须过租户白名单。
 #
@@ -22,7 +22,7 @@ def test_service_data_exposes_plan_read_tools():
 
 async def test_service_items_tool_shape(monkeypatch):
     async def _items(site_id, tenant_id="tenant_default"):
-        return [{"project_name": "协助翻身", "frequency_name": "每2小时",
+        return [{"project_name": "设备状态检查", "frequency_name": "每2小时",
                  "is_required": True, "risk_tier": "二级"}]
 
     monkeypatch.setattr("backend.db.repositories.list_service_items", _items)
@@ -30,7 +30,7 @@ async def test_service_items_tool_shape(monkeypatch):
     out = await service_data_server.list_site_service_items("s001", "tenant_default")
 
     assert out["found"] is True
-    assert out["items"][0]["project_name"] == "协助翻身"
+    assert out["items"][0]["project_name"] == "设备状态检查"
 
 
 async def test_service_items_tool_reports_missing_as_empty(monkeypatch):
@@ -51,7 +51,7 @@ async def test_level_configs_tool_passes_required_only(monkeypatch):
 
     async def _configs(risk_tier, tenant_id="tenant_default", required_only=False):
         seen.update(risk_tier=risk_tier, required_only=required_only)
-        return [{"project_name": "协助进食"}]
+        return [{"project_name": "环境检查"}]
 
     monkeypatch.setattr("backend.db.repositories.list_level_configs", _configs)
 
@@ -59,13 +59,13 @@ async def test_level_configs_tool_passes_required_only(monkeypatch):
                                                          required_only=True)
 
     assert seen == {"risk_tier": "一级", "required_only": True}
-    assert out == [{"project_name": "协助进食"}]
+    assert out == [{"project_name": "环境检查"}]
 
 
 async def test_today_plan_tool_returns_progress(monkeypatch):
     async def _plan(site_id, tenant_id):
         return [{"plan_item_id": "dcp-1", "project_name": "巡视", "status": "done"},
-                {"plan_item_id": "dcp-2", "project_name": "翻身", "status": "planned"}]
+                {"plan_item_id": "dcp-2", "project_name": "设备状态检查", "status": "planned"}]
 
     class _Provider:
         async def today_plan(self, site_id, tenant_id):

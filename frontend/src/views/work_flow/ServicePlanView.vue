@@ -1,14 +1,14 @@
 <template>
   <div class="plan-page">
-    <!-- 顶部：老人 + 护理等级 + 计划来源 -->
+    <!-- 顶部：点位 + 风险等级 + 计划来源 -->
     <div class="plan-header">
       <div>
-        <h2>照护计划</h2>
-        <p class="sub">老人 {{ overview?.site_id || siteIdFallback }} · 会话 {{ sessionId }}</p>
+        <h2>服务计划</h2>
+        <p class="sub">点位 {{ overview?.site_id || siteIdFallback }} · 会话 {{ sessionId }}</p>
       </div>
       <div class="header-actions">
         <el-tag v-if="overview?.risk_tier" type="primary" size="large">
-          护理等级：{{ overview.risk_tier }}
+          风险等级：{{ overview.risk_tier }}
         </el-tag>
         <el-tag :type="sourceTag.type" size="large">{{ sourceTag.text }}</el-tag>
         <el-button :loading="loading" @click="load">刷新</el-button>
@@ -21,17 +21,17 @@
       type="warning"
       :closable="false"
       show-icon
-      title="该老人当前没有照护计划"
+      title="该点位当前没有服务计划"
       class="missing-alert"
     >
       <div class="missing-body">
         <p>{{ overview.message }}</p>
         <ol>
-          <li>上传能力评估表，由评估结论生成照护计划；</li>
-          <li>或在机构系统里为该老人登记照护服务项（项目 / 频次 / 护理时间段）。</li>
+          <li>上传风险评估表，由评估结论生成服务计划；</li>
+          <li>或在服务组织系统里为该点位登记服务项（项目 / 频次 / 作业时间段）。</li>
         </ol>
         <el-button type="primary" size="small" @click="router.push('/assessment')">
-          去做老人评估
+          去做点位评估
         </el-button>
       </div>
     </el-alert>
@@ -40,15 +40,15 @@
       <!-- 服务项：业务配置决定做什么、多久一次 -->
       <el-card class="section" shadow="never">
         <template #header>
-          <span class="section-title">照护服务项</span>
+          <span class="section-title">服务项</span>
           <span class="section-hint">
-            由机构业务配置决定，AI 不增删改（共 {{ overview.service_items.length }} 项）
+            由业务配置决定，AI 不增删改（共 {{ overview.service_items.length }} 项）
           </span>
         </template>
-        <el-table :data="overview.service_items" size="small" empty-text="没有登记照护服务项">
+        <el-table :data="overview.service_items" size="small" empty-text="没有登记服务项">
           <el-table-column prop="project_name" label="项目" min-width="140" />
           <el-table-column prop="frequency_name" label="频次" width="120" />
-          <el-table-column label="护理时间窗" min-width="180">
+          <el-table-column label="作业时间窗" min-width="180">
             <template #default="{ row }">{{ formatSlots(row.nurse_time_slots) }}</template>
           </el-table-column>
           <el-table-column label="必选" width="80">
@@ -120,7 +120,7 @@
         </el-table>
 
         <p class="footnote">
-          漏做（未完成）会进入照护历史的异常记录，供后续对话与复评参考；
+          漏做（未完成）会进入服务历史的异常记录，供后续对话与复评参考；
           计划条目由业务侧生成规则决定，这里只回写执行结果。
         </p>
       </el-card>
@@ -152,7 +152,7 @@ const busyId = ref('')
 
 // 计划来源如实展示：让使用者知道"任务清单是谁定的"
 const SOURCE_LABEL: Record<PlanSource, { text: string; type: 'success' | 'info' | 'warning' | 'danger' }> = {
-  service_items: { text: '计划来源：机构服务项', type: 'success' },
+  service_items: { text: '计划来源：业务配置服务项', type: 'success' },
   ai_assessment: { text: '计划来源：评估结论', type: 'info' },
   merged: { text: '计划来源：服务项 + 评估结论', type: 'success' },
   pipeline: { text: '计划来源：评估流水线', type: 'info' },

@@ -1,5 +1,5 @@
 # scripts/build_knowledge_base.py
-# 护理 SOP 知识库构建流水线：文档加载 → 智能分块 → (可选)Contextual RAG → BGE-M3 嵌入 → 写入 Milvus
+# 作业规范 知识库构建流水线：文档加载 → 智能分块 → (可选)Contextual RAG → BGE-M3 嵌入 → 写入 Milvus
 #
 # 用法：
 #   # 单文件导入
@@ -253,7 +253,7 @@ async def build_pipeline(
 ) -> None:
     """知识库建库完整流水线（四步 + 可选 Contextual RAG）。"""
     print(f"\n{'='*55}")
-    print(f" FieldOps 护理 SOP 知识库构建")
+    print(f" FieldOps 作业规范 知识库构建")
     print(f" 文件      ：{file_path}")
     print(f" SOP 类别  ：{course_id}")
     print(f" 文档 ID   ：{document_id}")
@@ -306,7 +306,7 @@ async def build_batch(
         return
 
     print(f"\n{'='*55}")
-    print(f" FieldOps 护理 SOP 知识库批量构建")
+    print(f" FieldOps 作业规范 知识库批量构建")
     print(f" 目录      ：{dir_path}")
     print(f" 文件数    ：{len(md_files)}")
     print(f" 租户      ：{tenant_id}")
@@ -336,7 +336,7 @@ async def build_batch(
 if __name__ == '__main__':
     import argparse
 
-    parser = argparse.ArgumentParser(description="导入护理 SOP 文档到 Milvus 知识库")
+    parser = argparse.ArgumentParser(description="导入作业规范 文档到 Milvus 知识库")
     parser.add_argument(
         "--file", default=None,
         help="单个 .md 文件路径（与 --batch-dir 二选一）",

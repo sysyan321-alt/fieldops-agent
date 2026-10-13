@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     # ── 数据库（PostgreSQL）──
     db_host: str = "localhost"   # 主机；写了默认值 = 可选项
     db_port: int = 5433          # 端口；本机 5432 已占用，隔离到 5433
-    db_name: str = "fieldops"   # 库名（养老照护智能体）
+    db_name: str = "fieldops"   # 库名（养老作业智能体）
     db_user: str                 # 用户名；没有默认值 = 必填，.env.local 缺了会启动报错
     db_password: str             # 密码；同样必填
 
@@ -116,18 +116,18 @@ class Settings(BaseSettings):
     seed_demo_users: bool = False
 
     # ── 出站通知（Agent → 外部 SaaS 回调）──
-    # 业务事件（如照护流程终态报告）先落发件箱 outbound_events，
+    # 业务事件（如作业流程终态报告）先落发件箱 outbound_events，
     # 再由后台投递器 POST 到租户在 tenant_webhooks 里登记的回调地址。
     outbound_enabled: bool = True              # 是否随应用启动后台投递器
     outbound_worker_interval: int = 15         # 投递轮询间隔（秒）
     outbound_batch_size: int = 20              # 单轮最多投递条数
     outbound_timeout: float = 10.0             # 单次 HTTP 投递超时（秒）
 
-    # ── 照护计划数据来源（Provider 抽象，见 backend/core/service_plan_provider.py）──
+    # ── 服务计划数据来源（Provider 抽象，见 backend/core/service_plan_provider.py）──
     # local = 读 care 自己的库（demo / 离线可跑）
-    # saas  = 读机构 SaaS（需要 saas_care_base_url；取不到时回落 local 并告警）
+    # saas  = 读业务系统（需要 saas_care_base_url；取不到时回落 local 并告警）
     service_plan_provider: str = "local"
-    saas_care_base_url: str = ""               # 机构 SaaS 地址，如 http://sass.example.com/api
+    saas_care_base_url: str = ""               # 业务系统 地址，如 http://sass.example.com/api
     saas_care_token: str = ""                  # 主系统鉴权令牌（按需）
 
     # ── MCP（Model Context Protocol）能力层 ──

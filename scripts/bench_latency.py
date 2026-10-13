@@ -10,7 +10,7 @@
 #   ⑤ RAG 链路    —— SOP 问答慢链路端到端（检索 + LLM 生成）
 #   ⑥ 统一入口    —— 意图路由端到端
 #   ⑦ 告警研判    —— 到 interrupt 暂停点的端到端
-#   ⑧ 照护流程    —— /start 端到端
+#   ⑧ 作业流程    —— /start 端到端
 #   ⑨ 评估链路    —— 需要一份评估表 PDF，见文件末尾说明
 #
 # ⚠️ ⑤⑥⑦⑧ 都需要可用的 LLM Key。Key 无效时它们会返回兜底文案，脚本会把这类
@@ -39,7 +39,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 BACKEND = "http://127.0.0.1:8000"
 DEFAULT_USER = ("supervisor", "Supervisor@123")
 # 各 Agent 返回兜底文案时会出现这些词；出现即说明该次请求没走到真实 LLM
-FALLBACK_MARKERS = ("失败", "暂时不可用", "稍后重试", "转交站长人工核实")
+FALLBACK_MARKERS = ("失败", "暂时不可用", "稍后重试", "转交值班主管人工核实")
 
 # 汇总表：每段把自己的结论追加进来，最后统一打印
 SUMMARY: list[tuple[str, str]] = []
@@ -50,16 +50,16 @@ LLM_OK = False
 
 # 这批问句必须「不命中快通道」，才能量到完整的检索段
 RETRIEVAL_QUERIES = [
-    "老人最近夜里总起夜，白天精神不好，护理上要注意什么？",
-    "为什么老人会突然吃不下饭？",
-    "长期卧床的老人皮肤应该怎么观察？",
-    "老人情绪低落不愿意配合照护怎么办？",
-    "如何判断老人有没有脱水？",
+    "点位最近夜里总起夜，白天精神不好，作业上要注意什么？",
+    "为什么点位会突然吃不下饭？",
+    "长期高负荷的点位皮肤应该怎么观察？",
+    "点位情绪低落不愿意配合服务怎么办？",
+    "如何判断点位有没有脱水？",
 ]
 # 这批必须「命中快通道」（取自 data/quick_index 的相似问法，已实测命中）
 QUICK_QUERIES = [
     "Morse量表怎么评？",
-    "压疮分几期？",
+    "设备温升分几期？",
     "防滑垫放哪里？",
     "床栏啥时拉起来？",
 ]
@@ -167,7 +167,7 @@ async def bench_cache() -> None:
         return
 
     # 用带时间戳的问句保证首次一定 miss：否则上一轮压测留下的缓存会让"miss"变成命中
-    query = f"鼻饲管多久更换一次？（压测 {time.time_ns()}）"
+    query = f"配电间多久更换一次？（压测 {time.time_ns()}）"
     t = time.perf_counter()
     docs1, _ = await cached_retrieve(query, "tenant_default", None, 10, 3)
     miss = (time.perf_counter() - t) * 1000
@@ -357,7 +357,7 @@ def bench_read_endpoints(repeat: int) -> None:
     print("  口径：本机 localhost、连接预热、含 JWT 鉴权与 PostgreSQL 查询，不含 LLM")
 
     # 这个接口名字叫"检索"，实际要跑 BGE + Milvus + 精排，不是纯读库，单独列
-    ms, _body = _post_json("/api/v1/knowledge/search", {"query": "压疮护理", "top_k": 3}, token)
+    ms, _body = _post_json("/api/v1/knowledge/search", {"query": "设备温升作业", "top_k": 3}, token)
     print(f"\n  POST /knowledge/search（含向量检索，非纯读库）: {ms:.0f} ms")
 
     if all_lat:
@@ -366,13 +366,13 @@ def bench_read_endpoints(repeat: int) -> None:
 
 
 def bench_other_paths(repeat: int) -> None:
-    """⑥ 统一入口 / ⑦ 告警研判 / ⑧ 照护流程：三条都必须调 LLM，量级必然是秒级。"""
+    """⑥ 统一入口 / ⑦ 告警研判 / ⑧ 作业流程：三条都必须调 LLM，量级必然是秒级。"""
     print("\n=== ⑥⑦⑧ 其余链路：接口端到端（都需要可用的 LLM Key）===")
     if not LLM_OK:
         print("  ⏭ LLM 不可用（见开头预检），本段跳过。")
         print("     提示：这时的数字会『看起来很快』——意图识别静默走关键词降级、")
         print("     告警研判静默用默认风险等级，都不是真实链路耗时。")
-        for key in ("⑥ 统一入口端到端", "⑦ 告警研判端到端", "⑧ 照护流程端到端"):
+        for key in ("⑥ 统一入口端到端", "⑦ 告警研判端到端", "⑧ 作业流程端到端"):
             SUMMARY.append((key, "未测到（LLM 不可用）"))
         return
     try:
@@ -383,12 +383,12 @@ def bench_other_paths(repeat: int) -> None:
 
     plans = [
         ("⑥ 统一对话入口（意图路由）", "/api/v1/chat",
-         {"site_id": "s001", "query": "压疮怎么护理"}, "⑥ 统一入口端到端"),
+         {"site_id": "s001", "query": "设备温升怎么作业"}, "⑥ 统一入口端到端"),
         ("⑦ 告警研判（到 interrupt 暂停点）", "/api/v1/alert/trigger",
          {"site_id": "s001", "device_id": "dev-001", "alert_type": "heart_rate_abnormal"},
          "⑦ 告警研判端到端"),
-        ("⑧ 照护流程 /start", "/api/v1/work-flow/start",
-         {"site_id": "s001"}, "⑧ 照护流程端到端"),
+        ("⑧ 作业流程 /start", "/api/v1/work-flow/start",
+         {"site_id": "s001"}, "⑧ 作业流程端到端"),
     ]
 
     for label, path, payload, summary_key in plans:

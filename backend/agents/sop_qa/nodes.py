@@ -1,5 +1,5 @@
 # backend/agents/sop_qa/nodes.py
-# 护理 SOP 问答 Agent 的所有节点函数
+# 作业规范 问答 Agent 的所有节点函数
 
 import asyncio
 import json
@@ -48,7 +48,7 @@ def _format_history_for_prompt(messages: list) -> str:
     lines = []
     for msg in messages:
         if isinstance(msg, HumanMessage):
-            lines.append(f"护理员：{_get_message_content(msg)}")
+            lines.append(f"作业人员：{_get_message_content(msg)}")
         elif isinstance(msg, AIMessage):
             lines.append(f"AI：{_get_message_content(msg)[:200]}...")
     return "\n".join(lines) if lines else "（无历史对话）"
@@ -58,13 +58,13 @@ def _build_system_content(summary: str | None = None, high_risk: bool = False) -
     """构建注入了历史摘要（必要时还有应急引导）的 SystemMessage 内容。"""
     content = SYSTEM_PROMPT
     if summary:
-        content += f"\n\n【护理员历史摘要】\n{summary}"
+        content += f"\n\n【作业人员历史摘要】\n{summary}"
     if high_risk:
         # 高危问法：先给应急处置方向，再讲 SOP 细节，并明确升级路径
         content += (
             "\n\n【本次提问涉及应急情形】请按以下顺序作答："
             "先给最优先的现场处置动作（保持气道通畅、判断意识与呼吸、呼叫支援），"
-            "再给 SOP 细节；结尾必须提示立即联系值班医生或拨打 120，不要只给一条护理操作。"
+            "再给 SOP 细节；结尾必须提示立即联系值班医生或拨打 120，不要只给一条作业操作。"
         )
     return content
 
@@ -73,20 +73,22 @@ def _build_system_content(summary: str | None = None, high_risk: bool = False) -
 # 节点1：classify_query — 查询分类
 # ──────────────────────────────────────────────────────────────
 
-# 护理 SOP 高频专有名词：命中即判 PRECISE，跳过 LLM 分类
+# 作业规范 高频专有名词：命中即判 PRECISE，跳过 LLM 分类
 _PRECISE_KEYWORDS = frozenset({
-    # 护理操作
-    "翻身", "压疮", "鼻饲", "吸痰", "导尿", "灌肠", "热敷", "冷敷",
-    "口腔护理", "皮肤护理", "会阴护理", "伤口换药", "胃管", "尿管",
-    "静脉输液", "皮试", "注射", "给药", "发药", "服药",
-    # 评估/指标
-    "跌倒风险", "营养评估", "认知评估", "吞咽功能", "肌力", "关节活动",
-    "血压", "血糖", "体温", "心率", "血氧", "意识状态",
-    # 照护阶段
-    "入院评估", "退场评估", "日常巡检", "阶段复评", "异常处置",
-    "晨间护理", "晚间护理", "临终关怀", "康复训练",
+    # 作业类型
+    "高处作业", "受限空间", "动火作业", "临边作业", "带电作业", "停电检修",
+    "脚手架", "安全带", "防坠器", "生命线", "作业许可",
+    # 设备与设施
+    "配电柜", "断路器", "隔离开关", "母线", "接点温升", "绝缘", "接地",
+    "轴承", "联轴器", "传动带", "润滑", "密封件", "排水泵", "集水井",
+    "灭火器", "消火栓", "喷淋", "防火卷帘", "应急照明", "疏散指示",
+    # 指标/参数
+    "设备温度", "环境湿度", "电流", "电压", "水位", "气体检测", "氧含量",
+    # 服务阶段
+    "建档评估", "退场评估", "日常巡检", "阶段复评", "异常处置",
+    "早班巡检", "夜班巡检", "专项巡检",
     # 制度/流程
-    "交接班", "护理记录", "不良事件", "应急预案", "隔离", "消毒",
+    "交接班", "服务记录", "不良事件", "应急预案", "动火许可", "演练",
 })
 
 # 模糊/宽泛特征词：命中即判 VAGUE/BROAD，跳过 LLM 分类
@@ -109,7 +111,7 @@ async def classify_query_node(state: SOPQAState) -> dict:
     if any(h in query for h in general_hints):
         return {"query_type": "GENERAL"}
 
-    # 命中护理专有名词 → PRECISE（跳过 LLM）
+    # 命中作业专有名词 → PRECISE（跳过 LLM）
     if any(kw in query for kw in _PRECISE_KEYWORDS):
         logger.info("classify_query.rule_hit", query_type="PRECISE")
         return {"query_type": "PRECISE"}
@@ -201,7 +203,7 @@ async def multi_query_rewrite_node(state: SOPQAState) -> dict:
 
 async def retrieve_node(state: SOPQAState) -> dict:
     """
-    从 Milvus 向量库检索护理 SOP 文档，并用 BGE-Reranker 精排。
+    从 Milvus 向量库检索作业规范 文档，并用 BGE-Reranker 精排。
 
     检索策略按 query_type 分流：
       PRECISE → 用 original_query 直接检索
@@ -219,7 +221,7 @@ async def retrieve_node(state: SOPQAState) -> dict:
     query_type = state.get("query_type", "PRECISE")
     original_query = state["original_query"]
     tenant_id = state.get("tenant_id", "tenant_default")
-    org_id = state.get("org_id")  # 机构 ID，可选作 course_id 过滤；None = 全库
+    org_id = state.get("org_id")  # 服务组织 ID，可选作 course_id 过滤；None = 全库
 
     # ── 快通道：标准问法命中直接返回 SOP 原文，不加载模型、不调 LLM ──
     # 判定用同义词规范化 + BM25 + 覆盖率/标题术语门控，没把握时返回 None 继续走 RAG。
@@ -315,14 +317,14 @@ async def retrieve_node(state: SOPQAState) -> dict:
 async def quick_answer_node(state: SOPQAState) -> dict:
     """快通道作答：直接用 SOP 原文 + 来源章节回复，不调用 LLM。
 
-    适用场景：标准问法命中（如"压疮分几期"），此时返回规范原文比让模型改写更安全，
+    适用场景：标准问法命中（如"设备温升分几期"），此时返回规范原文比让模型改写更安全，
     也省掉生成开销；模型未加载时同样可用。
     """
     hit = state.get("quick_hit") or {}
     chunks = state.get("ranked_chunks") or []
     content = hit.get("snippet") or (chunks[0].get("content") if chunks else "")
     source = hit.get("source") or (chunks[0].get("source") if chunks else "")
-    answer = f"根据《{source}》：\n\n{content}\n\n（以上为护理 SOP 原文，请按机构规范执行）"
+    answer = f"根据《{source}》：\n\n{content}\n\n（以上为作业规范 原文，请按服务组织规范执行）"
     logger.info("quick_answer.done", source=source[:50])
     return {
         "answer": answer,
@@ -362,7 +364,7 @@ async def generate_rag_node(state: SOPQAState) -> dict:
         answer = "".join(chunks_text)
     except Exception as e:
         logger.error("generate_rag.failed", error=str(e))
-        answer = "护理 SOP 检索回答生成失败，请稍后重试。"
+        answer = "作业规范 检索回答生成失败，请稍后重试。"
 
     return {
         "answer": answer,
@@ -417,7 +419,7 @@ async def generate_direct_node(state: SOPQAState) -> dict:
         answer = _get_message_content(resp)
     except Exception as e:
         logger.error("generate_direct.failed", error=str(e))
-        answer = "护理 SOP 回答生成失败，请稍后重试或查阅纸质护理手册。"
+        answer = "作业规范 回答生成失败，请稍后重试或查阅纸质作业手册。"
 
     return {
         "answer": answer,

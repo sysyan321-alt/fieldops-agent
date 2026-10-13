@@ -1,5 +1,5 @@
 # backend/agents/work_flow/state.py
-# 照护流程 Agent 的状态定义
+# 作业流程 Agent 的状态定义
 
 from typing import Annotated, Optional
 from typing_extensions import TypedDict
@@ -10,10 +10,10 @@ from enum import Enum
 
 
 class WorkStage(str, Enum):
-    """照护流程的四个阶段（异常处置改为日常巡检内的子模式，不再作为独立阶段）。
+    """作业流程的四个阶段（异常处置改为日常巡检内的子模式，不再作为独立阶段）。
 
-    设计取舍：异常是事件不是阶段——晨间护理发现压红、鼻饲时发现胃液异常
-    本就是日常巡检动作中发现的，把它做成独立阶段会导致：①老人没异常时空转；
+    设计取舍：异常是事件不是阶段——日常巡检发现温升异常、水位异常
+    本就是日常巡检动作中发现的，把它做成独立阶段会导致：①点位没异常时空转；
     ②日常上下文被打散；③报告里"异常处置阶段得分"语义错位。
     正确做法是日常巡检内用 daily_mode 字段切换 normal/abnormal 模式。
     """
@@ -27,7 +27,7 @@ class WorkStage(str, Enum):
 class DailyMode(str, Enum):
     """日常巡检阶段内的子模式：常规模式 / 异常模式。
 
-    normal → abnormal：关键词触发（晨护发现压红、鼻饲胃液异常等）
+    normal → abnormal：关键词触发（巡检发现过载、渗漏、异响、焦糊味等）
     abnormal → normal：用户说"处理完/异常已处理"或达到异常子模式轮数上限
     """
     NORMAL   = "normal"
@@ -35,8 +35,8 @@ class DailyMode(str, Enum):
 
 
 class ResponseQuality(str, Enum):
-    """护理员单次回答的质量标签（驱动后续照护动作）。"""
-    GOOD       = "good"        # 良好：照护操作规范、记录完整
+    """作业人员单次回答的质量标签（驱动后续服务动作）。"""
+    GOOD       = "good"        # 良好：服务操作规范、记录完整
     ADEQUATE   = "adequate"    # 基本及格：操作基本到位但缺细节
     POOR       = "poor"        # 较差：操作不规范或有遗漏
     NO_RESPONSE = "no_response"  # 未作答：未回复或为空
@@ -52,24 +52,24 @@ class DimensionEval(BaseModel):
 
 
 class WorkReport(BaseModel):
-    """照护流程评估报告"""
+    """作业流程评估报告"""
     dimensions:         list[DimensionEval]
     overall_score:      int       = Field(description="综合得分 0-100（各维度加权平均）")
     strengths:          list[str] = Field(description="2-3条核心优势")
     improvements:       list[str] = Field(description="2-3条重点提升方向")
-    service_suggestions:   list[str] = Field(description="2-3条照护建议")
+    service_suggestions:   list[str] = Field(description="2-3条服务建议")
     next_review_date:   str       = Field(description="下次复评建议日期")
 
 
 class WorkFlowState(TypedDict):
-    """照护流程 Agent 完整 State（跨轮由 checkpointer 持久化，默认 AsyncPostgresSaver 落 PostgreSQL）"""
+    """作业流程 Agent 完整 State（跨轮由 checkpointer 持久化，默认 AsyncPostgresSaver 落 PostgreSQL）"""
 
     # ── 请求上下文 ──
     messages:           Annotated[list[BaseMessage], add_messages]
     site_id:           str
     tenant_id:          str
     session_id:         str
-    service_plan_id:       str           # 照护计划 ID
+    service_plan_id:       str           # 服务计划 ID
 
     # ── 阶段控制 ──
     current_stage:        str           # 当前阶段，WorkStage 枚举值
@@ -80,12 +80,12 @@ class WorkFlowState(TypedDict):
     abnormal_turn_count:  int           # 异常子模式内的轮数（仅 abnormal 累计）
     discharge_order:      Optional[dict]  # 退住工单（SaaS 注入，None=续住；阶段复评时据此决定退场评估 or 回日常巡检）
 
-    # ── 照护计划与历史 ──
-    service_plan:          Optional[dict]  # 照护计划（来自 Provider：业务服务项 + 评估结论）
+    # ── 服务计划与历史 ──
+    service_plan:          Optional[dict]  # 服务计划（来自 Provider：业务服务项 + 评估结论）
     service_plan_missing:  bool            # 计划缺失（取不到数据时为 True，流程不推进）
     plan_source:        str             # 计划来源：pipeline/service_items/ai_assessment/merged/missing
-    service_history:       list[dict]      # 照护历史记录（真实记录，取不到就是空）
-    today_plan:         list[dict]      # 当天照护计划（含执行状态，来自 Provider）
+    service_history:       list[dict]      # 服务历史记录（真实记录，取不到就是空）
+    today_plan:         list[dict]      # 当天服务计划（含执行状态，来自 Provider）
     plan_progress:      dict            # 当天进度 {total, done, missed, pending}
 
     # ── 回答质量追踪 ──

@@ -1,15 +1,15 @@
 # backend/core/service_plan_provider.py
-# 照护计划数据 Provider：把"照护计划与照护历史从哪来"这件事从 Agent 里抽出来。
+# 服务计划数据 Provider：把"服务计划与服务历史从哪来"这件事从 Agent 里抽出来。
 #
 # 为什么要抽这一层（改造前的问题）：
-#   load_context 在 DB 查不到照护计划时用**硬编码 mock 计划**兜底（"二级"+5 条固定任务），
-#   照护历史更是**无论计划来源如何都用 mock**（两条写死的"晨间护理完成"）。
-#   结果是：不管老人实际有没有计划，Agent 都拿一份假计划在推进状态机。
+#   load_context 在 DB 查不到服务计划时用**硬编码 mock 计划**兜底（"二级"+5 条固定任务），
+#   服务历史更是**无论计划来源如何都用 mock**（两条写死的"早班巡检完成"）。
+#   结果是：不管点位实际有没有计划，Agent 都拿一份假计划在推进状态机。
 #
 # 职责边界（这条是设计核心）：
-#   - 照护项目、频次、护理时间段 = **机构业务配置**，属于 SaaS，Agent 不得增删改；
-#   - 评估结论 → 护理等级建议、以及异常情况下的处置建议 = AI 的增量；
-#   - 每日照护计划的**生成规则**也在业务侧（由业务系统生成），
+#   - 服务项目、频次、作业时间段 = **业务配置**，属于 SaaS，Agent 不得增删改；
+#   - 评估结论 → 风险等级建议、以及异常情况下的处置建议 = AI 的增量；
+#   - 每日服务计划的**生成规则**也在业务侧（由业务系统生成），
 #     care 只读不造——本地实现只是让 demo 能独立跑，不是第二套业务规则。
 
 from __future__ import annotations
@@ -29,7 +29,7 @@ class ServicePlanProviderError(RuntimeError):
 
 @dataclass
 class ServicePlanBundle:
-    """一次取数的结果：计划 + 照护历史 + 来源标记（来源要如实上报，不能糊）。"""
+    """一次取数的结果：计划 + 服务历史 + 来源标记（来源要如实上报，不能糊）。"""
 
     plan: dict | None = None
     history: list[dict] = field(default_factory=list)
@@ -38,7 +38,7 @@ class ServicePlanBundle:
 
 
 class ServicePlanProvider(Protocol):
-    """照护计划数据源契约。"""
+    """服务计划数据源契约。"""
 
     name: str
 
@@ -47,10 +47,10 @@ class ServicePlanProvider(Protocol):
 
     async def ensure_items_for_level(self, site_id: str, risk_tier: str,
                                      tenant_id: str) -> list[dict]:
-        """按护理等级确保该老人名下有对应的照护服务项，返回生效的服务项。
+        """按风险等级确保该点位名下有对应的服务项，返回生效的服务项。
 
-        这是"评估结论 → 业务配置"的那一步：评估给出护理等级，等级决定该老人
-        应做哪些照护项目。**谁负责落地在两种 Provider 下是不同的**——
+        这是"评估结论 → 业务配置"的那一步：评估给出风险等级，等级决定该点位
+        应做哪些服务项目。**谁负责落地在两种 Provider 下是不同的**——
         本地实现由 care 写自己的库；SaaS 实现只取回"该等级可选什么"，
         实际落地由主系统负责（care 不写主系统的业务数据）。这个差异必须显式，
         否则很容易演变成"AI 系统偷偷改了业务配置"。
@@ -58,7 +58,7 @@ class ServicePlanProvider(Protocol):
         ...
 
     async def today_plan(self, site_id: str, tenant_id: str) -> list[dict]:
-        """取当天的每日照护计划（含执行状态）。"""
+        """取当天的每日服务计划（含执行状态）。"""
         ...
 
     async def confirm_plan_item(self, plan_item_id: str, tenant_id: str, *,
@@ -73,11 +73,11 @@ class ServicePlanProvider(Protocol):
 # ──────────────────────────────────────────────────────────────
 
 class LocalServicePlanProvider:
-    """从 care 本地库取照护计划与照护历史。
+    """从 care 本地库取服务计划与服务历史。
 
     计划的优先级：
-      ① 老人的照护服务项（site_service_items，机构配置的业务数据）→ 决定"要做什么、多久做一次"
-      ② 评估派生的照护计划（service_plans.plan_content，AI 结论）→ 提供等级建议与注意事项
+      ① 点位的服务项（site_service_items，服务组织配置的业务数据）→ 决定"要做什么、多久做一次"
+      ② 评估派生的服务计划（service_plans.plan_content，AI 结论）→ 提供等级建议与注意事项
       两者都有 → merged；只有其一时按其一标注来源；都没有 → plan=None（不编）。
     """
 
@@ -141,10 +141,10 @@ class LocalServicePlanProvider:
 
     @staticmethod
     def _tasks_from_items(items: list[dict]) -> list[str]:
-        """把服务项渲染成可执行任务行（频次与护理时间段来自业务配置，不由模型编）。"""
+        """把服务项渲染成可执行任务行（频次与作业时间段来自业务配置，不由模型编）。"""
         tasks = []
         for it in items:
-            name = it.get("project_name") or it.get("project_id") or "照护项目"
+            name = it.get("project_name") or it.get("project_id") or "服务项目"
             times = it.get("times_per_day") or 0
             freq = it.get("frequency_name") or (f"{times}次/日" if times else "")
             slots = it.get("nurse_time_slots") or []
@@ -185,7 +185,7 @@ class LocalServicePlanProvider:
 
     @staticmethod
     def _risk_tier_of(items: list[dict]) -> str:
-        """护理等级取服务项里登记的等级；服务项没带就留空由上游（评估）决定。"""
+        """风险等级取服务项里登记的等级；服务项没带就留空由上游（评估）决定。"""
         for it in items:
             if it.get("risk_tier"):
                 return it["risk_tier"]
@@ -193,18 +193,18 @@ class LocalServicePlanProvider:
 
 
 # ──────────────────────────────────────────────────────────────
-# 机构 SaaS 实现（对接主系统）：
+# 业务系统 实现（对接主系统）：
 # ──────────────────────────────────────────────────────────────
 
 class SaasServicePlanProvider:
-    """从机构业务系统取照护计划与照护历史。
+    """从业务系统取服务计划与服务历史。
 
     四个端点路径见下方 `PATH_*` 常量——它们是**占位命名**，请按你自己的后端契约调整。
     需要改动的地方都集中在这一个类里，Agent 与数据层不感知：
 
-      PATH_SERVICE_ITEMS    老人已登记的照护服务项
-      PATH_AVAILABLE_ITEMS  某护理等级可选的服务项（用于"从可选里推荐"）
-      PATH_DAILY_PLAN       当天照护计划
+      PATH_SERVICE_ITEMS    点位已登记的服务项
+      PATH_AVAILABLE_ITEMS  某风险等级可选的服务项（用于"从可选里推荐"）
+      PATH_DAILY_PLAN       当天服务计划
       PATH_CONFIRM_ITEM     回写执行结果
 
     字段名同理：请求体字段与响应包裹结构（如 {code, data}）因系统而异，
@@ -270,9 +270,9 @@ class SaasServicePlanProvider:
 
     async def ensure_items_for_level(self, site_id: str, risk_tier: str,
                                      tenant_id: str) -> list[dict]:
-        """SaaS 实现：只**读取**该护理等级可选的服务内容，不在主系统里写数据。
+        """SaaS 实现：只**读取**该风险等级可选的服务内容，不在主系统里写数据。
 
-        返回的是"该等级允许做的项目"；实际给老人挂哪些项目由主系统决定，
+        返回的是"该等级允许做的项目"；实际给点位挂哪些项目由主系统决定，
         care 用它来做计划渲染与"从可选项里推荐"的输入。
         """
         raw = await self._post(self.PATH_AVAILABLE_ITEMS,
@@ -280,7 +280,7 @@ class SaasServicePlanProvider:
         return self._parse_items(raw)
 
     async def today_plan(self, site_id: str, tenant_id: str) -> list[dict]:
-        """SaaS 实现：读主系统的当天照护计划（care 不生成）。"""
+        """SaaS 实现：读主系统的当天服务计划（care 不生成）。"""
         raw = await self._post(self.PATH_DAILY_PLAN, {"siteId": site_id, "today": True})
         return [{
             "plan_item_id": str(r.get("id") or r.get("planId") or ""),
@@ -295,7 +295,7 @@ class SaasServicePlanProvider:
     async def confirm_plan_item(self, plan_item_id: str, tenant_id: str, *,
                                 status: str = "done", worker_id: str = "",
                                 worker_name: str = "", actual_care_time: str = "") -> bool:
-        """SaaS 实现：回写主系统的照护计划（PATH_CONFIRM_ITEM）。
+        """SaaS 实现：回写主系统的服务计划（PATH_CONFIRM_ITEM）。
 
         这里 care **会写主系统**，但写的是"执行结果"这一类事实数据（谁在什么时候做了），
         不是业务规则本身——这是与"不重复实现生成规则"并不矛盾的分工。
@@ -318,7 +318,7 @@ class SaasServicePlanProvider:
 
     @staticmethod
     def _parse_items(raw) -> list[dict]:
-        """老人服务内容 → 统一的 service_items 结构（字段名兼容多种写法）。"""
+        """点位服务内容 → 统一的 service_items 结构（字段名兼容多种写法）。"""
         rows = raw if isinstance(raw, list) else (raw.get("list") or raw.get("records") or [])
         out = []
         for r in rows or []:
@@ -350,7 +350,7 @@ class SaasServicePlanProvider:
 def get_service_plan_provider() -> ServicePlanProvider:
     """按配置返回 Provider。默认本地；配了 SAAS_CARE_BASE_URL 才走主系统。
 
-    SaaS 实现初始化失败时**回落本地并告警**，而不是让整条照护流程挂掉——
+    SaaS 实现初始化失败时**回落本地并告警**，而不是让整条作业流程挂掉——
     取不到业务数据时，Agent 应该报告"计划缺失"，不是崩溃，也不是编一份假的。
     """
     settings = get_settings()

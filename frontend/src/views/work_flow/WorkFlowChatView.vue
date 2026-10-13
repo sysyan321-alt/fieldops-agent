@@ -12,14 +12,14 @@
           class="plan-entry"
           @click="router.push(`/work-flow/${sessionId}/plan`)"
         >
-          照护计划
+          服务计划
         </el-button>
       </div>
 
       <!-- 消息区 -->
       <div class="chat-messages" ref="messagesEl">
         <div v-if="messages.length === 0 && !isStreaming" class="empty-hint">
-          <p>📋 照护流程对话即将开始</p>
+          <p>📋 作业流程对话即将开始</p>
         </div>
 
         <ChatBubble
@@ -44,7 +44,7 @@
         type="success"
         :closable="false"
         class="finish-alert"
-        title="照护流程已完成"
+        title="作业流程已完成"
       >
         <div>共 {{ totalTurns }} 轮对话，报告已生成并保存。</div>
         <el-button type="primary" size="small" style="margin-top: 8px" @click="openReport">
@@ -86,13 +86,13 @@
     </div>
 
     <!-- 报告弹窗 -->
-    <el-dialog v-model="showReport" title="照护评估报告" width="640px">
+    <el-dialog v-model="showReport" title="服务评估报告" width="640px">
       <div v-if="reportLoading" style="text-align: center; padding: 40px">
         <el-icon class="is-loading" :size="24"><Loading /></el-icon>
       </div>
       <template v-else-if="report">
         <el-descriptions :column="2" border size="small" style="margin-bottom: 16px">
-          <el-descriptions-item label="老人 ID">{{ report.site_id }}</el-descriptions-item>
+          <el-descriptions-item label="点位 ID">{{ report.site_id }}</el-descriptions-item>
           <el-descriptions-item label="会话 ID">{{ report.session_id }}</el-descriptions-item>
           <el-descriptions-item label="到达阶段">{{ stageLabel(report.stage_reached) }}</el-descriptions-item>
           <el-descriptions-item label="对话轮数">{{ report.total_turns }}</el-descriptions-item>

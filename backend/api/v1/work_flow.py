@@ -1,5 +1,5 @@
 # backend/api/v1/work_flow.py
-# 照护流程 Agent API 路由
+# 作业流程 Agent API 路由
 
 import json
 import uuid
@@ -18,7 +18,7 @@ logger = get_logger(__name__)
 
 
 class WorkFlowStartRequest(BaseModel):
-    """启动照护流程请求。"""
+    """启动作业流程请求。"""
     site_id:     str
     service_plan_id: str = ""
     initial_stage: str = "onboarding_assessment"
@@ -26,7 +26,7 @@ class WorkFlowStartRequest(BaseModel):
 
 
 class WorkFlowChatRequest(BaseModel):
-    """照护流程对话请求。"""
+    """作业流程对话请求。"""
     session_id: str
     message:    str
     discharge_order: dict | None = None  # SaaS 随时下发的退住工单（阶段复评时据此决定出院 or 续住）
@@ -62,7 +62,7 @@ async def start_work_flow(
     req: WorkFlowStartRequest,
     current_user: dict = Depends(get_current_user),
 ):
-    """启动照护流程会话。"""
+    """启动作业流程会话。"""
     session_id = f"cf-{uuid.uuid4().hex[:12]}"
 
     orchestrator = get_orchestrator()
@@ -111,7 +111,7 @@ async def work_flow_chat(
     req: WorkFlowChatRequest,
     current_user: dict = Depends(get_current_user),
 ):
-    """照护流程对话（SSE 流式响应）。"""
+    """作业流程对话（SSE 流式响应）。"""
     async def event_generator():
         yield {"event": "session", "data": json.dumps({"session_id": req.session_id}, ensure_ascii=False)}
 
@@ -178,7 +178,7 @@ async def get_plan_overview(
     session_id: str,
     current_user: dict = Depends(get_current_user),
 ):
-    """照护计划总览：护理等级 + 服务项 + 当天计划与执行进度（一个接口给足前端）。
+    """服务计划总览：风险等级 + 服务项 + 当天计划与执行进度（一个接口给足前端）。
 
     为什么单独做一个聚合接口而不是让前端拼三个：
       ① 前端拿到的"计划来源"必须和后端 Agent 用的是同一个来源标记
@@ -227,7 +227,7 @@ async def get_plan_overview(
         "today_plan": today_plan,
         "progress": daily_plan_progress(today_plan),
         "message": "" if not plan_missing else (
-            "该老人当前没有照护计划：请先完成能力评估，或在机构侧登记照护服务项。"
+            "该点位当前没有服务计划：请先完成风险评估，或在业务侧登记服务项。"
         ),
     }
 
@@ -237,9 +237,9 @@ async def get_today_plan(
     session_id: str,
     current_user: dict = Depends(get_current_user),
 ):
-    """查该会话对应老人**当天**的照护计划与执行进度。
+    """查该会话对应点位**当天**的服务计划与执行进度。
 
-    用途：护理员的手持机/前端进日常巡检时先拉一次，知道"今天还剩哪几项没做"；
+    用途：作业人员的手持机/前端进日常巡检时先拉一次，知道"今天还剩哪几项没做"；
     care 侧对计划只读（生成规则在业务侧），只有 confirm 才回写。
     """
     from backend.db.repositories import daily_plan_progress, get_work_flow_session
@@ -272,7 +272,7 @@ async def confirm_plan_item(
     req: PlanItemConfirmRequest,
     current_user: dict = Depends(get_current_user),
 ):
-    """护工确认某项照护任务执行完成 → 回写状态与执行人。
+    """护工确认某项服务任务执行完成 → 回写状态与执行人。
 
     两种 Provider 的落点不同：本地实现写 care 自己的 daily_work_plans；
     SaaS 实现调主系统的「执行结果回写」接口。写的是"执行结果"这类事实数据，
@@ -301,11 +301,11 @@ async def get_active_work_flow(
     site_id: str,
     current_user: dict = Depends(get_current_user),
 ):
-    """按老人查最近一场进行中的照护流程会话。
+    """按点位查最近一场进行中的作业流程会话。
 
-    用途：护理员从老人详情页进入时，前端先调这里；有进行中的会话就提示
+    用途：作业人员从点位详情页进入时，前端先调这里；有进行中的会话就提示
     "继续未完成流程"，拿回 session_id 进入对话页即可命中检查点续跑，
-    不依赖浏览器记住 URL。租户隔离：老人不归属当前租户视为不存在。
+    不依赖浏览器记住 URL。租户隔离：点位不归属当前租户视为不存在。
     """
     from backend.db.repositories import get_active_work_flow_session
     row = await get_active_work_flow_session(site_id, tenant_id=current_user["tenant_id"])
@@ -320,11 +320,11 @@ async def deliver_discharge_order_api(
     req: DischargeOrderRequest,
     current_user: dict = Depends(get_current_user),
 ):
-    """SaaS 主动下发退住工单到指定会话（不推进对话，等护理员下次开口时生效）。
+    """SaaS 主动下发退住工单到指定会话（不推进对话，等作业人员下次开口时生效）。
 
     与 MCP 工具 /mcp/work-flow 的 send_discharge_order 共用同一段落地逻辑
     （backend.agents.work_flow.discharge.deliver_discharge_order）：
-    只写会话检查点里的 state.discharge_order，护理员下一次 /chat 时由状态机识别并收敛。
+    只写会话检查点里的 state.discharge_order，作业人员下一次 /chat 时由状态机识别并收敛。
     """
     from backend.agents.work_flow.discharge import deliver_discharge_order
     result = await deliver_discharge_order(
@@ -417,11 +417,11 @@ async def get_work_report(
     session_id: str,
     current_user: dict = Depends(get_current_user),
 ):
-    """按会话 ID 查询照护评估报告（读 work_flow_reports 表，租户隔离）。"""
+    """按会话 ID 查询服务评估报告（读 work_flow_reports 表，租户隔离）。"""
     from backend.db.repositories import get_work_flow_report
     row = await get_work_flow_report(session_id, tenant_id=current_user["tenant_id"])
     if row is None:
-        raise HTTPException(status_code=404, detail=f"照护报告不存在: {session_id}")
+        raise HTTPException(status_code=404, detail=f"服务报告不存在: {session_id}")
 
     return {
         "session_id": row["session_id"],
@@ -446,10 +446,10 @@ async def export_work_report_docx(
 
     row = await get_work_flow_report(session_id, tenant_id=current_user["tenant_id"])
     if row is None:
-        raise HTTPException(status_code=404, detail=f"照护报告不存在: {session_id}")
+        raise HTTPException(status_code=404, detail=f"服务报告不存在: {session_id}")
 
     content = build_work_flow_docx(row)
-    filename = f"照护报告-{session_id}.docx"
+    filename = f"服务报告-{session_id}.docx"
     return Response(
         content=content,
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",

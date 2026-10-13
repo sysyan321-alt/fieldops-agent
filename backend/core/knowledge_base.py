@@ -1,6 +1,6 @@
 # backend/core/knowledge_base.py
-# 护理 SOP 知识库客户端：BGE-M3 本地嵌入 + Milvus 混合检索
-# 护理 SOP 检索知识库。
+# 作业规范 知识库客户端：BGE-M3 本地嵌入 + Milvus 混合检索
+# 作业规范 检索知识库。
 # 单 Collection（nursing_sop_kb），按 tenant_id 字段过滤实现多租户隔离。
 
 import hashlib
@@ -18,7 +18,7 @@ from backend.core.logger import get_logger
 
 logger = get_logger(__name__)
 
-# ── 集合名：护理 SOP 知识库 ──
+# ── 集合名：作业规范 知识库 ──
 COLLECTION_NAME = "nursing_sop_kb"
 
 
@@ -39,7 +39,7 @@ class BGEMEmbedder:
 
     用法：
         embedder = BGEMEmbedder.get_instance()
-        dense, sparse = embedder.encode_query("鼻饲管日常维护步骤？")
+        dense, sparse = embedder.encode_query("配电间日常维护步骤？")
     """
 
     _instance: Optional["BGEMEmbedder"] = None   # 单例持有
@@ -161,9 +161,9 @@ class DocumentChunk:
     content:          chunk 文本（Contextual RAG 模式下含 LLM 生成的上下文描述前缀）
     embedding:        Dense 向量（BGE-M3，1024 维）
     sparse_embedding: Sparse 向量（{token_id: weight}，BGE-M3 lexical weights）
-    source_name:      来源标注（如 "鼻饲管护理SOP > 第3章 > 3.1 日常维护"）
+    source_name:      来源标注（如 "配电间巡检SOP > 第3章 > 3.1 日常维护"）
 
-    注：course_id 字段在护理场景下语义为「SOP 类别 ID」
+    注：course_id 字段在作业场景下语义为「SOP 类别 ID」
         （如 feeding_tube / pressure_ulcer / fall_prevention）。
     """
     id:               str
@@ -362,7 +362,7 @@ class KnowledgeBaseClient:
     ) -> str:
         """
         构建 Milvus bool 过滤表达式。
-        course_id 在护理场景下语义为 SOP 类别 ID（如 feeding_tube）。
+        course_id 在作业场景下语义为 SOP 类别 ID（如 feeding_tube）。
         """
         safe_tenant = tenant_id.replace('"', '\\"')
         expr = f'tenant_id == "{safe_tenant}"'
@@ -375,7 +375,7 @@ class KnowledgeBaseClient:
 if __name__ == '__main__':
     # 自检：加载模型 + 跑一次空检索，验证连通性
     model = BGEMEmbedder.get_instance()
-    dense, sparse = model.encode_query(text="鼻饲管置管后的日常维护操作步骤")
+    dense, sparse = model.encode_query(text="配电间置管后的日常维护操作步骤")
     print(f'dense dim: {len(dense)}, sparse keys: {len(sparse)}')
     kb = KnowledgeBaseClient()
     results = kb._hybrid_search(dense, sparse, top_k=5)

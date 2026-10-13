@@ -18,29 +18,29 @@ BASE_STATE = {
     "alert_type": "heart_rate_abnormal",
     "alert_timestamp": "2026-09-18 10:30:00",
     "device_readings": [
-        {"device_id": "dev-001", "device_type": "心率手环",
+        {"device_id": "dev-001", "device_type": "配电监测",
          "reading_value": "135", "reading_unit": "bpm",
          "timestamp": "2026-09-18 10:30:00", "is_abnormal": True},
     ],
     "service_records": [
         {"record_id": "rec-001", "site_id": "e-test-001",
-         "service_type": "巡视", "content": "老人安静休息",
+         "service_type": "巡视", "content": "点位安静休息",
          "worker_id": "cg-001", "timestamp": "2026-09-18 09:30:00"},
     ],
     "health_indicators": [
-        {"indicator_name": "心率", "value": "135", "unit": "bpm",
-         "reference_range": "60-100", "status": "high",
+        {"indicator_name": "设备温度", "value": "62", "unit": "℃",
+         "reference_range": "≤55", "status": "high",
          "timestamp": "2026-09-18 10:30:00"},
     ],
     "risk_assessment": {
         "risk_level": "high",
         "risk_score": 85,
-        "reasoning": "心率持续偏高（135bpm），血氧偏低（92%），需紧急处置",
+        "reasoning": "柜内接点温升持续偏高（62℃），且 B 相电流达额定 92%，需立即处置",
         "recommended_actions": [
-            "立即派人现场查看老人状况",
-            "通知值班医生评估是否需转诊",
-            "持续监测心率、血氧",
-            "检查近期用药是否正常",
+            "立即派人现场查看该点位状况",
+            "通知值班主管评估是否需停电检修",
+            "持续监测接点温度与三相电流",
+            "检查近期负荷变化与散热情况",
         ],
         "confidence": 0.9,
     },
@@ -56,7 +56,7 @@ def _build_review_graph():
     return builder.compile(checkpointer=MemorySaver())
 
 
-# ── 用例①：站长直接批准 AI 风险评估 ─────────────────────────
+# ── 用例①：值班主管直接批准 AI 风险评估 ─────────────────────────
 async def atest_review_approve():
     print("\n" + "=" * 55)
     print("【supervisor_review_node】用例① approve")
@@ -67,9 +67,9 @@ async def atest_review_approve():
 
     # 第一次 invoke：图在 interrupt() 处暂停，返回 display_data
     snapshot = await graph.ainvoke(BASE_STATE, config=config)
-    print(f"图已暂停，展示给站长的数据: {snapshot}")
+    print(f"图已暂停，展示给值班主管的数据: {snapshot}")
 
-    # 站长选择"批准"，不修改任何措施
+    # 值班主管选择"批准"，不修改任何措施
     decision = {
         "action": "approve",
         "modified_actions": [],
@@ -84,7 +84,7 @@ async def atest_review_approve():
     print("✅ approve 用例通过")
 
 
-# ── 用例②：站长修改部分处置措施 ─────────────────────────────
+# ── 用例②：值班主管修改部分处置措施 ─────────────────────────────
 async def atest_review_modify():
     print("\n" + "=" * 55)
     print("【supervisor_review_node】用例② modify")
@@ -95,14 +95,14 @@ async def atest_review_modify():
 
     await graph.ainvoke(BASE_STATE, config=config)
 
-    # 站长修改处置措施：增加一条，去掉一条
+    # 值班主管修改处置措施：增加一条，去掉一条
     decision = {
         "action": "modify",
         "modified_actions": [
-            "立即派人现场查看老人状况",
-            "通知值班医生评估是否需转诊",
-            "持续监测心率、血氧",
-            "检查近期用药是否正常",
+            "立即派人现场查看该点位状况",
+            "通知值班主管评估是否需停电检修",
+            "持续监测接点温度与三相电流",
+            "检查近期负荷变化与散热情况",
             "准备急救药品待命",  # 新增
         ],
         "supervisor_id": "sup-001",

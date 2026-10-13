@@ -22,8 +22,8 @@ def test_format_search_results_empty():
 
 def test_format_search_results():
     results = [
-        {"title": "跌倒预防指南", "url": "https://example.com/a", "snippet": "老年人跌倒预防要点"},
-        {"title": "压疮护理", "url": "https://example.com/b", "snippet": "每2小时翻身"},
+        {"title": "跌倒预防指南", "url": "https://example.com/a", "snippet": "点位跌倒预防要点"},
+        {"title": "设备温升作业", "url": "https://example.com/b", "snippet": "每2小时巡检"},
     ]
     text = format_search_results(results)
     assert "[1] 跌倒预防指南" in text
@@ -60,7 +60,7 @@ async def test_web_search_tavily_success(monkeypatch):
     # 替换模块属性本身，保证走 Tavily 分支（不依赖环境变量）
     monkeypatch.setattr(ws, "get_settings", _stub_settings("test-key"))
 
-    results = await ws.web_search("老年人跌倒预防")
+    results = await ws.web_search("点位跌倒预防")
     assert len(results) == 2
     assert results[0] == {"title": "t1", "url": "u1", "snippet": "c1"}
 

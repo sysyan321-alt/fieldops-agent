@@ -1,5 +1,5 @@
 # backend/mcp/work_flow_server.py
-# 照护流程 MCP Server（写操作，需 Token 鉴权）
+# 作业流程 MCP Server（写操作，需 Token 鉴权）
 #
 # 端点：挂载在 /mcp/work-flow（POST /mcp/work-flow/mcp），外层套 BearerTokenMiddleware
 # 独立运行：python -m backend.mcp.work_flow_server（默认 8016 端口，仍需自行加门禁）
@@ -11,8 +11,8 @@
 #   GET  /api/v1/work-flow/{sid}/report                       → get_work_flow_report
 #
 # 与 alert-ops 的关键差异：告警是"无状态一次性触发"（trigger_alert 新建 alert_id 再跑图）；
-# 照护流程是"有状态多轮会话"，所以 send_discharge_order 只往已有 thread 的检查点写
-# state.discharge_order（不跑图、不耗 LLM），等护理员下一次对话时状态机自然收敛。
+# 作业流程是"有状态多轮会话"，所以 send_discharge_order 只往已有 thread 的检查点写
+# state.discharge_order（不跑图、不耗 LLM），等作业人员下一次对话时状态机自然收敛。
 
 import uuid
 
@@ -26,10 +26,10 @@ logger = get_logger(__name__)
 mcp = FastMCP(
     name="FieldOps-WorkFlow",
     instructions=(
-        "FieldOps 护理能力工具 · 照护流程（v1.0，写工具，需 Authorization: Bearer <MCP_ADMIN_TOKEN>）。"
-        "工具：start_work_flow（启动照护流程会话）、send_discharge_order（向已有会话下发退住工单，"
-        "不推进对话、待护理员下次发言时生效）、get_work_flow_status（查会话阶段）、"
-        "get_work_flow_report（取照护/出院报告）、confirm_service_plan_item（护工确认某项照护任务执行完成）。"
+        "FieldOps 作业能力工具 · 作业流程（v1.0，写工具，需 Authorization: Bearer <MCP_ADMIN_TOKEN>）。"
+        "工具：start_work_flow（启动作业流程会话）、send_discharge_order（向已有会话下发退住工单，"
+        "不推进对话、待作业人员下次发言时生效）、get_work_flow_status（查会话阶段）、"
+        "get_work_flow_report（取服务/出院报告）、confirm_service_plan_item（护工确认某项服务任务执行完成）。"
         "写工具（start_work_flow / send_discharge_order / confirm_service_plan_item）"
         "必须传 tenant_id 且在 MCP_WRITE_TENANTS 白名单内。"
     ),
@@ -46,14 +46,14 @@ async def start_work_flow(
     initial_stage: str = "onboarding_assessment",
     discharge_order: dict | None = None,
 ) -> dict:
-    """启动一场照护流程会话（建档评估 → 日常巡检 → 阶段复评 → 退场评估）。
+    """启动一场作业流程会话（建档评估 → 日常巡检 → 阶段复评 → 退场评估）。
 
     对应 REST：POST /api/v1/work-flow/start
 
     Args:
-        site_id:        老人 ID
+        site_id:        点位 ID
         tenant_id:       租户 ID，必填且必须在 MCP_WRITE_TENANTS 白名单内
-        service_plan_id:    照护计划 ID（可选）
+        service_plan_id:    服务计划 ID（可选）
         initial_stage:   起始阶段，默认 onboarding_assessment
         discharge_order: 可选退住工单（入住时已知要出院可一并下发）
 
@@ -113,15 +113,15 @@ async def send_discharge_order(
     tenant_id: str,
     order: dict,
 ) -> dict:
-    """向进行中的照护流程会话下发退住工单（SaaS 主动通知）。
+    """向进行中的作业流程会话下发退住工单（SaaS 主动通知）。
 
     对应 REST：POST /api/v1/work-flow/sessions/{session_id}/discharge-order
 
-    只更新该会话检查点里的 state.discharge_order，**不推进对话**：护理员下一次发言时，
+    只更新该会话检查点里的 state.discharge_order，**不推进对话**：作业人员下一次发言时，
     check_stage_node 会识别工单并触发阶段收敛（当前阶段达 min 即并入 复评 → 退场评估）。
 
     Args:
-        session_id: 照护流程会话 ID（由 start_work_flow 或 GET /active/{site_id} 获得）
+        session_id: 作业流程会话 ID（由 start_work_flow 或 GET /active/{site_id} 获得）
         tenant_id:  租户 ID，必填且必须在白名单内
         order:      退住工单 dict，如 {"order_type": "discharge", "reason": "转院"}
 
@@ -139,10 +139,10 @@ async def send_discharge_order(
 
 @mcp.tool()
 async def get_work_flow_status(session_id: str, tenant_id: str) -> dict:
-    """查询照护流程会话的当前状态（阶段 / 轮数 / 是否进行中）。
+    """查询作业流程会话的当前状态（阶段 / 轮数 / 是否进行中）。
 
     Args:
-        session_id: 照护流程会话 ID
+        session_id: 作业流程会话 ID
         tenant_id:  租户 ID，必填
 
     Returns:
@@ -157,12 +157,12 @@ async def get_work_flow_status(session_id: str, tenant_id: str) -> dict:
 
 @mcp.tool()
 async def get_work_flow_report(session_id: str, tenant_id: str) -> dict:
-    """取出院/照护评估报告（流程走到 finished 时生成）。
+    """取出院/服务评估报告（流程走到 finished 时生成）。
 
     对应 REST：GET /api/v1/work-flow/{session_id}/report
 
     Args:
-        session_id: 照护流程会话 ID
+        session_id: 作业流程会话 ID
         tenant_id:  租户 ID，必填
 
     Returns:
@@ -183,14 +183,14 @@ async def confirm_service_plan_item(
     worker_name: str = "",
     actual_care_time: str = "",
 ) -> dict:
-    """护工确认某项照护任务执行完成（回写执行结果）。
+    """护工确认某项服务任务执行完成（回写执行结果）。
 
     对应 REST：POST /api/v1/work-flow/plan-items/{plan_item_id}/confirm
     对齐业务系统侧的执行结果回写接口。
 
     这里回写的是**执行结果**这类事实数据（谁在什么时候做了/没做），
-    不是业务规则——照护项目与频次仍由业务侧决定，care 不改。
-    漏做（status=missed）会进入照护历史的异常记录，供下一轮对话与复评参考。
+    不是业务规则——服务项目与频次仍由业务侧决定，care 不改。
+    漏做（status=missed）会进入服务历史的异常记录，供下一轮对话与复评参考。
 
     Args:
         plan_item_id:     计划条目 ID（来自 get_today_service_plan）
@@ -228,5 +228,5 @@ if __name__ == "__main__":
     import uvicorn
 
     port = 8016
-    print(f"照护流程 MCP Server → http://localhost:{port}/mcp（独立运行时请自行加鉴权）")
+    print(f"作业流程 MCP Server → http://localhost:{port}/mcp（独立运行时请自行加鉴权）")
     uvicorn.run(mcp.streamable_http_app(), host="0.0.0.0", port=port)

@@ -1,5 +1,5 @@
 # backend/mcp/sop_kb_admin_server.py
-# 护理 SOP 知识库「管理」MCP Server（写操作，需 Token 鉴权）
+# 作业规范 知识库「管理」MCP Server（写操作，需 Token 鉴权）
 #
 # 端点：挂载在 /mcp/sop-kb-admin（POST /mcp/sop-kb-admin/mcp），外层套 BearerTokenMiddleware
 # 独立运行：python -m backend.mcp.sop_kb_admin_server（默认 8015 端口，仍需自加门禁）
@@ -26,7 +26,7 @@ DATA_DIR = ROOT_DIR / "data"
 mcp = FastMCP(
     name="FieldOps-SOPKnowledgeBaseAdmin",
     instructions=(
-        "FieldOps 护理能力工具 · 知识库管理（v1.0，写工具，需 Authorization: Bearer <MCP_ADMIN_TOKEN>）。"
+        "FieldOps 作业能力工具 · 知识库管理（v1.0，写工具，需 Authorization: Bearer <MCP_ADMIN_TOKEN>）。"
         "工具：ingest_sop_document（导入/更新 SOP，仅允许 data/ 目录）、delete_sop_document（删除文档）、"
         "rebuild_collection（重建集合，需 confirm=DROP_AND_REBUILD）。所有工具必须传 tenant_id 且在 MCP_WRITE_TENANTS 白名单内。"
     ),
@@ -94,7 +94,7 @@ async def ingest_sop_document(
     version: str = "1.0",
     use_context: bool = True,
 ) -> dict:
-    """导入（或新增）一篇护理 SOP 文档到知识库。
+    """导入（或新增）一篇作业规范 文档到知识库。
 
     对应脚本：scripts/build_knowledge_base.py
     流程：读取 → 智能分块 →（可选）Contextual RAG 增强 → BGE-M3 嵌入 → 写入 Milvus。

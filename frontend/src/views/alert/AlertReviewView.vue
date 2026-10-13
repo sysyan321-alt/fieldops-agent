@@ -6,7 +6,7 @@
         <span>触发告警研判</span>
       </template>
       <el-form :inline="true" :model="form">
-        <el-form-item label="老人 ID">
+        <el-form-item label="点位 ID">
           <el-input v-model="form.site_id" placeholder="site_001" style="width: 160px" />
         </el-form-item>
         <el-form-item label="设备 ID">
@@ -58,7 +58,7 @@
         <el-collapse-item title="设备实时数据（device_readings）" name="device">
           <pre class="track-json">{{ pretty(review.device_readings) }}</pre>
         </el-collapse-item>
-        <el-collapse-item title="照护记录（service_records）" name="service">
+        <el-collapse-item title="服务记录（service_records）" name="service">
           <pre class="track-json">{{ pretty(review.service_records) }}</pre>
         </el-collapse-item>
         <el-collapse-item title="健康指标趋势（health_indicators）" name="health">
@@ -68,7 +68,7 @@
 
       <!-- 确认操作 -->
       <el-divider />
-      <div class="section-title">站长确认</div>
+      <div class="section-title">值班主管确认</div>
       <el-radio-group v-model="confirmAction" :disabled="confirming">
         <el-radio value="approve">确认派发</el-radio>
         <el-radio value="modify">修改后派发</el-radio>
@@ -121,8 +121,11 @@ const form = reactive({
 })
 
 const alertTypes = [
-  { value: 'heart_rate_abnormal', label: '心率异常' },
-  { value: 'off_bed_timeout',     label: '离床超时' },
+  { value: 'overcurrent',          label: '配电过载' },
+  { value: 'device_offline',       label: '设备离线' },
+  { value: 'fall_detected',        label: '人员跌倒' },
+  { value: 'intrusion_detected',   label: '人员闯入' },
+  { value: 'air_quality_abnormal', label: '气体异常' },
   { value: 'fall_detected',       label: '跌倒检测' },
   { value: 'room_temp_abnormal',  label: '室温异常' },
 ]

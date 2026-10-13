@@ -1,5 +1,5 @@
 # tests/test_export_and_search.py
-# P1 新增能力测试：护理 SOP 语义搜索接口 + 评估/照护报告 Word 导出
+# P1 新增能力测试：作业规范 语义搜索接口 + 评估/服务报告 Word 导出
 
 import io
 import zipfile
@@ -30,7 +30,7 @@ async def auth_headers(client, db_ready):
 
 async def test_knowledge_search_requires_auth(client):
     """未带 token → 401。"""
-    resp = await client.post("/api/v1/knowledge/search", json={"query": "鼻饲管护理"})
+    resp = await client.post("/api/v1/knowledge/search", json={"query": "配电间巡检"})
     assert resp.status_code == 401
 
 
@@ -43,10 +43,10 @@ async def test_knowledge_search_shape(client, auth_headers, monkeypatch):
             [
                 RankedDocument(content="喂养前需检查管路位置与胃残留量。", score=0.93,
                                original_index=0,
-                               metadata={"source_name": "鼻饲管护理操作规范", "course_id": "feeding_tube"}),
+                               metadata={"source_name": "配电间巡检规范", "course_id": "feeding_tube"}),
                 RankedDocument(content="每日进行口腔与鼻部清洁。", score=0.62,
                                original_index=1,
-                               metadata={"source_name": "鼻饲管护理操作规范", "course_id": "feeding_tube"}),
+                               metadata={"source_name": "配电间巡检规范", "course_id": "feeding_tube"}),
             ],
             0.93,
         )
@@ -54,18 +54,18 @@ async def test_knowledge_search_shape(client, auth_headers, monkeypatch):
     monkeypatch.setattr("backend.core.retrieval_cache.cached_retrieve", fake_retrieve)
 
     resp = await client.post("/api/v1/knowledge/search",
-                             json={"query": "鼻饲管日常护理", "top_k": 2},
+                             json={"query": "配电间日常巡检", "top_k": 2},
                              headers=auth_headers)
     assert resp.status_code == 200, resp.text
     body = resp.json()
     assert body["count"] == 2
     assert body["is_high_confidence"] is True
     assert body["confidence"] == 0.93
-    assert body["hits"][0]["source_name"] == "鼻饲管护理操作规范"
+    assert body["hits"][0]["source_name"] == "配电间巡检规范"
 
     # min_confidence 过滤低于阈值的结果
     resp2 = await client.post("/api/v1/knowledge/search",
-                              json={"query": "鼻饲管日常护理", "min_confidence": 0.8},
+                              json={"query": "配电间日常巡检", "min_confidence": 0.8},
                               headers=auth_headers)
     assert resp2.json()["count"] == 1
 
@@ -122,7 +122,7 @@ async def test_assessment_export_404(client, auth_headers):
 
 
 async def test_work_flow_export_docx(client, auth_headers):
-    """写入一条照护报告 → 导出 Word 成功。"""
+    """写入一条服务报告 → 导出 Word 成功。"""
     from backend.db.repositories import save_work_flow_report
 
     session_id = make_id("export-flow")
@@ -132,8 +132,8 @@ async def test_work_flow_export_docx(client, auth_headers):
         service_plan_id="plan-001",
         stage_reached="finished",
         total_turns=12,
-        report={"content": "照护流程执行完毕，老人状态稳定。",
-                "recommendation": "维持当前照护等级"},
+        report={"content": "作业流程执行完毕，点位状态稳定。",
+                "recommendation": "维持当前风险等级"},
     )
 
     resp = await client.get(f"/api/v1/work-flow/{session_id}/report/export",
@@ -144,7 +144,7 @@ async def test_work_flow_export_docx(client, auth_headers):
     with zipfile.ZipFile(io.BytesIO(resp.content)) as zf:
         xml = zf.read("word/document.xml").decode("utf-8")
     assert "作业流程评估报告" in xml
-    assert "照护流程执行完毕" in xml
+    assert "作业流程执行完毕" in xml
 
 
 async def test_work_flow_export_404(client, auth_headers):

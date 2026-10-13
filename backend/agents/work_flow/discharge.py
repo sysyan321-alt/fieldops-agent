@@ -3,9 +3,9 @@
 #
 # 设计取舍：工单是"业务指令"而非对话内容——
 #   投递只更新 LangGraph 检查点里的 state.discharge_order，不跑图、不耗 LLM、不生成 AI 回复；
-#   等护理员下一次 /chat 时由 check_stage_node 识别并触发阶段收敛（复评 → 退场评估）。
+#   等作业人员下一次 /chat 时由 check_stage_node 识别并触发阶段收敛（复评 → 退场评估）。
 #
-# 这样 SaaS 就能"主动通知"一个进行中的会话，而不必等护理员开口时把字段捎带进来。
+# 这样 SaaS 就能"主动通知"一个进行中的会话，而不必等作业人员开口时把字段捎带进来。
 # MCP 工具（/mcp/work-flow 的 send_discharge_order）与 REST 回调
 # （POST /api/v1/work-flow/sessions/{sid}/discharge-order）共用本函数，落地逻辑只有一份。
 
@@ -24,10 +24,10 @@ async def deliver_discharge_order(
     tenant_id: str,
     order: dict,
 ) -> dict:
-    """向进行中的照护流程会话注入退住工单（只写检查点，不跑图）。
+    """向进行中的作业流程会话注入退住工单（只写检查点，不跑图）。
 
     Args:
-        session_id: 照护流程会话 ID
+        session_id: 作业流程会话 ID
         tenant_id:  租户 ID（强制过滤，跨租户视为不存在）
         order:      退住工单 dict（如 {"order_type": "discharge", "reason": "转院"}），不可为空
 
@@ -65,7 +65,7 @@ async def deliver_discharge_order(
         graph = await build_work_flow_graph()
         # ★ thread_id / checkpoint_ns 必须与 Orchestrator 完全一致
         #   （orchestrator.py 拼键为 build_config(site_id or staff_id, session_id, agent_type)），
-        #   否则工单会被写进另一行检查点，护理员那边永远读不到。
+        #   否则工单会被写进另一行检查点，作业人员那边永远读不到。
         config = build_config(row["site_id"], session_id, agent_type="work_flow")
         await graph.aupdate_state(config, {"discharge_order": order})
     except Exception as e:
@@ -87,5 +87,5 @@ async def deliver_discharge_order(
         "site_id": row["site_id"],
         "current_stage": row.get("current_stage"),
         "status": "delivered",
-        "message": "工单已投递；护理员下一次对话时由状态机识别并收敛到 复评 → 退场评估",
+        "message": "工单已投递；作业人员下一次对话时由状态机识别并收敛到 复评 → 退场评估",
     }

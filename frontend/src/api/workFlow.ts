@@ -51,9 +51,9 @@ export const workFlowApi = {
     client.get<WorkFlowReport>(`/work-flow/${sessionId}/report`),
 }
 
-// ── 照护计划（护理等级 → 服务项 → 当天执行）──────────────────
+// ── 服务计划（风险等级 → 服务项 → 当天执行）──────────────────
 
-/** 服务项：来自机构业务配置（care 不改它，只读并据此生成任务清单） */
+/** 服务项：来自业务配置（care 不改它，只读并据此生成任务清单） */
 export interface ServiceItem {
   item_id?: string
   project_name: string
@@ -99,7 +99,7 @@ export interface PlanOverview {
 }
 
 export const servicePlanApi = {
-  /** 计划总览：护理等级 + 服务项 + 当天计划与进度（不跑 LLM，很快） */
+  /** 计划总览：风险等级 + 服务项 + 当天计划与进度（不跑 LLM，很快） */
   getOverview: (sessionId: string) =>
     client.get<PlanOverview>(`/work-flow/sessions/${sessionId}/plan-overview`),
 

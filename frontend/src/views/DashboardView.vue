@@ -18,7 +18,7 @@
               <span class="ai-icon">✨</span>
               <div>
                 <div class="ai-title">AI 助手</div>
-                <div class="ai-desc">直接描述您的需求，AI 自动识别意图并路由到最合适的 Agent — 支持评估→照护流程多 Agent 协同</div>
+                <div class="ai-desc">直接描述您的需求，AI 自动识别意图并路由到最合适的 Agent — 支持评估→作业流程多 Agent 协同</div>
               </div>
             </div>
             <el-button type="primary" size="default">立即体验 →</el-button>
@@ -58,28 +58,28 @@ const featureCards = [
   {
     icon: '🤖',
     title: 'SOP 问答',
-    desc: '护理规范即问即答，RAG 知识库 + 联网搜索双保障',
+    desc: '作业规范即问即答，RAG 知识库 + 联网搜索双保障',
     action: '开始问答',
     route: '/sop-qa',
   },
   {
     icon: '📋',
-    title: '照护流程',
+    title: '作业流程',
     desc: '建档评估→日常巡检→异常处置→复评→出院 五阶段引导',
     action: '发起流程',
     route: '/work-flow',
   },
   {
     icon: '🧓',
-    title: '老人评估',
-    desc: '上传评估表 PDF，五维度照护等级评定与问题清单',
+    title: '点位评估',
+    desc: '上传评估表 PDF，五维度风险等级评定与问题清单',
     action: '上传评估表',
     route: '/assessment',
   },
   {
     icon: '🔔',
     title: '告警审核',
-    desc: '设备告警 AI 风险研判，站长人工确认后派发工单',
+    desc: '设备告警 AI 风险研判，值班主管人工确认后派发工单',
     action: '处理告警',
     route: '/alert-review',
   },

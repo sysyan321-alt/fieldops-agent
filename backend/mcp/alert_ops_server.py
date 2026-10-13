@@ -28,9 +28,9 @@ logger = get_logger(__name__)
 mcp = FastMCP(
     name="FieldOps-AlertOps",
     instructions=(
-        "FieldOps 护理能力工具 · 告警触发与派单（v1.0，写工具，需 Authorization: Bearer <MCP_ADMIN_TOKEN>）。"
-        "工具：trigger_alert（四轨采集+风险评估，在站长审核处暂停）、get_alert_review_data（读审核数据）、"
-        "confirm_alert（站长确认后派发工单）、list_pending_alerts（列待审核告警）。"
+        "FieldOps 作业能力工具 · 告警触发与派单（v1.0，写工具，需 Authorization: Bearer <MCP_ADMIN_TOKEN>）。"
+        "工具：trigger_alert（四轨采集+风险评估，在值班主管审核处暂停）、get_alert_review_data（读审核数据）、"
+        "confirm_alert（值班主管确认后派发工单）、list_pending_alerts（列待审核告警）。"
         "所有工具必须传 tenant_id 且在 MCP_WRITE_TENANTS 白名单内。"
     ),
     stateless_http=True,
@@ -46,12 +46,12 @@ async def trigger_alert(
     alert_type: str = "heart_rate_abnormal",
     alert_timestamp: str = "",
 ) -> dict:
-    """触发告警研判（跑四轨采集 + 风险评估，图会在站长审核处暂停）。
+    """触发告警研判（跑四轨采集 + 风险评估，图会在值班主管审核处暂停）。
 
     对应 REST：POST /api/v1/alert/trigger
 
     Args:
-        site_id:        老人 ID
+        site_id:        点位 ID
         device_id:       触发告警的设备 ID
         tenant_id:       租户 ID，必填且必须在 MCP_WRITE_TENANTS 白名单内
         alert_type:      告警类型：heart_rate_abnormal / off_bed_timeout /
@@ -60,7 +60,7 @@ async def trigger_alert(
 
     Returns:
         {alert_id, session_id, status="awaiting_review", review_data}
-        review_data 内含风险评估与四轨采集结果，可直接展示给站长审核。
+        review_data 内含风险评估与四轨采集结果，可直接展示给值班主管审核。
     """
     assert_tenant_allowed(tenant_id)
 
@@ -135,7 +135,7 @@ async def confirm_alert(
     comment: str = "",
     supervisor_id: str = "mcp-client",
 ) -> dict:
-    """站长确认告警处置（恢复被 interrupt 暂停的图，生成并派发工单）。
+    """值班主管确认告警处置（恢复被 interrupt 暂停的图，生成并派发工单）。
 
     对应 REST：POST /api/v1/alert/{alert_id}/confirm
 
@@ -144,7 +144,7 @@ async def confirm_alert(
         tenant_id:        租户 ID，必填且必须在白名单内
         action:           决策：approve（采用 AI 措施）/ modify（采用修改后措施）/ dismiss（取消处置）
         modified_actions: action=modify 时的措施列表，形如 [{"action": "...", "owner": "..."}]
-        comment:          站长备注
+        comment:          值班主管备注
         supervisor_id:    操作人标识（MCP 场景默认 mcp-client）
 
     Returns:
@@ -187,7 +187,7 @@ async def confirm_alert(
 
 @mcp.tool()
 async def list_pending_alerts(tenant_id: str, limit: int = 10) -> list[dict]:
-    """列出待站长审核的告警（status = reviewing）。
+    """列出待值班主管审核的告警（status = reviewing）。
 
     Args:
         tenant_id: 租户 ID，必填

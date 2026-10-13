@@ -3,7 +3,7 @@
 #
 # 设计原则：
 #   1. 「尽力而为」：所有写操作 try/except 包裹，落库失败只记日志、不中断 Agent 流程
-#      （评估/照护/告警的主链路价值在推理结果，持久化是附加动作）
+#      （评估/服务/告警的主链路价值在推理结果，持久化是附加动作）
 #   2. 幂等：写操作用 ON CONFLICT DO UPDATE，重放安全
 #   3. 外键兜底：sites/devices 可能没有对应记录（演示/联调时 site_id 随意传），
 #      写入前先补占位行，避免 FK 违约导致整条 INSERT 失败
@@ -41,11 +41,11 @@ def _as_dict(value) -> dict | list | None:
     return value
 
 
-async def _ensure_site(site_id: str, name: str = "未登记老人",
+async def _ensure_site(site_id: str, name: str = "未登记点位",
                         tenant_id: str = DEFAULT_TENANT) -> str:
-    """老人不存在时补占位行（ON CONFLICT 幂等），避免外键违约。
+    """点位不存在时补占位行（ON CONFLICT 幂等），避免外键违约。
 
-    返回老人实际归属的租户 ID（新建占位行即归属 tenant_id）。
+    返回点位实际归属的租户 ID（新建占位行即归属 tenant_id）。
     """
     async with AsyncSessionLocal() as session:
         await session.execute(text("""
@@ -61,8 +61,8 @@ async def _ensure_site(site_id: str, name: str = "未登记老人",
 
 
 async def _guard_tenant(site_id: str, tenant_id: str,
-                        name: str = "未登记老人") -> bool:
-    """租户守卫：确保老人存在且归属当前租户，跨租户写入直接拒绝。"""
+                        name: str = "未登记点位") -> bool:
+    """租户守卫：确保点位存在且归属当前租户，跨租户写入直接拒绝。"""
     actual = await _ensure_site(site_id, name, tenant_id)
     if actual != tenant_id:
         logger.warning("repo.tenant_violation", site_id=site_id,
@@ -72,7 +72,7 @@ async def _guard_tenant(site_id: str, tenant_id: str,
 
 
 async def get_site_tenant(site_id: str) -> Optional[str]:
-    """只读查询老人归属租户；不存在返回 None（不会像 _ensure_site 那样补占位行）。
+    """只读查询点位归属租户；不存在返回 None（不会像 _ensure_site 那样补占位行）。
 
     用于"删除会话状态"这类破坏性操作的租户守卫：先确认归属，再动手。
     """
@@ -192,10 +192,10 @@ async def save_assessment_result(
 
 
 async def get_latest_assessment(site_id: str, tenant_id: str = DEFAULT_TENANT) -> dict | None:
-    """取老人最近一次能力评估（告警研判的第四轨）。
+    """取点位最近一次风险评估（告警研判的第四轨）。
 
     用途：设备告警只是"当下异常"，评估结果才是"这个人本来有多脆弱"——
-    跌倒高风险、ADL 低分、认知受损的老人，同样的心率异常要按更高风险处理。
+    风险等级高、历史缺陷多的点位，同样的过载告警要按更高风险处理。
     没有评估记录时返回 None（新入住、尚未评估），调用方按"无第四轨"继续。
     """
     async with AsyncSessionLocal() as session:
@@ -245,7 +245,7 @@ async def get_assessment_result(assessment_id: str,
         return None
 
 
-# ── 照护计划：service_plans 表 ────────────────────────────────
+# ── 服务计划：service_plans 表 ────────────────────────────────
 
 async def save_service_plan(
     plan_id: str,
@@ -253,7 +253,7 @@ async def save_service_plan(
     plan_content: dict,
     tenant_id: str = DEFAULT_TENANT,
 ) -> bool:
-    """保存评估派生的照护计划。
+    """保存评估派生的服务计划。
 
     plan_id 约定为 plan-{assessment_id}：每次评估生成一个新版本计划，
     天然幂等（同一评估重跑走 ON CONFLICT 更新内容，不新增行）。
@@ -291,11 +291,11 @@ async def save_service_plan(
 async def get_latest_service_plan(
     site_id: str, tenant_id: str = DEFAULT_TENANT,
 ) -> dict | None:
-    """取老人最近一次评估生成的照护计划（强制租户过滤）。
+    """取点位最近一次评估生成的服务计划（强制租户过滤）。
 
     service_plans 表只有 created_at，按 created_at DESC 取最新版本；
     无记录或查询失败时返回 None——调用方（service_plan_provider）会继续查业务配置的
-    照护服务项，两者都没有才报"计划缺失"，不会编一份假计划。
+    服务项，两者都没有才报"计划缺失"，不会编一份假计划。
     """
     try:
         async with AsyncSessionLocal() as session:
@@ -319,8 +319,8 @@ async def get_latest_service_plan(
         return None
 
 
-# ── 照护服务项与每日照护计划（对齐机构 SaaS 的业务模型）──────
-# site_service_items = 业务配置的"该老人要做什么服务"（care 只读，由业务侧维护）
+# ── 服务项与每日服务计划（对齐业务系统 的业务模型）──────
+# site_service_items = 业务配置的"该点位要做什么服务"（care 只读，由业务侧维护）
 # daily_work_plans    = 每日执行计划（care 只读，生成规则在业务侧）
 
 async def save_service_item(
@@ -338,9 +338,9 @@ async def save_service_item(
     source: str = "manual",
     item_id: str = "",
 ) -> str | None:
-    """写入/更新一条老人照护服务项，返回 item_id。
+    """写入/更新一条点位服务项，返回 item_id。
 
-    project_name 在同一老人下唯一（业务上"同一个服务项目"只登记一条），
+    project_name 在同一点位下唯一（业务上"同一个服务项目"只登记一条），
     重复导入走更新而不是插新行。
     """
     try:
@@ -381,7 +381,7 @@ async def save_service_item(
 
 
 async def list_service_items(site_id: str, tenant_id: str = DEFAULT_TENANT) -> list[dict]:
-    """取老人当前生效的照护服务项（强制租户过滤，必选在前）。"""
+    """取点位当前生效的服务项（强制租户过滤，必选在前）。"""
     try:
         async with AsyncSessionLocal() as session:
             rows = (await session.execute(text("""
@@ -405,8 +405,8 @@ async def list_service_items(site_id: str, tenant_id: str = DEFAULT_TENANT) -> l
         return []
 
 
-# 护理等级 → 照护项目模板（本地 Provider 的演示配置）
-# 生产形态下这份配置在机构业务系统（按护理等级组织），
+# 风险等级 → 服务项目模板（本地 Provider 的演示配置）
+# 生产形态下这份配置在业务系统（按风险等级组织），
 # 本地配置只为让 demo 能独立跑通"评估等级 → 该等级服务项"这条链路。
 DEFAULT_LEVEL_CONFIGS: list[dict] = [
     # 说明：模板只列**日频**作业项，因为本地展开器按天生成当日计划
@@ -466,7 +466,7 @@ DEFAULT_LEVEL_CONFIGS: list[dict] = [
 
 
 async def ensure_service_tier_configs() -> None:
-    """幂等播种护理等级照护模板（不覆盖已有记录，便于机构侧覆盖本地定义）。"""
+    """幂等播种风险等级服务模板（不覆盖已有记录，便于业务侧覆盖本地定义）。"""
     try:
         async with AsyncSessionLocal() as session:
             for i, cfg in enumerate(DEFAULT_LEVEL_CONFIGS):
@@ -495,7 +495,7 @@ async def ensure_service_tier_configs() -> None:
 
 async def list_level_configs(risk_tier: str, tenant_id: str = DEFAULT_TENANT,
                              required_only: bool = False) -> list[dict]:
-    """取某护理等级可用的照护项目（由业务系统提供「该等级允许做什么」）。"""
+    """取某风险等级可用的服务项目（由业务系统提供「该等级允许做什么」）。"""
     if not risk_tier:
         return []
     try:
@@ -523,10 +523,10 @@ async def list_level_configs(risk_tier: str, tenant_id: str = DEFAULT_TENANT,
 
 async def bind_service_items_for_level(site_id: str, risk_tier: str,
                                        tenant_id: str = DEFAULT_TENANT) -> list[dict]:
-    """把该护理等级的**必选**照护项目落到老人名下，返回老人当前生效的服务项。
+    """把该风险等级的**必选**服务项目落到点位名下，返回点位当前生效的服务项。
 
-    这是"评估结论驱动业务配置"的那一步：评估给出护理等级 → 该等级的必选项目
-    成为老人的照护服务项 → 照护流程的任务清单由它生成。已经手工登记过的服务项
+    这是"评估结论驱动业务配置"的那一步：评估给出风险等级 → 该等级的必选项目
+    成为点位的服务项 → 作业流程的任务清单由它生成。已经手工登记过的服务项
     不会被覆盖（同名视为同一项）。
     """
     if not risk_tier:
@@ -557,16 +557,16 @@ async def bind_service_items_for_level(site_id: str, risk_tier: str,
     return items
 
 
-# ── 每日照护计划：生成（本地替身）与执行回写 ──────────────────
+# ── 每日服务计划：生成（本地替身）与执行回写 ──────────────────
 # 边界提醒：真实的生成规则属于业务侧（每日计划由业务系统生成）。
 # 下面这个展开函数只为让本地 Provider 在演示/离线时能给出当天的可执行清单，
 # 生产形态走 SaaSServicePlanProvider 直接读主系统的当天计划。
 
 def _split_window(slot: dict, times: int) -> list[str] | None:
-    """把一个护理时间窗均分成 times 段，用于"每2小时翻身×6次"这类配置。
+    """把一个作业时间窗均分成 times 段，用于"每2小时巡检×6次"这类配置。
 
     不这么做的话，6 次翻身会得到 6 行一模一样的"08:00-20:00"，
-    护理员看不出这是今天第几次、几点该做。均分后是 08:00-10:00、10:00-12:00…
+    作业人员看不出这是今天第几次、几点该做。均分后是 08:00-10:00、10:00-12:00…
 
     解析失败（如跨天写法 "24:00" 或格式不规范）就返回 None，
     由调用方回退成"同一个窗口重复标注"，而不是抛异常中断。
@@ -594,7 +594,7 @@ def _split_window(slot: dict, times: int) -> list[str] | None:
 def _expand_items_to_day(items: list[dict], plan_date) -> list[dict]:
     """把服务项按频次展开成当天的计划条目（确定性 ID，重复展开幂等）。
 
-    频次/护理时间段来自业务配置：一天 3 次的"协助进食"就展开成 3 条，
+    频次/作业时间段来自业务配置：一天 3 次的"环境检查"就展开成 3 条，
     时间窗标注规则：配了多个窗口就逐个用；只配了一个窗口而频次大于 1，
     就把该窗口均分成频次段（见 _split_window）。
     """
@@ -626,7 +626,7 @@ def _expand_items_to_day(items: list[dict], plan_date) -> list[dict]:
 
 async def ensure_daily_plan(site_id: str, plan_date=None,
                             tenant_id: str = DEFAULT_TENANT) -> list[dict]:
-    """按老人的照护服务项展开当天计划并落库（幂等），返回当天计划。
+    """按点位的服务项展开当天计划并落库（幂等），返回当天计划。
 
     重复调用不会产生重复条目（plan_item_id 是 (日期, 序号) 的确定性拼装）；
     已经确认完成（done）的条目不会被重展开覆盖。
@@ -657,7 +657,7 @@ async def ensure_daily_plan(site_id: str, plan_date=None,
 
 async def list_daily_plan(site_id: str, plan_date=None,
                           tenant_id: str = DEFAULT_TENANT) -> list[dict]:
-    """读某天的照护计划（默认今天），带执行状态。"""
+    """读某天的服务计划（默认今天），带执行状态。"""
     from datetime import date as _date
 
     plan_date = plan_date or _date.today()
@@ -689,7 +689,7 @@ async def confirm_daily_plan_item(plan_item_id: str, tenant_id: str = DEFAULT_TE
 
     对应业务系统侧的执行结果回写接口。状态语义：
       done    —— 已按计划完成
-      missed  —— 该做没做（漏做，会进入照护历史的异常记录）
+      missed  —— 该做没做（漏做，会进入服务历史的异常记录）
     """
     if status not in ("done", "missed", "planned"):
         logger.warning("repo.daily_plan_confirm_bad_status", status=status)
@@ -724,11 +724,11 @@ def daily_plan_progress(plan: list[dict]) -> dict:
 
 async def list_service_history(site_id: str, tenant_id: str = DEFAULT_TENANT,
                             limit: int = 8) -> list[dict]:
-    """取真实照护历史（替代原先写死的两条 mock 记录）。
+    """取真实服务历史（替代原先写死的两条 mock 记录）。
 
     两个来源合并后按日期倒序：
       ① daily_work_plans 每日计划：给出"计划做了什么 / 完成没完成"；
-      ② service_records 照护记录：护工实际登记的执行内容。
+      ② service_records 服务记录：护工实际登记的执行内容。
     两边都没有就返回空列表——Agent 应当知道"没有历史记录"，而不是拿到两条假记录。
     """
     history: dict[str, dict] = {}
@@ -785,7 +785,7 @@ async def save_work_flow_report(
     report: dict,
     tenant_id: str = DEFAULT_TENANT,
 ) -> bool:
-    """保存照护流程评估报告（session_id 作为唯一键，重放覆盖）。"""
+    """保存作业流程评估报告（session_id 作为唯一键，重放覆盖）。"""
     try:
         if not await _guard_tenant(site_id, tenant_id):
             return False
@@ -821,7 +821,7 @@ async def save_work_flow_report(
 
 async def get_work_flow_report(session_id: str,
                                tenant_id: str = DEFAULT_TENANT) -> dict | None:
-    """按会话 ID 查询照护报告（强制租户过滤，跨租户视为不存在）。"""
+    """按会话 ID 查询服务报告（强制租户过滤，跨租户视为不存在）。"""
     try:
         async with AsyncSessionLocal() as session:
             row = (await session.execute(text("""
@@ -845,7 +845,7 @@ async def get_work_flow_report(session_id: str,
         return None
 
 
-# ── 照护流程会话登记：work_flow_sessions 表 ─────────────────
+# ── 作业流程会话登记：work_flow_sessions 表 ─────────────────
 # 业务侧权威记录：/start 登记、每轮同步进度、finished 置完成。
 # 前端按 site_id 查进行中会话拿回 session_id，不再依赖浏览器保存 URL。
 
@@ -856,7 +856,7 @@ async def create_work_flow_session(
     current_stage: str,
     tenant_id: str = DEFAULT_TENANT,
 ) -> bool:
-    """照护流程 /start 时登记会话（同 session_id 重复发起幂等跳过）。"""
+    """作业流程 /start 时登记会话（同 session_id 重复发起幂等跳过）。"""
     try:
         if not await _guard_tenant(site_id, tenant_id):
             return False
@@ -949,7 +949,7 @@ async def get_work_flow_session(session_id: str,
 
 async def get_active_work_flow_session(site_id: str,
                                        tenant_id: str = DEFAULT_TENANT) -> dict | None:
-    """按老人查最近一场进行中的照护流程会话；没有返回 None。"""
+    """按点位查最近一场进行中的作业流程会话；没有返回 None。"""
     try:
         async with AsyncSessionLocal() as session:
             row = (await session.execute(text("""
@@ -983,7 +983,7 @@ async def get_active_work_flow_session(site_id: str,
 # 上行（SaaS → Agent）是"请求体/回调注入业务信号"，下行（Agent → SaaS）走这里：
 #   业务事件先写发件箱（outbound_events），再由后台投递器异步 POST 到租户回调地址。
 # 为何不直接在流程里 await httpx.post：
-#   ① 外部系统抖动不该拖慢或搞挂照护流程；② 进程崩溃会丢事件；
+#   ① 外部系统抖动不该拖慢或搞挂作业流程；② 进程崩溃会丢事件；
 #   ③ 需要重试/幂等/审计。发件箱模式把"产生事件"与"投递事件"解耦。
 
 async def upsert_tenant_webhook(tenant_id: str, url: str, secret: str | None = None,
@@ -1249,12 +1249,12 @@ async def save_alert_triggered(
     device_type: str = "",
     type_code: str = "",
 ) -> bool:
-    """告警触发后（站长审核前）落库：状态 reviewing，保存风险评估与四轨数据。
+    """告警触发后（值班主管审核前）落库：状态 reviewing，保存风险评估与四轨数据。
 
     three_tracks 形如 {"device_readings": [...], "service_records": [...], "health_indicators": [...]}
     供 GET /alert/{id}/review 接口读取，替代 MemorySaver 反查。
 
-    source / external_alert_id / location 用于对接机构 SaaS 的报警记录（报警记录）：
+    source / external_alert_id / location 用于对接业务系统 的报警记录（报警记录）：
       care = care 自触发；saas = SaaS 下发，external_alert_id 是 SaaS 侧报警记录 ID，
       处置完成后业务系统可按它回写处置结果。
     """
@@ -1344,7 +1344,7 @@ async def mark_alert_handled(alert_id: str, handled_by: str,
 
 async def save_alert_dispatched(alert_id: str, site_id: str, dispatch_order: dict,
                                 tenant_id: str = DEFAULT_TENANT) -> bool:
-    """站长确认后：更新告警状态 + 写入派发工单（跨租户告警拒绝更新）。"""
+    """值班主管确认后：更新告警状态 + 写入派发工单（跨租户告警拒绝更新）。"""
     try:
         order_id = dispatch_order.get("order_id") or f"order-{uuid.uuid4().hex[:12]}"
         status = dispatch_order.get("status", "dispatched")
@@ -1406,7 +1406,7 @@ async def get_alert_review(alert_id: str, tenant_id: str = DEFAULT_TENANT) -> di
             "risk_assessment": _as_dict(row.risk_assessment) or {},
             "three_tracks": _as_dict(row.three_tracks) or {},
             "created_at": row.created_at.isoformat() if row.created_at else None,
-            # 对接机构 SaaS 报警记录所需的字段（SaaS 侧按下行报警 ID 关联处置）
+            # 对接业务系统 报警记录所需的字段（SaaS 侧按下行报警 ID 关联处置）
             "source": row.source or "local",
             "external_alert_id": row.external_alert_id or "",
             "location": row.location or "",

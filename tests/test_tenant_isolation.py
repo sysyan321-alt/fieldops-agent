@@ -101,17 +101,17 @@ async def test_alert_cross_tenant_read_and_dispatch_blocked():
         tenant_id=TENANT_A) is True
 
 
-# ── 仓储层：写隔离（老人归属守卫）────────────────────────────
+# ── 仓储层：写隔离（点位归属守卫）────────────────────────────
 
 @pytest.mark.asyncio
 async def test_cross_tenant_write_rejected():
     site_a = make_id("site")
     asmt_id = make_id("asmt")
 
-    # 租户 A 创建老人（占位行归属 A）
+    # 租户 A 创建点位（占位行归属 A）
     assert await repo._ensure_site(site_a, tenant_id=TENANT_A) == TENANT_A
 
-    # 租户 B 对 A 的老人写入评估 → 拒绝，且不落库
+    # 租户 B 对 A 的点位写入评估 → 拒绝，且不落库
     assert await repo.save_assessment_result(
         asmt_id, site_a, [], 50.0, {}, tenant_id=TENANT_B) is False
     assert await repo.get_assessment_result(asmt_id, tenant_id=TENANT_B) is None
@@ -132,10 +132,10 @@ async def test_device_readings_tenant_filter():
     await repo._ensure_site(site_a, tenant_id=TENANT_A)
     await repo._ensure_device(device_a, site_a, TENANT_A)
 
-    readings = [{"metric_name": "心率", "reading_value": "120",
+    readings = [{"metric_name": "电流", "reading_value": "120",
                  "reading_unit": "bpm", "is_abnormal": True}]
     assert await iot_repo.save_device_readings(
-        site_a, device_a, "心率手环", readings, tenant_id=TENANT_A) == 1
+        site_a, device_a, "配电监测", readings, tenant_id=TENANT_A) == 1
 
     # 本租户可查；跨租户查 → 空
     assert len(await iot_repo.get_recent_device_readings(
@@ -150,7 +150,7 @@ async def test_device_readings_tenant_filter():
 
 @pytest.mark.asyncio
 async def test_api_cross_tenant_404():
-    """租户 B 的站长访问租户 A 的告警 → 404（不泄露存在性）。"""
+    """租户 B 的值班主管访问租户 A 的告警 → 404（不泄露存在性）。"""
     import httpx
     from backend.main import app
 
@@ -159,7 +159,7 @@ async def test_api_cross_tenant_404():
         alert_id, make_id("site"), make_id("dev"), "fall_detected",
         {"risk_level": "high"}, {}, tenant_id=TENANT_A) is True
 
-    # 造一个租户 B 的站长账号
+    # 造一个租户 B 的值班主管账号
     username = make_id("sup-b").replace("pytest-", "supb-")
     async with AsyncSessionLocal() as session:
         await session.execute(sql_text(
@@ -187,12 +187,12 @@ async def test_api_cross_tenant_404():
         assert resp.status_code == 200
         assert resp.json()["readings"] == []
 
-        # 跨租户上报读数给 A 的老人 → 403
+        # 跨租户上报读数给 A 的点位 → 403
         site_a = await _first_site_of_tenant(TENANT_A)
         resp = await client.post(
             f"/api/v1/devices/{make_id('dev')}/readings", headers=headers,
-            json={"site_id": site_a, "device_type": "心率手环",
-                  "readings": [{"metric_name": "心率", "reading_value": "120"}]})
+            json={"site_id": site_a, "device_type": "配电监测",
+                  "readings": [{"metric_name": "电流", "reading_value": "120"}]})
         assert resp.status_code == 403
 
 

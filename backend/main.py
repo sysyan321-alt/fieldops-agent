@@ -13,7 +13,7 @@ from backend.api.router import api_router
 configure_logging()
 logger = get_logger(__name__)
 
-# ── MCP 子应用（挂载在 /mcp/*，对外暴露护理能力工具）──────────
+# ── MCP 子应用（挂载在 /mcp/*，对外暴露作业能力工具）──────────
 # 说明：Starlette 的 app.mount() 不会自动运行子应用的 lifespan，
 # 因此下面在 lifespan 里手工嵌套进入；这里懒构建一次，保证 mount 与 lifespan 用同一实例。
 _mcp_apps: dict[str, object] = {}
@@ -87,7 +87,7 @@ def create_app() -> FastAPI:
 
     app = FastAPI(
         title="FieldOps API",
-        description="养老机构 AI 照护智能体系统",
+        description="项目现场 AI 作业智能体系统",
         version="1.0.0",
         lifespan=lifespan,
         debug=settings.app_debug,

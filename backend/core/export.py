@@ -1,7 +1,7 @@
 # backend/core/export.py
-# 报告导出：把落库的评估结果 / 照护报告渲染成 Word（.docx）字节流
+# 报告导出：把落库的评估结果 / 服务报告渲染成 Word（.docx）字节流
 #
-# 为什么用 python-docx 而不是 HTML→PDF：护理机构实际交付物是 Word（要盖章、要手改），
+# 为什么用 python-docx 而不是 HTML→PDF：作业服务组织实际交付物是 Word（要盖章、要手改），
 # 而 python-docx 已在依赖里，零额外依赖。
 
 from datetime import datetime

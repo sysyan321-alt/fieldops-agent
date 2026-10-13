@@ -46,9 +46,9 @@ const router = useRouter()
 
 const roleLabel = computed(() => {
   switch (auth.user?.role) {
-    case 'supervisor': return '站长'
+    case 'supervisor': return '值班主管'
     case 'admin': return '管理员'
-    default: return '护理员'
+    default: return '作业人员'
   }
 })
 const roleTagType = computed(() => {

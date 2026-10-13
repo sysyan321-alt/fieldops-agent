@@ -42,7 +42,7 @@ class IssueItem(BaseModel):
     dimension:     str = Field(description="所属维度")
     description:  str = Field(description="问题描述（1句话）")
     location:     str = Field(description="问题在评估表中的定位")
-    suggestion:   str = Field(description="具体照护建议（可操作）")
+    suggestion:   str = Field(description="具体服务建议（可操作）")
 
 
 class IssueList(BaseModel):
@@ -58,7 +58,7 @@ class DiagnosisAndSummary(BaseModel):
     highlights: list[str] = Field(description="2-3 条核心亮点")
     core_improvements: list[str] = Field(description="2-3 条最重要的改进方向")
     overall_comment: str = Field(description="1-2 句综合评语")
-    risk_tier_recommendation: str = Field(description="建议护理等级：三级/二级/一级")
+    risk_tier_recommendation: str = Field(description="建议风险等级：三级/二级/一级")
 
 
 class AssessmentSummary(BaseModel):
@@ -66,7 +66,7 @@ class AssessmentSummary(BaseModel):
     highlights:               list[str] = Field(description="2-3 条核心亮点")
     core_improvements:        list[str] = Field(description="2-3 条最重要的改进方向")
     overall_comment:          str       = Field(description="1-2 句综合评语")
-    risk_tier_recommendation: str      = Field(description="建议护理等级：三级/二级/一级")
+    risk_tier_recommendation: str      = Field(description="建议风险等级：三级/二级/一级")
 
 
 # ──────────────────────────────────────────────────────────────

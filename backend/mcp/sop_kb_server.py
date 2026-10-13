@@ -1,5 +1,5 @@
 # backend/mcp/sop_kb_server.py
-# 护理 SOP 知识库 MCP Server（只读）：把 sop_qa Agent 的检索能力暴露成标准工具
+# 作业规范 知识库 MCP Server（只读）：把 sop_qa Agent 的检索能力暴露成标准工具
 #
 # 端点：挂载在 /mcp/sop-kb，工具端点为 POST /mcp/sop-kb/mcp
 # 独立运行：python -m backend.mcp.sop_kb_server（默认 8011 端口，需要独立进程时用）
@@ -15,7 +15,7 @@ logger = get_logger(__name__)
 mcp = FastMCP(
     name="FieldOps-SOPKnowledgeBase",
     instructions=(
-        "FieldOps 护理能力工具 · 知识库检索（v1.0，只读，免鉴权）。"
+        "FieldOps 作业能力工具 · 知识库检索（v1.0，只读，免鉴权）。"
         "工具：search_sop（混合召回+精排检索）、list_sop_documents（列文档）、get_kb_status（知识库状态）。"
         "所有工具必须传 tenant_id。"
     ),
@@ -39,12 +39,12 @@ async def search_sop(
     category: str | None = None,
     top_k: int = 3,
 ) -> list[dict]:
-    """检索养老护理 SOP 知识库（Hybrid 召回 + BGE-Reranker 精排）。
+    """检索养老作业规范 知识库（Hybrid 召回 + BGE-Reranker 精排）。
 
-    适用场景：护理标准、操作规范、风险处置流程类问题（如"鼻饲管护理步骤"）。
+    适用场景：作业标准、操作规范、风险处置流程类问题（如"配电间巡检步骤"）。
 
     Args:
-        query:     护理问题，中文或英文
+        query:     作业问题，中文或英文
         tenant_id: 租户 ID，用于数据隔离，必填（如 tenant_default）
         category:  可选，SOP 类别 ID（如 feeding_tube / fall_prevention），用于缩小检索范围
         top_k:     精排后返回条数，默认 3

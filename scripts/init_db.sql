@@ -1,9 +1,9 @@
 -- scripts/init_db.sql
--- FieldOps 养老照护智能体数据库初始化脚本
+-- FieldOps 养老作业智能体数据库初始化脚本
 -- 用法：psql -h localhost -p 5433 -U postgres -d fieldops -f scripts/init_db.sql
 
 -- ──────────────────────────────────────────────────────────────
--- 老人信息表
+-- 点位信息表
 -- ──────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS sites (
     site_id    VARCHAR(64) PRIMARY KEY,          -- 点位 ID
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS sites (
 -- ──────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS devices (
     device_id    VARCHAR(64) PRIMARY KEY,        -- 设备 ID
-    site_id     VARCHAR(64) NOT NULL,            -- 老人 ID（外键）
+    site_id     VARCHAR(64) NOT NULL,            -- 点位 ID（外键）
     device_type  VARCHAR(50) NOT NULL,            -- 设备类型名（历史自由字符串，兼容保留）
     type_code    VARCHAR(50),                     -- 设备类型编码（对齐 device_types.type_code）
     location     VARCHAR(128) DEFAULT '',         -- 安装位置（对齐 SaaS 的"设备安装位置"）
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS devices (
     FOREIGN KEY (site_id) REFERENCES sites(site_id)
 );
 
--- 设备类型字典：编码对齐机构业务系统的设备类型字典
+-- 设备类型字典：编码对齐业务系统的设备类型字典
 -- trust_level 是证据可信度（1-5），研判时按来源加权，避免四轨等权
 CREATE TABLE IF NOT EXISTS device_types (
     type_code    VARCHAR(50) PRIMARY KEY,
@@ -48,14 +48,14 @@ CREATE TABLE IF NOT EXISTS device_types (
 -- ──────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS alerts (
     alert_id     VARCHAR(64) PRIMARY KEY,        -- 告警 ID
-    site_id     VARCHAR(64) NOT NULL,            -- 老人 ID
+    site_id     VARCHAR(64) NOT NULL,            -- 点位 ID
     device_id    VARCHAR(64) NOT NULL,            -- 设备 ID
     alert_type   VARCHAR(50) NOT NULL,            -- 告警类型：heart_rate_abnormal/off_bed_timeout/fall_detected/room_temp_abnormal
     status       VARCHAR(20) DEFAULT 'pending',   -- 状态：pending/reviewing/dispatched/resolved/dismissed
     risk_level   VARCHAR(20),                      -- 风险等级：high/medium/low
     risk_assessment JSONB,                          -- AI 风险评估结果（assess_risk 节点产出）
-    three_tracks    JSONB,                          -- 四轨采集数据（设备/照护/健康/最近一次能力评估，供 review 接口读取；列名沿用历史命名）
-    source       VARCHAR(16) NOT NULL DEFAULT 'local',  -- 来源：care=care 自触发 / saas=机构 SaaS 下发
+    three_tracks    JSONB,                          -- 四轨采集数据（设备/服务/健康/最近一次风险评估，供 review 接口读取；列名沿用历史命名）
+    source       VARCHAR(16) NOT NULL DEFAULT 'local',  -- 来源：care=care 自触发 / saas=业务系统 下发
     external_alert_id    VARCHAR(64),                       -- 业务系统的报警记录 ID（处置结果按它回写）
     location     VARCHAR(128) DEFAULT '',           -- 报警位置（对齐 报警记录 的"报警位置"）
     handled_by   VARCHAR(64) DEFAULT '',            -- 处理人（对齐 报警记录 的"处理人"）
@@ -67,11 +67,11 @@ CREATE TABLE IF NOT EXISTS alerts (
 );
 
 -- ──────────────────────────────────────────────────────────────
--- 照护计划表
+-- 服务计划表
 -- ──────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS service_plans (
     plan_id      VARCHAR(64) PRIMARY KEY,        -- 计划 ID
-    site_id     VARCHAR(64) NOT NULL,            -- 老人 ID
+    site_id     VARCHAR(64) NOT NULL,            -- 点位 ID
     plan_content JSONB,                            -- 计划内容（JSONB）
     tenant_id    VARCHAR(64) NOT NULL DEFAULT 'tenant_default',  -- 租户 ID
     created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS service_plans (
 );
 
 -- ──────────────────────────────────────────────────────────────
--- 照护服务项（对齐机构业务系统的服务内容）：
+-- 服务项（对齐业务系统的服务内容）：
 -- 业务配置决定"要做什么项目、一天几次、在哪个时间窗、是否必选"，
 -- AI 不参与这几项决策，只负责评估结论与异常处置建议。
 -- ──────────────────────────────────────────────────────────────
@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS site_service_items (
     nurse_time_slots JSONB DEFAULT '[]',          -- [{"startTime":"08:00","endTime":"10:00"}]
     price           NUMERIC(10, 2) DEFAULT 0,     -- 服务费用（对齐 SaaS 的 price）
     is_required     BOOLEAN NOT NULL DEFAULT TRUE,-- 必选/选做（对齐 isRequired）
-    risk_tier      VARCHAR(32) DEFAULT '',       -- 护理等级（对齐 nurseLevelName）
+    risk_tier      VARCHAR(32) DEFAULT '',       -- 风险等级（对齐 nurseLevelName）
     source          VARCHAR(16) NOT NULL DEFAULT 'template',  -- template / manual
     active          BOOLEAN NOT NULL DEFAULT TRUE,
     tenant_id       VARCHAR(64) NOT NULL DEFAULT 'tenant_default',
@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS site_service_items (
 );
 
 -- ──────────────────────────────────────────────────────────────
--- 每日照护计划（对齐机构业务系统）：care 侧只读。
+-- 每日服务计划（对齐业务系统）：care 侧只读。
 -- 生成规则属于业务侧（每日计划由业务系统生成），care 不重复实现。
 -- ──────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS daily_work_plans (
@@ -112,10 +112,10 @@ CREATE TABLE IF NOT EXISTS daily_work_plans (
     plan_date       DATE NOT NULL,
     project_id      VARCHAR(64) DEFAULT '',
     project_name    VARCHAR(128) NOT NULL,
-    nurse_time      VARCHAR(64) DEFAULT '',       -- 护理时间（对齐 nurseTime）
+    nurse_time      VARCHAR(64) DEFAULT '',       -- 作业时间（对齐 nurseTime）
     worker_id        VARCHAR(64) DEFAULT '',
     worker_name      VARCHAR(64) DEFAULT '',       -- 服务人员（对齐 workerName）
-    actual_care_time VARCHAR(64) DEFAULT '',      -- 实际护理时间（对齐 actualCareTime）
+    actual_care_time VARCHAR(64) DEFAULT '',      -- 实际作业时间（对齐 actualCareTime）
     status          VARCHAR(16) NOT NULL DEFAULT 'planned',  -- planned/done/missed
     tenant_id       VARCHAR(64) NOT NULL DEFAULT 'tenant_default',
     updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -123,13 +123,13 @@ CREATE TABLE IF NOT EXISTS daily_work_plans (
 );
 
 -- ──────────────────────────────────────────────────────────────
--- 护理等级 → 照护项目模板（对齐机构 SaaS 的 /care/config）
+-- 风险等级 → 服务项目模板（对齐业务系统 的 /care/config）
 -- 生产形态下这份配置由 SaaS 按 nurseLevelName 维护；care 只在
 -- CARE_PLAN_PROVIDER=local（本地/演示）时用它兜住"该等级该做哪些服务"。
 -- ──────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS service_tier_configs (
     config_id       VARCHAR(64) PRIMARY KEY,
-    risk_tier      VARCHAR(32) NOT NULL,          -- 护理等级：三级/二级/一级
+    risk_tier      VARCHAR(32) NOT NULL,          -- 风险等级：三级/二级/一级
     project_id      VARCHAR(64) DEFAULT '',
     project_name    VARCHAR(128) NOT NULL,
     frequency_id    VARCHAR(64) DEFAULT '',
@@ -145,14 +145,14 @@ CREATE TABLE IF NOT EXISTS service_tier_configs (
 );
 
 -- ──────────────────────────────────────────────────────────────
--- 照护记录表
+-- 服务记录表
 -- ──────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS service_records (
     record_id    VARCHAR(64) PRIMARY KEY,        -- 记录 ID
-    site_id     VARCHAR(64) NOT NULL,            -- 老人 ID
-    service_type    VARCHAR(50) NOT NULL,            -- 照护类型：翻身/喂药/进食/如厕/巡视
-    content      TEXT,                             -- 照护内容
-    worker_id VARCHAR(64) NOT NULL,            -- 护理员 ID
+    site_id     VARCHAR(64) NOT NULL,            -- 点位 ID
+    service_type    VARCHAR(50) NOT NULL,            -- 服务类型：翻身/喂药/进食/如厕/巡视
+    content      TEXT,                             -- 服务内容
+    worker_id VARCHAR(64) NOT NULL,            -- 作业人员 ID
     tenant_id    VARCHAR(64) NOT NULL DEFAULT 'tenant_default',  -- 租户 ID
     created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (site_id) REFERENCES sites(site_id)
@@ -163,7 +163,7 @@ CREATE TABLE IF NOT EXISTS service_records (
 -- ──────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS assessment_results (
     assessment_id    VARCHAR(64) PRIMARY KEY,    -- 评估 ID
-    site_id         VARCHAR(64) NOT NULL,       -- 老人 ID
+    site_id         VARCHAR(64) NOT NULL,       -- 点位 ID
     dimension_scores JSONB,                        -- 各维度评分（JSONB）
     weighted_score   NUMERIC(5,2),                 -- 加权综合得分
     summary          JSONB,                        -- 评估总结（JSONB）
@@ -173,13 +173,13 @@ CREATE TABLE IF NOT EXISTS assessment_results (
 );
 
 -- ──────────────────────────────────────────────────────────────
--- 照护流程报告表
+-- 作业流程报告表
 -- ──────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS work_flow_reports (
     report_id     VARCHAR(64) PRIMARY KEY,       -- 报告 ID
-    session_id    VARCHAR(64) NOT NULL UNIQUE,    -- 照护流程会话 ID
-    site_id      VARCHAR(64) NOT NULL,           -- 老人 ID
-    service_plan_id  VARCHAR(64) DEFAULT '',         -- 照护计划 ID
+    session_id    VARCHAR(64) NOT NULL UNIQUE,    -- 作业流程会话 ID
+    site_id      VARCHAR(64) NOT NULL,           -- 点位 ID
+    service_plan_id  VARCHAR(64) DEFAULT '',         -- 服务计划 ID
     stage_reached VARCHAR(50),                    -- 流程结束时所处阶段
     total_turns   INTEGER DEFAULT 0,              -- 总轮数
     report        JSONB,                           -- WorkReport 结构化报告
@@ -189,14 +189,14 @@ CREATE TABLE IF NOT EXISTS work_flow_reports (
 );
 
 -- ──────────────────────────────────────────────────────────────
--- 照护流程会话登记表
--- 业务侧权威记录：护理员从老人详情页按 site_id 查进行中的流程会话，
+-- 作业流程会话登记表
+-- 业务侧权威记录：作业人员从点位详情页按 site_id 查进行中的流程会话，
 -- 拿回 session_id 拼 thread_id 即可命中检查点续跑，不再依赖浏览器记住 URL。
 -- ──────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS work_flow_sessions (
     session_id    VARCHAR(64) PRIMARY KEY,        -- 会话 ID（/start 生成，与检查点 thread_id 对应）
-    site_id      VARCHAR(64) NOT NULL,           -- 老人 ID
-    staff_id      VARCHAR(64) NOT NULL,           -- 发起护理员 ID
+    site_id      VARCHAR(64) NOT NULL,           -- 点位 ID
+    staff_id      VARCHAR(64) NOT NULL,           -- 发起作业人员 ID
     current_stage VARCHAR(50) NOT NULL,           -- 当前阶段（每轮对话后同步）
     total_turns   INTEGER DEFAULT 0,              -- 总轮数
     status        VARCHAR(20) DEFAULT 'in_progress', -- in_progress / finished
@@ -212,7 +212,7 @@ CREATE TABLE IF NOT EXISTS work_flow_sessions (
 CREATE TABLE IF NOT EXISTS dispatch_orders (
     order_id      VARCHAR(64) PRIMARY KEY,       -- 工单 ID
     alert_id      VARCHAR(64) NOT NULL,           -- 告警 ID
-    site_id      VARCHAR(64) NOT NULL,           -- 老人 ID
+    site_id      VARCHAR(64) NOT NULL,           -- 点位 ID
     order_content TEXT,                            -- 工单内容
     status        VARCHAR(20) DEFAULT 'dispatched', -- 状态：dispatched/in_progress/completed/dismissed
     tenant_id     VARCHAR(64) NOT NULL DEFAULT 'tenant_default',  -- 租户 ID

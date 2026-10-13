@@ -2,7 +2,7 @@
 # 出站通知投递器：把发件箱（outbound_events）里的事件 POST 到租户回调地址（SaaS 侧）。
 #
 # 为什么是「发件箱 + 后台投放」而不是在业务流程里直接 httpx.post：
-#   ① 外部系统抖动不该拖慢 / 搞挂照护流程（最后一步不该被网络拖死）；
+#   ① 外部系统抖动不该拖慢 / 搞挂作业流程（最后一步不该被网络拖死）；
 #   ② 进程崩溃会丢事件——先落库再投递，重启后自动续投；
 #   ③ 需要重试、幂等、审计（谁在什么时候投了几次、失败原因）。
 # 投递语义是「至少一次」：SaaS 侧用 X-FieldOps-Event-Id 做消费端去重。
@@ -27,9 +27,9 @@ from backend.db import repositories as repo
 logger = get_logger(__name__)
 
 # ── 事件类型 ─────────────────────────────────────────────────
-EVENT_WORK_FLOW_FINISHED = "work_flow.finished"   # 照护流程走到终态、报告已落库
-EVENT_ALERT_DISPATCHED = "alert.dispatched"       # 告警研判通过站长确认、工单已派发
-EVENT_ALERT_DISMISSED = "alert.dismissed"         # 告警被站长取消处置（不派单）
+EVENT_WORK_FLOW_FINISHED = "work_flow.finished"   # 作业流程走到终态、报告已落库
+EVENT_ALERT_DISPATCHED = "alert.dispatched"       # 告警研判通过值班主管确认、工单已派发
+EVENT_ALERT_DISMISSED = "alert.dismissed"         # 告警被值班主管取消处置（不派单）
 
 # ── 重试策略 ─────────────────────────────────────────────────
 # 指数退避（秒）：第 n 次投递失败后等待 _BACKOFF_SECONDS[n-1]；
@@ -134,7 +134,7 @@ async def enqueue_work_flow_finished(
     report: dict,
     discharge_driven: bool = False,
 ) -> str | None:
-    """照护流程终态 → 落一条 work_flow.finished 事件（报告已随载荷内联）。
+    """作业流程终态 → 落一条 work_flow.finished 事件（报告已随载荷内联）。
 
     幂等：同一 session 重复落库不会产生第二条（发件箱唯一索引兜底）。
     """
@@ -174,10 +174,10 @@ async def enqueue_alert_decision(
     """告警处置终态 → 落一条出站事件（派单或取消）。
 
     与 work_flow.finished 共用同一发件箱与投递器：告警是"AI 研判 + 人审决断"的链路，
-    站长一按确认，工单就该同步到业务系统，而不是让 SaaS 轮询告警接口。
+    值班主管一按确认，工单就该同步到业务系统，而不是让 SaaS 轮询告警接口。
     幂等键用 order_id（每张派发工单唯一）；dismiss 不派单但仍通知业务方"已取消处置"。
 
-    external_alert_id 是机构 SaaS 报警记录 ID（报警记录）：SaaS 下发的报警经 care 研判处置后，
+    external_alert_id 是业务系统 报警记录 ID（报警记录）：SaaS 下发的报警经 care 研判处置后，
     它要按这个 ID 回写处置结果，
     所以必须原样带回，不能让 SaaS 做二次匹配。
     """
@@ -195,7 +195,7 @@ async def enqueue_alert_decision(
         "device_id": device_id,
         "device_type": device_type,
         "alert_type": alert_type,
-        # 对接机构 SaaS 报警记录：来源、SaaS 报警 ID、报警位置、处理人
+        # 对接业务系统 报警记录：来源、SaaS 报警 ID、报警位置、处理人
         "source": source or "local",
         "external_alert_id": external_alert_id or "",
         "location": location or "",

@@ -64,8 +64,8 @@ async def test_service_plan_roundtrip():
         "plan_id": plan_id,
         "site_id": site_id,
         "risk_tier": "一级",
-        "daily_tasks": ["[HIGH] 鼻饲管护理", "[MEDIUM] 每2小时翻身"],
-        "special_notes": "卧床，重点防压疮",
+        "daily_tasks": ["[HIGH] 配电间巡检", "[MEDIUM] 每2小时巡检"],
+        "special_notes": "高负荷，重点防设备温升",
     }
 
     assert await repo.save_service_plan(plan_id, site_id, content) is True
@@ -99,7 +99,7 @@ async def test_service_plan_idempotent_update():
 
 @pytest.mark.asyncio
 async def test_service_plan_latest_version():
-    """同一老人多份计划时，created_at 最新的胜出（阶段复评版本链）。"""
+    """同一点位多份计划时，created_at 最新的胜出（阶段复评版本链）。"""
     site_id = make_id("site")
     await repo.save_service_plan(make_id("plan-v1"), site_id,
                               {"risk_tier": "二级", "daily_tasks": []})
@@ -121,7 +121,7 @@ async def test_service_plan_not_found():
 async def test_work_flow_report_roundtrip():
     session_id = make_id("session")
     report = {"overall_score": 80, "dimensions": [
-        {"dimension": "照护规范性", "score": 80, "comment": "ok"}]}
+        {"dimension": "作业规范性", "score": 80, "comment": "ok"}]}
 
     assert await repo.save_work_flow_report(
         session_id=session_id, site_id=make_id("site"),
@@ -134,7 +134,7 @@ async def test_work_flow_report_roundtrip():
     assert row["report"]["overall_score"] == 80
 
 
-# ── 照护流程会话登记（work_flow_sessions）────────────────────
+# ── 作业流程会话登记（work_flow_sessions）────────────────────
 
 @pytest.mark.asyncio
 async def test_work_flow_session_roundtrip():
@@ -193,7 +193,7 @@ async def test_work_flow_session_active_none_when_missing():
 
 @pytest.mark.asyncio
 async def test_work_flow_session_latest_wins():
-    """同一老人多场进行中会话，取最近发起的一场。"""
+    """同一点位多场进行中会话，取最近发起的一场。"""
     site_id = make_id("site")
     s1, s2 = make_id("cf"), make_id("cf")
 

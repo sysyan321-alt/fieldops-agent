@@ -28,7 +28,7 @@ def _mock_sync_parse_pdf(pdf_path: str) -> dict:
     return {"raw_text": ASSESSMENT_TEXT, "page_count": 2}
 
 
-# ── 测试用评估表全文（模拟一份真实的老人能力评估表）──────────────
+# ── 测试用评估表全文（模拟一份真实的点位风险评估表）──────────────
 ASSESSMENT_TEXT = """点位风险评估表
 
 【基本信息】
@@ -139,7 +139,7 @@ async def run_assessment_full_flow():
     print(f"    raw_text 前 200 字：")
     print(f"    {result.get('raw_text', '')[:200]}")
 
-    print(f"\n[5] ② extract_structured 产出（老人基本信息）：")
+    print(f"\n[5] ② extract_structured 产出（点位基本信息）：")
     s = result.get("structured") or {}
     print(f"    name:       {s.get('name')}")
     print(f"    built_year:        {s.get('built_year')}")
@@ -164,7 +164,7 @@ async def run_assessment_full_flow():
     print(f"\n[8] ⑤ generate_summary 产出（整体评价）：")
     summary = result.get("summary") or {}
     print(f"    综合评语:      {summary.get('overall_comment','')}")
-    print(f"    护理等级建议:  {summary.get('risk_tier_recommendation','')}")
+    print(f"    风险等级建议:  {summary.get('risk_tier_recommendation','')}")
     print(f"    亮点:")
     for h in summary.get("highlights", [])[:3]:
         print(f"      - {h}")

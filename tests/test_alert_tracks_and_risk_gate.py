@@ -1,7 +1,7 @@
 # tests/test_alert_tracks_and_risk_gate.py
 # 两块"对外承诺了、必须有代码兜住"的行为：
 #   ① SOP 快通道的高危门控——高危问法必须强制走慢链路；
-#   ② 告警四轨采集——第四轨是老人最近一次能力评估，缺记录不算失败。
+#   ② 告警四轨采集——第四轨是点位最近一次风险评估，缺记录不算失败。
 
 from backend.agents.alert import nodes as alert_nodes
 from backend.agents.sop_qa.nodes import quick_route_node
@@ -18,7 +18,7 @@ def test_is_high_risk_detects_emergencies():
 
 
 def test_is_high_risk_ignores_routine_questions():
-    """常规护理提问不能被误拦（否则快通道直接失效）。"""
+    """常规作业提问不能被误拦（否则快通道直接失效）。"""
     for q in ["灭火器多久检查一次", "配电间巡检项目有哪些", "轴承润滑周期是多久",
               "电缆沟作业要戴什么防护"]:
         assert not is_high_risk(q), f"「{q}」不该判为高危"
@@ -106,7 +106,7 @@ def test_format_assessment_snapshot_renders_key_fields():
 async def test_four_tracks_gather_returns_all_four(monkeypatch):
     """四轨并行：任一轨失败不阻塞其他轨，缺评估记录也不报错。"""
     async def _devices(_state):
-        return [{"device_type": "心率手环", "reading_value": "135"}]
+        return [{"device_type": "配电监测", "reading_value": "135"}]
 
     async def _care(_state):
         return [{"service_type": "巡视", "content": "夜间巡视正常"}]

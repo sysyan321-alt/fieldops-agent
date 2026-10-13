@@ -4,7 +4,7 @@
       <div class="login-header">
         <div class="login-logo">🏥</div>
         <h2>FieldOps</h2>
-        <p>养老机构 AI 照护智能体系统</p>
+        <p>项目现场 AI 作业智能体系统</p>
       </div>
       <el-form
         ref="formRef"

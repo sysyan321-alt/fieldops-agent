@@ -8,14 +8,14 @@ from backend.core.cache import get_cache, hash_text, make_key
 
 def test_hash_text_normalizes_whitespace_and_case():
     """同一问题的大小写/空白差异应命中同一 key。"""
-    assert hash_text("鼻饲管 如何护理") == hash_text("  鼻饲管   如何护理 ")
-    assert hash_text("Fall Risk") == hash_text("fall risk")
+    assert hash_text("配电间 如何巡检") == hash_text("  配电间   如何巡检 ")
+    assert hash_text("Confined Space") == hash_text("confined space")
 
 
 def test_hash_text_stable_and_short():
-    h = hash_text("跌倒预防怎么做")
-    assert len(h) == 16 and h == hash_text("跌倒预防怎么做")
-    assert h != hash_text("压疮怎么预防")
+    h = hash_text("高处作业怎么做")
+    assert len(h) == 16 and h == hash_text("高处作业怎么做")
+    assert h != hash_text("设备温升怎么控制")
 
 
 def test_make_key_skips_empty_parts_and_prefixes():

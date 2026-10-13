@@ -28,11 +28,11 @@ const OUT = path.resolve('docs/images')
 // 每张图要体现的信息决定了怎么截：这些界面里"数据"比"布局"更重要，
 // 所以截整页（fullPage）而不是首屏，避免把进度表截了一半。
 const SHOTS = [
-  { name: 'service-plan', title: '照护计划页',
-    why: '护理等级 + 服务项 + 今日执行进度 + 计划来源标签——最能说明这个项目在做什么',
+  { name: 'service-plan', title: '服务计划页',
+    why: '风险等级 + 服务项 + 今日执行进度 + 计划来源标签——最能说明这个项目在做什么',
     path: () => `/work-flow/${process.env.SESSION_ID ?? ''}/plan` },
   { name: 'alert-review', title: '告警审核页',
-    why: '四轨证据 + AI 风险等级 + 站长确认按钮——体现 Human-in-the-Loop',
+    why: '四轨证据 + AI 风险等级 + 值班主管确认按钮——体现 Human-in-the-Loop',
     path: () => '/alert-review' },
   { name: 'sop-qa', title: 'SOP 问答页',
     why: '回答带来源章节——体现"答案可追溯到 SOP 原文"',

@@ -3,7 +3,7 @@
 > Base URL：`http://localhost:8000`
 > 交互式文档：http://localhost:8000/docs（Swagger UI）
 >
-> 本文件覆盖 **REST + SSE 入口（21 个端点）**。另有一套面向外部 Agent / 系统的 **MCP 入口**（6 个 Server：知识库检索、照护数据、联网搜索、知识库管理、告警派单、照护流程，写工具需 Token），见 [MCP 文档](mcp.md)。两套入口调用同一批底层能力，互不替代。
+> 本文件覆盖 **REST + SSE 入口（21 个端点）**。另有一套面向外部 Agent / 系统的 **MCP 入口**（6 个 Server：知识库检索、服务数据、联网搜索、知识库管理、告警派单、作业流程，写工具需 Token），见 [MCP 文档](mcp.md)。两套入口调用同一批底层能力，互不替代。
 
 ## 一、通用约定
 
@@ -21,15 +21,15 @@ Authorization: Bearer <access_token>
 
 | 角色 | 说明 | 权限边界 |
 |---|---|---|
-| caregiver | 护理员 | 评估上传、SOP 问答、照护流程、触发告警、IoT 上报 |
-| supervisor | 站长 | 以上全部 + 告警审核/确认（HitL） |
+| caregiver | 作业人员 | 评估上传、SOP 问答、作业流程、触发告警、IoT 上报 |
+| supervisor | 值班主管 | 以上全部 + 告警审核/确认（HitL） |
 | admin | 管理员 | 全部权限 |
 
 ### 多租户语义
 
 - **读隔离**：所有业务查询强制 `tenant_id` 过滤，跨租户资源返回 `404`（视为不存在）或空列表
-- **写隔离**：跨租户老人写入被拒绝（`403`），不会产生跨租户数据
-- IoT 上报中老人归属其他租户 → `403 老人不属于当前租户`
+- **写隔离**：跨租户点位写入被拒绝（`403`），不会产生跨租户数据
+- IoT 上报中点位归属其他租户 → `403 点位不属于当前租户`
 
 ### 错误码
 
@@ -74,7 +74,7 @@ Authorization: Bearer <access_token>
 
 ### POST /api/v1/assessment/upload?elder_id={elder_id}
 
-上传老年人评估表 PDF，同步触发评估流程（5 维度并行评分 → 汇总 → 照护计划建议），结果落库 `assessment_results`。
+上传点位评估表 PDF，同步触发评估流程（5 维度并行评分 → 汇总 → 服务计划建议），结果落库 `assessment_results`。
 
 **请求**：`multipart/form-data`，字段 `file`（仅 .pdf）；`elder_id` 为 query 参数。
 
@@ -101,7 +101,7 @@ Authorization: Bearer <access_token>
 
 - 响应：`Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document`
 - 文件名：`Content-Disposition` 同时给 ASCII 兜底名与 RFC 5987 的中文名
-- 文档结构：标题 → 基本信息表（评估编号/老人编号/综合得分/照护等级建议）→ 维度评分表 → 问题清单表 → 整体评价 → 免责声明
+- 文档结构：标题 → 基本信息表（评估编号/点位编号/综合得分/风险等级建议）→ 维度评分表 → 问题清单表 → 整体评价 → 免责声明
 - 租户隔离同上：不存在或跨租户返回 404
 
 ```bash
@@ -111,7 +111,7 @@ curl -H "Authorization: Bearer <token>" \
 
 ---
 
-## 四、护理 SOP 问答 Agent（SSE）
+## 四、作业规范 问答 Agent（SSE）
 
 ### POST /api/v1/sop-qa/chat
 
@@ -119,7 +119,7 @@ curl -H "Authorization: Bearer <token>" \
 
 ```json
 {
-  "query": "鼻饲管护理要注意什么？",
+  "query": "配电间巡检要注意什么？",
   "elder_id": "",
   "session_id": "",
   "org_id": null
@@ -163,7 +163,7 @@ curl -H "Authorization: Bearer <token>" \
   "alert_id": "alert-xxxxxxxxxxxx",
   "session_id": "alert-xxxxxxxxxxxx",
   "status": "awaiting_review",
-  "review_data": { "...": "风险评估 + 四轨数据（设备读数 / 照护记录 / 健康指标 / 最近一次能力评估）" }
+  "review_data": { "...": "风险评估 + 四轨数据（设备读数 / 服务记录 / 健康指标 / 最近一次风险评估）" }
 }
 ```
 
@@ -171,9 +171,9 @@ curl -H "Authorization: Bearer <token>" \
 > 查不到的数据**记为「证据缺失」**（`evidence_gaps` / `evidence_quality`）交给研判，
 > 不再生成模拟读数。结果落库 `alerts`，`source=care`。
 
-### 1b. POST /api/v1/alert/ingest — 接收机构 SaaS 的报警记录（下行接入）
+### 1b. POST /api/v1/alert/ingest — 接收业务系统 的报警记录（下行接入）
 
-角色：caregiver / supervisor / admin。机构 SaaS 才是报警的权威源：SaaS 的
+角色：caregiver / supervisor / admin。业务系统 才是报警的权威源：SaaS 的
 业务系统的报警记录接口下发一条报警，care 研判后把处置结果经
 发件箱回传（payload 带 `external_alert_id`），由业务系统回写处置结果，形成双向闭环。
 
@@ -231,7 +231,7 @@ curl -H "Authorization: Bearer <token>" \
 }
 ```
 
-### 3. POST /api/v1/alert/{alert_id}/confirm — 站长确认
+### 3. POST /api/v1/alert/{alert_id}/confirm — 值班主管确认
 
 角色：仅 supervisor / admin。恢复 interrupt 的图执行并派发工单（落库 `dispatch_orders`）；派单后落一条**出站事件**（`action=approve/modify` → `alert.dispatched`，`action=dismiss` → `alert.dismissed`）交给投递器回调 SaaS，见第六章「出站通知」。
 
@@ -261,11 +261,11 @@ curl -H "Authorization: Bearer <token>" \
 
 ---
 
-## 六、照护流程 Agent（状态机）
+## 六、作业流程 Agent（状态机）
 
 ### POST /api/v1/care-flow/start
 
-启动照护流程会话（阶段：入住评估→日常照护→阶段复评→出院评估；异常处理为日常照护内子模式，由关键词触发切换）。
+启动作业流程会话（阶段：入住评估→日常服务→阶段复评→出院评估；异常处理为日常服务内子模式，由关键词触发切换）。
 
 **请求体**
 
@@ -278,23 +278,23 @@ curl -H "Authorization: Bearer <token>" \
 }
 ```
 
-- `discharge_order`：可选，**退住工单**（dict）——机构业务系统（SaaS）下发的"该老人办理退住/出院"指令，即"该老人确定要出院"这一业务事件的信号载体；状态机只判"有无"，不读内容。示例：
+- `discharge_order`：可选，**退住工单**（dict）——业务系统（SaaS）下发的"该点位办理退住/出院"指令，即"该点位确定要出院"这一业务事件的信号载体；状态机只判"有无"，不读内容。示例：
 
   ```json
-  { "order_id": "DO-20261010-001", "reason": "家属申请接回居家照护", "issued_by": "saas" }
+  { "order_id": "DO-20261010-001", "reason": "家属申请接回居家服务", "issued_by": "saas" }
   ```
 
-  入住时若已确定要出院，可一并下发，作为 state 字段贯穿整场会话；收到工单后进入"收敛模式"——当前阶段达到最少轮数即收敛到阶段复评 → 出院评估主干道（不再开日常照护新循环）。`null`/省略 = 续住。
+  入住时若已确定要出院，可一并下发，作为 state 字段贯穿整场会话；收到工单后进入"收敛模式"——当前阶段达到最少轮数即收敛到阶段复评 → 出院评估主干道（不再开日常服务新循环）。`null`/省略 = 续住。
 
-**响应 200**：`{session_id, current_stage, ai_message, structured_output}`；同时在 `care_flow_sessions` 登记会话（业务侧权威记录，供"继续未完成流程"查询）。报告只在流程走到 `finished` 时才由 `save_report` 节点落库 `care_flow_reports`（阶段复评不会触发——续住回日常照护、走出院评估都要继续对话）。
+**响应 200**：`{session_id, current_stage, ai_message, structured_output}`；同时在 `care_flow_sessions` 登记会话（业务侧权威记录，供"继续未完成流程"查询）。报告只在流程走到 `finished` 时才由 `save_report` 节点落库 `care_flow_reports`（阶段复评不会触发——续住回日常服务、走出院评估都要继续对话）。
 
 ### GET /api/v1/care-flow/active/{elder_id}
 
-按老人查最近一场**进行中**的照护流程会话（租户隔离，无则 `active=false`）。
+按点位查最近一场**进行中**的作业流程会话（租户隔离，无则 `active=false`）。
 
-### GET /api/v1/care-flow/sessions/{session_id}/plan-overview — 照护计划总览
+### GET /api/v1/care-flow/sessions/{session_id}/plan-overview — 服务计划总览
 
-前端「照护计划」页的数据源：护理等级 + 服务项 + 当天计划与执行进度，**一个接口给足**。
+前端「服务计划」页的数据源：风险等级 + 服务项 + 当天计划与执行进度，**一个接口给足**。
 不跑 LangGraph、不调 LLM（只读 Provider），所以很快。
 
 **响应 200**
@@ -308,12 +308,12 @@ curl -H "Authorization: Bearer <token>" \
   "care_level": "介助",
   "special_notes": "高血压，需监测血压",
   "service_items": [
-    { "project_name": "协助翻身", "frequency_name": "每2小时", "times_per_day": 6,
+    { "project_name": "设备状态检查", "frequency_name": "每2小时", "times_per_day": 6,
       "nurse_time_slots": [{ "startTime": "08:00", "endTime": "20:00" }],
       "is_required": true, "care_level": "介助" }
   ],
   "today_plan": [
-    { "plan_item_id": "dcp-2026-10-13-001", "project_name": "协助进食",
+    { "plan_item_id": "dcp-2026-10-13-001", "project_name": "环境检查",
       "nurse_time": "07:00-08:00", "status": "done",
       "carer_name": "张三", "actual_care_time": "08:05" }
   ],
@@ -322,16 +322,16 @@ curl -H "Authorization: Bearer <token>" \
 }
 ```
 
-- `plan_source`：`service_items`（机构服务项）/ `ai_assessment`（评估结论派生）/
+- `plan_source`：`service_items`（业务配置服务项）/ `ai_assessment`（评估结论派生）/
   `merged`（两者）/ `pipeline`（评估流水线注入）/ `missing`。**界面要如实展示来源**，
   让使用者知道任务清单是谁定的。
 - `plan_missing=true` 时：`service_items` / `today_plan` 为空、`message` 给出引导
-  （"先完成能力评估或登记照护服务项"），前端应展示引导而不是空表格。
+  （"先完成风险评估或登记服务项"），前端应展示引导而不是空表格。
 - 会话不存在或跨租户 → 404。
 
 ### POST /api/v1/care-flow/plan-items/{plan_item_id}/confirm — 执行回写
 
-护工确认某项照护任务执行完成（对应业务系统侧的执行结果回写接口）。
+护工确认某项服务任务执行完成（对应业务系统侧的执行结果回写接口）。
 
 **请求体**
 
@@ -340,14 +340,14 @@ curl -H "Authorization: Bearer <token>" \
 ```
 
 - `status` 只接受 `done`（完成）/ `missed`（该做没做），其它值 → 400。
-- `missed` 会进入照护历史的异常记录，供后续对话与阶段复评参考。
-- 回写的是**执行结果**（谁在什么时候做了/没做）这类事实数据；照护项目与频次等业务规则
+- `missed` 会进入服务历史的异常记录，供后续对话与阶段复评参考。
+- 回写的是**执行结果**（谁在什么时候做了/没做）这类事实数据；服务项目与频次等业务规则
   仍由业务侧决定，care 不改——两种 Provider 的落点不同（本地写 care 自己的
   `daily_care_plans`，SaaS 实现调主系统接口）。
 
 **响应 200**：`{active: true, session: {session_id, elder_id, staff_id, current_stage, total_turns, started_at, updated_at}}`。
 
-用途：护理员从老人详情页进入时，前端先调这里；有进行中的会话就提示"继续原流程"，拿回 session_id 进入对话页即可命中检查点续跑，不依赖浏览器记住 URL。
+用途：作业人员从点位详情页进入时，前端先调这里；有进行中的会话就提示"继续原流程"，拿回 session_id 进入对话页即可命中检查点续跑，不依赖浏览器记住 URL。
 
 ### POST /api/v1/care-flow/chat
 
@@ -356,12 +356,12 @@ curl -H "Authorization: Bearer <token>" \
 ```json
 {
   "session_id": "cf-xxxx",
-  "message": "老人今天翻身正常",
+  "message": "点位今天翻身正常",
   "discharge_order": null
 }
 ```
 
-- `discharge_order`：可选，**退住工单**（dict，含义同 `/start` 处说明——SaaS 下发的"该老人确定要出院"业务事件信号），可**每轮重新下发**，模拟 SaaS 任何时点推送。一旦送入即落进 checkpointer 跨轮持久，收到后进入"收敛模式"：当前阶段达到最少轮数即收敛到 复评 → 出院评估 主干道（异常子模式内暂缓）。要撤销已下发的工单需开个新会话（同 elder 重新 start）。
+- `discharge_order`：可选，**退住工单**（dict，含义同 `/start` 处说明——SaaS 下发的"该点位确定要出院"业务事件信号），可**每轮重新下发**，模拟 SaaS 任何时点推送。一旦送入即落进 checkpointer 跨轮持久，收到后进入"收敛模式"：当前阶段达到最少轮数即收敛到 复评 → 出院评估 主干道（异常子模式内暂缓）。要撤销已下发的工单需开个新会话（同 elder 重新 start）。
 
 服务端先按 `session_id` 从 `care_flow_sessions` 找回 `elder_id` 再拼 thread_id（保证与 `/start` 写入的检查点键一致）；每轮结束后把 `current_stage` / `total_turns` 同步回登记表，走到 `finished` 自动把会话置为完成。
 
@@ -371,12 +371,12 @@ curl -H "Authorization: Bearer <token>" \
 |---|---|
 | `session` | `{session_id}` |
 | `message` | `{content, current_stage, daily_care_mode, total_turn_count}` |
-| `report` | 流程到 `finished` 阶段时推送完整照护报告 |
+| `report` | 流程到 `finished` 阶段时推送完整服务报告 |
 | `error` / `done` | 同通用约定 |
 
 ### POST /api/v1/care-flow/sessions/{session_id}/discharge-order
 
-SaaS **主动下发**退住工单到指定会话（无需护理员发言）。与 MCP 工具 `/mcp/care-flow` 的 `send_discharge_order` 共用同一段落地逻辑（`backend/agents/care_flow/discharge.py`）。
+SaaS **主动下发**退住工单到指定会话（无需作业人员发言）。与 MCP 工具 `/mcp/care-flow` 的 `send_discharge_order` 共用同一段落地逻辑（`backend/agents/care_flow/discharge.py`）。
 
 **请求体**：
 
@@ -384,7 +384,7 @@ SaaS **主动下发**退住工单到指定会话（无需护理员发言）。�
 { "order": { "order_type": "discharge", "reason": "转院" } }
 ```
 
-只更新该会话检查点里的 `state.discharge_order`（**不推进对话、不耗 LLM、不生成 AI 回复**）：护理员下一次 `/chat` 时由 `check_stage_node` 识别，当前阶段达 min 即收敛到 复评 → 出院评估。
+只更新该会话检查点里的 `state.discharge_order`（**不推进对话、不耗 LLM、不生成 AI 回复**）：作业人员下一次 `/chat` 时由 `check_stage_node` 识别，当前阶段达 min 即收敛到 复评 → 出院评估。
 
 **响应 200**：`{found, session_id, elder_id, current_stage, status: "delivered", message}`；会话不存在 / 跨租户 / 已结束 → `404`。
 
@@ -394,8 +394,8 @@ SaaS **主动下发**退住工单到指定会话（无需护理员发言）。�
 
 | 来源 | 事件类型 | 幂等键 | 触发点 |
 |---|---|---|---|
-| 照护流程 | `care_flow.finished` | `session_id` | `save_report` 节点（报告落库后） |
-| 告警研判 | `alert.dispatched` / `alert.dismissed` | `order_id` | `dispatch_order` 节点（站长确认后） |
+| 作业流程 | `care_flow.finished` | `session_id` | `save_report` 节点（报告落库后） |
+| 告警研判 | `alert.dispatched` / `alert.dismissed` | `order_id` | `dispatch_order` 节点（值班主管确认后） |
 
 投递走**发件箱模式**：事件先落 `outbound_events`，由后台投递器异步 POST，失败按指数退避重试。
 
@@ -427,7 +427,7 @@ SaaS **主动下发**退住工单到指定会话（无需护理员发言）。�
   "device_id": "dev-001",
   "alert_type": "fall",
   "risk_level": "high",
-  "actions": ["立即翻身", "通知家属", "2 小时后复测"],
+  "actions": ["立即断电检查", "通知使用方", "2 小时后复测"],
   "order_content": "风险等级：high\n处置措施：...",
   "supervisor_id": "sup-001",
   "status": "dispatched",
@@ -471,11 +471,11 @@ SaaS **主动下发**退住工单到指定会话（无需护理员发言）。�
 
 ### GET /api/v1/care-flow/{session_id}/report
 
-查询照护评估报告（直读 `care_flow_reports`，租户隔离）。响应含 `report`（完整报告）、`stage_reached`、`total_turns` 等。
+查询服务评估报告（直读 `care_flow_reports`，租户隔离）。响应含 `report`（完整报告）、`stage_reached`、`total_turns` 等。
 
 ### GET /api/v1/care-flow/{session_id}/report/export
 
-把照护流程报告导出为 **Word（.docx）**：标题 → 基本信息表（会话编号/老人编号/到达阶段/总轮数）→ 报告正文 → 明细 → 免责声明。租户隔离同上。
+把作业流程报告导出为 **Word（.docx）**：标题 → 基本信息表（会话编号/点位编号/到达阶段/总轮数）→ 报告正文 → 明细 → 免责声明。租户隔离同上。
 
 ---
 
@@ -489,7 +489,7 @@ SaaS **主动下发**退住工单到指定会话（无需护理员发言）。�
 
 ```json
 {
-  "query": "帮老人李四做一次跌倒风险评估",
+  "query": "帮点位李四做一次跌倒风险评估",
   "elder_id": "elder-001",
   "session_id": "",
   "agent_type": null,
@@ -499,7 +499,7 @@ SaaS **主动下发**退住工单到指定会话（无需护理员发言）。�
 ```
 
 - `agent_type`：`assessment` / `sop_qa` / `alert` / `care_flow`；`null` = LLM 意图识别自动路由
-- `mode`：`single`（单 Agent） / `pipeline`（需同时传 `pipeline`，如 `care_workflow`：评估→照护流程）
+- `mode`：`single`（单 Agent） / `pipeline`（需同时传 `pipeline`，如 `care_workflow`：评估→作业流程）
 
 **SSE 事件序列**：`session` → (`clarify` | `answer`) → `done`
 
@@ -511,19 +511,19 @@ SaaS **主动下发**退住工单到指定会话（无需护理员发言）。�
 ### DELETE /api/v1/chat/session/{elder_id}/{session_id}
 
 删除整个会话线程的检查点：该 `thread_id` 下的 **所有** `checkpoints` / `checkpoint_blobs` / `checkpoint_writes`
-一次清空，包含各 Agent 命名空间与**暂停中的 interrupt 断点**（告警等待站长确认的状态也在内）。
+一次清空，包含各 Agent 命名空间与**暂停中的 interrupt 断点**（告警等待值班主管确认的状态也在内）。
 
-什么时候用：确认这个照护周期已彻底结束，且审计期已过，不再需要任何会话状态。
+什么时候用：确认这个服务周期已彻底结束，且审计期已过，不再需要任何会话状态。
 什么时候别用：只是想重新开始一轮对话——换个 `session_id` 即可，不要删历史；删除不可恢复。
 
-**权限**：仅 `admin`（破坏性操作）；**租户**：老人必须归属当前租户，跨租户按不存在处理。
+**权限**：仅 `admin`（破坏性操作）；**租户**：点位必须归属当前租户，跨租户按不存在处理。
 
 | 项 | 说明 |
 |---|---|
 | 路径参数 | `elder_id`、`session_id`（会话标识，告警场景即 `alert_id`） |
 | 成功响应 | `{thread_id, deleted, backend, message}` |
 | 没跑过的会话 | `deleted=false`，不报错（幂等） |
-| 典型错误码 | `401` 未带令牌 / `403` 非 admin / `404` 老人不存在或跨租户 |
+| 典型错误码 | `401` 未带令牌 / `403` 非 admin / `404` 点位不存在或跨租户 |
 
 ```bash
 curl -X DELETE http://localhost:8000/api/v1/chat/session/e001/sess-abc \
@@ -542,18 +542,18 @@ curl -X DELETE http://localhost:8000/api/v1/chat/session/e001/sess-abc \
 
 ---
 
-## 八、护理知识库检索（语义搜索）
+## 八、作业规范知识库检索（语义搜索）
 
 ### POST /api/v1/knowledge/search
 
-护理 SOP 语义搜索：**混合召回（稠密 + 稀疏）→ 重排精排 → 带置信度返回**。
+作业规范 语义搜索：**混合召回（稠密 + 稀疏）→ 重排精排 → 带置信度返回**。
 与 SOP 问答 Agent 的检索节点共用同一实现（`cached_retrieve`），因此同样享受 Redis 检索缓存与租户强隔离。
 
 **请求**
 
 ```json
 {
-  "query": "鼻饲管喂养前要检查什么",
+  "query": "配电间喂养前要检查什么",
   "category": "feeding_tube",
   "top_k": 3,
   "recall_top_k": 10,
@@ -563,7 +563,7 @@ curl -X DELETE http://localhost:8000/api/v1/chat/session/e001/sess-abc \
 
 | 字段 | 必填 | 说明 |
 |---|---|---|
-| `query` | 是 | 护理问题（中文或英文） |
+| `query` | 是 | 作业问题（中文或英文） |
 | `category` | 否 | SOP 类别 ID（如 `feeding_tube`），用于缩小检索范围 |
 | `top_k` | 否 | 精排后返回条数，默认 3，上限 20 |
 | `recall_top_k` | 否 | 混合召回条数，默认 10，上限 50 |
@@ -573,7 +573,7 @@ curl -X DELETE http://localhost:8000/api/v1/chat/session/e001/sess-abc \
 
 ```json
 {
-  "query": "鼻饲管喂养前要检查什么",
+  "query": "配电间喂养前要检查什么",
   "category": "feeding_tube",
   "count": 2,
   "confidence": 0.9976,
@@ -581,7 +581,7 @@ curl -X DELETE http://localhost:8000/api/v1/chat/session/e001/sess-abc \
   "hits": [
     {
       "content": "…喂养前必须检查管路位置、胃残留量…",
-      "source_name": "feeding_tube > 鼻饲管护理操作规范（SOP） > 4. 日常维护操作步骤",
+      "source_name": "feeding_tube > 配电间巡检规范（SOP） > 4. 日常维护操作步骤",
       "category": "feeding_tube",
       "score": 0.998
     }
@@ -596,7 +596,7 @@ curl -X DELETE http://localhost:8000/api/v1/chat/session/e001/sess-abc \
 ```bash
 curl -X POST http://localhost:8000/api/v1/knowledge/search \
   -H "Authorization: Bearer <token>" -H "Content-Type: application/json" \
-  -d '{"query":"鼻饲管喂养前要检查什么","top_k":2}'
+  -d '{"query":"配电间喂养前要检查什么","top_k":2}'
 ```
 
 > 对应的 MCP 工具是 `sop-kb` Server 的 `search_sop`（见 [MCP 文档](mcp.md)、[工具清单](工具清单.md)）。
@@ -627,11 +627,11 @@ curl -X POST http://localhost:8000/api/v1/knowledge/search \
 }
 ```
 
-**响应 200**：`{"device_id": "...", "saved": 3}`；老人跨租户 → 403；老人/设备不存在时自动补占位行（归属当前租户）。
+**响应 200**：`{"device_id": "...", "saved": 3}`；点位跨租户 → 403；点位/设备不存在时自动补占位行（归属当前租户）。
 
 ### GET /api/v1/devices/elder/{elder_id}/readings?limit=10
 
-查询老人最近设备读数（租户隔离，跨租户返回空列表）。响应：`{"readings": [...]}`。
+查询点位最近设备读数（租户隔离，跨租户返回空列表）。响应：`{"readings": [...]}`。
 
 ---
 
@@ -654,7 +654,7 @@ TOKEN=$(curl -s -X POST http://localhost:8000/api/v1/auth/login \
 # SOP 问答（SSE）
 curl -N -X POST http://localhost:8000/api/v1/sop-qa/chat \
   -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
-  -d '{"query":"压疮预防的护理要点有哪些？"}'
+  -d '{"query":"设备温升预防的作业要点有哪些？"}'
 
 # IoT 上报读数
 curl -X POST http://localhost:8000/api/v1/devices/device-hr-01/readings \

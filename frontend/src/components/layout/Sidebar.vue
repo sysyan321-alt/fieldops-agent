@@ -21,15 +21,15 @@
 
       <RouterLink to="/work-flow" class="nav-item" :class="{ 'nav-item--active': isActive('/work-flow') }">
         <el-icon><FirstAidKit /></el-icon>
-        <span>照护流程</span>
+        <span>作业流程</span>
       </RouterLink>
 
       <RouterLink to="/assessment" class="nav-item" :class="{ 'nav-item--active': isActive('/assessment') }">
         <el-icon><Document /></el-icon>
-        <span>老人评估</span>
+        <span>点位评估</span>
       </RouterLink>
 
-      <!-- 站长端菜单（仅 supervisor/admin 可见） -->
+      <!-- 值班主管端菜单（仅 supervisor/admin 可见） -->
       <template v-if="auth.isSupervisor">
         <div class="nav-divider" />
         <RouterLink to="/alert-review" class="nav-item" :class="{ 'nav-item--active': isActive('/alert-review') }">

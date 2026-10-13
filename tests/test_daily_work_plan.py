@@ -1,7 +1,7 @@
 # tests/test_daily_service_plan.py
-# 每日照护计划：展开生成、执行回写、进度统计。
+# 每日服务计划：展开生成、执行回写、进度统计。
 #
-# 边界提醒（和照护计划那组用例一致）：
+# 边界提醒（和服务计划那组用例一致）：
 #   计划的**生成规则**属于业务侧，本地实现只是演示/离线替身；
 #   care 可以回写的是"执行结果"这类事实数据（谁在什么时候做了），不是业务规则。
 
@@ -18,9 +18,9 @@ from backend.db.repositories import (
 # ── ① 按频次展开当天计划 ──────────────────────────────────────
 
 def test_expand_multi_times_project():
-    """一天 3 次的"协助进食"要展开成 3 条；频次来自业务配置，不是模型编的。"""
+    """一天 3 次的"环境检查"要展开成 3 条；频次来自业务配置，不是模型编的。"""
     items = [{
-        "project_name": "协助进食", "times_per_day": 3,
+        "project_name": "环境检查", "times_per_day": 3,
         "nurse_time_slots": [{"startTime": "07:00", "endTime": "08:00"},
                              {"startTime": "11:30", "endTime": "12:30"},
                              {"startTime": "17:30", "endTime": "18:30"}],
@@ -28,7 +28,7 @@ def test_expand_multi_times_project():
     entries = _expand_items_to_day(items, date(2026, 10, 13))
 
     assert len(entries) == 3
-    assert [e["project_name"] for e in entries] == ["协助进食"] * 3
+    assert [e["project_name"] for e in entries] == ["环境检查"] * 3
     assert [e["nurse_time"] for e in entries] == [
         "07:00-08:00", "11:30-12:30", "17:30-18:30"]
 
@@ -44,7 +44,7 @@ def test_expand_ids_are_deterministic():
 
 
 def test_expand_without_time_slots_still_produces_entries():
-    """没配护理时间窗也要给出条目（nurse_time 留空），不能因为没窗口就少做一次。"""
+    """没配作业时间窗也要给出条目（nurse_time 留空），不能因为没窗口就少做一次。"""
     items = [{"project_name": "用药协助", "times_per_day": 2, "nurse_time_slots": []}]
     entries = _expand_items_to_day(items, date(2026, 10, 13))
 
@@ -54,13 +54,13 @@ def test_expand_without_time_slots_still_produces_entries():
 
 def test_single_window_multi_times_is_split():
     """一个窗口配多次频次时均分（否则 6 次翻身会是 6 行一模一样的 08:00-20:00）。"""
-    items = [{"project_name": "协助翻身", "times_per_day": 6,
+    items = [{"project_name": "设备状态检查", "times_per_day": 6,
               "nurse_time_slots": [{"startTime": "08:00", "endTime": "20:00"}]}]
     entries = _expand_items_to_day(items, date(2026, 10, 13))
 
     windows = [e["nurse_time"] for e in entries]
     assert len(windows) == 6
-    assert len(set(windows)) == 6, "每一段都该不同，护理员要能分清第几次"
+    assert len(set(windows)) == 6, "每一段都该不同，作业人员要能分清第几次"
     assert windows[0] == "08:00-10:00"
     assert windows[-1] == "18:00-20:00"
 
@@ -96,8 +96,8 @@ def test_expand_times_zero_defaults_to_one():
 def test_expand_covers_multiple_projects_once():
     """多个项目各展开各的：二级 5 项（含 6 次的翻身）应得到正确总数。"""
     items = [
-        {"project_name": "协助翻身", "times_per_day": 6, "nurse_time_slots": []},
-        {"project_name": "协助进食", "times_per_day": 3, "nurse_time_slots": []},
+        {"project_name": "设备状态检查", "times_per_day": 6, "nurse_time_slots": []},
+        {"project_name": "环境检查", "times_per_day": 3, "nurse_time_slots": []},
         {"project_name": "每日巡视", "times_per_day": 2, "nurse_time_slots": []},
     ]
     entries = _expand_items_to_day(items, date(2026, 10, 13))
@@ -173,8 +173,8 @@ async def test_saas_provider_normalizes_status(monkeypatch):
 
     async def _post(path, payload):
         return {"list": [{"id": "1", "projectName": "巡视", "statusF": "已完成"},
-                         {"id": "2", "projectName": "翻身", "statusF": "未完成"},
-                         {"id": "3", "projectName": "进食", "statusF": "待执行"}]}
+                         {"id": "2", "projectName": "设备状态检查", "statusF": "未完成"},
+                         {"id": "3", "projectName": "环境检查", "statusF": "待执行"}]}
 
     monkeypatch.setattr(provider, "_post", _post)
 
@@ -198,21 +198,21 @@ def test_format_today_plan_renders_status():
     from backend.agents.work_flow.nodes import _format_today_plan
 
     text = _format_today_plan(
-        [{"project_name": "协助翻身", "nurse_time": "08:00-10:00",
+        [{"project_name": "设备状态检查", "nurse_time": "08:00-10:00",
           "status": "done", "worker_name": "张三"},
          {"project_name": "用药协助", "status": "planned"}],
         {"total": 2, "done": 1, "missed": 0, "pending": 1})
 
     assert "今日共 2 项" in text
     assert "已完成 1" in text and "待执行 1" in text
-    assert "[已完成] 协助翻身" in text
+    assert "[已完成] 设备状态检查" in text
     assert "[待执行] 用药协助" in text
 
 
 def test_format_today_plan_empty():
     from backend.agents.work_flow.nodes import _format_today_plan
 
-    assert "没有可执行的照护计划条目" in _format_today_plan([], {})
+    assert "没有可执行的服务计划条目" in _format_today_plan([], {})
 
 
 # ── ⑤ 计划总览接口（前端视图的数据源）────────────────────────
@@ -249,11 +249,11 @@ def _patch_session(monkeypatch, site_id="s001"):
 
 
 async def test_plan_overview_returns_full_picture(monkeypatch):
-    """一个接口给足前端：护理等级 / 服务项 / 当天计划 / 进度 / 计划来源。"""
+    """一个接口给足前端：风险等级 / 服务项 / 当天计划 / 进度 / 计划来源。"""
     from backend.api.v1.work_flow import get_plan_overview
 
     _patch_session(monkeypatch)
-    today = [{"plan_item_id": "dcp-1", "project_name": "协助翻身",
+    today = [{"plan_item_id": "dcp-1", "project_name": "设备状态检查",
               "nurse_time": "08:00-10:00", "status": "done"},
              {"plan_item_id": "dcp-2", "project_name": "用药协助",
               "nurse_time": "12:00-13:00", "status": "planned"}]
@@ -261,7 +261,7 @@ async def test_plan_overview_returns_full_picture(monkeypatch):
         "backend.core.service_plan_provider.get_service_plan_provider",
         lambda: _FakeProvider(
             plan={"risk_tier": "二级", "special_notes": "高血压",
-                  "service_items": [{"project_name": "协助翻身", "is_required": True}]},
+                  "service_items": [{"project_name": "设备状态检查", "is_required": True}]},
             source="merged", today=today))
 
     out = await get_plan_overview("sess-1", current_user=USER)
@@ -290,7 +290,7 @@ async def test_plan_overview_missing_plan_gives_guidance(monkeypatch):
     assert out["service_items"] == []
     assert out["today_plan"] == []
     assert out["progress"]["total"] == 0
-    assert "没有照护计划" in out["message"]
+    assert "没有服务计划" in out["message"]
 
 
 async def test_plan_overview_404_for_unknown_session(monkeypatch):

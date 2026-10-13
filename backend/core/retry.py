@@ -116,41 +116,41 @@ class AgentFallbackHandler:
 
     @classmethod
     async def _assessment_fallback(cls) -> dict:
-        """评估降级：评估服务不可用，提示联系护理主管手动评估。"""
+        """评估降级：评估服务不可用，提示联系作业主管手动评估。"""
         logger.info("fallback.assessment_service_unavailable")
         return {
             "fallback_used": True,
-            "content": "⚠️ 评估服务暂时不可用，请稍后重试或联系护理主管手动评估。",
+            "content": "⚠️ 评估服务暂时不可用，请稍后重试或联系作业主管手动评估。",
             "structured_output": None,
         }
 
     @classmethod
     async def _sop_qa_fallback(cls) -> dict:
-        """护理问答降级：知识库检索不可用，提示查阅纸质护理手册。"""
+        """作业问答降级：知识库检索不可用，提示查阅纸质作业手册。"""
         logger.info("fallback.sop_qa_service_unavailable")
         return {
             "fallback_used": True,
-            "content": "⚠️ 护理知识库检索暂时不可用，请稍后重试或查阅纸质护理手册。",
+            "content": "⚠️ 作业规范知识库检索暂时不可用，请稍后重试或查阅纸质作业手册。",
             "structured_output": None,
         }
 
     @classmethod
     async def _alert_fallback(cls) -> dict:
-        """告警研判降级：标记为需站长人工核实。"""
+        """告警研判降级：标记为需值班主管人工核实。"""
         logger.info("fallback.alert_basic")
         return {
             "fallback_used": True,
-            "content": "⚠️ 告警研判服务暂时不可用，已标记为需站长人工核实。",
+            "content": "⚠️ 告警研判服务暂时不可用，已标记为需值班主管人工核实。",
             "structured_output": None,
         }
 
     @classmethod
     async def _work_flow_fallback(cls) -> dict:
-        """照护流程降级：记录本次对话，提示稍后查看。"""
+        """作业流程降级：记录本次对话，提示稍后查看。"""
         logger.info("fallback.work_flow_basic_feedback")
         return {
             "fallback_used": True,
-            "content": "⚠️ 照护流程服务暂时不可用，已记录本次对话，请稍后查看。",
+            "content": "⚠️ 作业流程服务暂时不可用，已记录本次对话，请稍后查看。",
             "structured_output": None,
         }
 
@@ -158,10 +158,10 @@ class AgentFallbackHandler:
 def _system_fallback_response(agent_type: str) -> dict:
     """第三层：系统级兜底。所有降级都失败后返回它，保证用户始终能收到响应。"""
     messages = {                                      # 按 agent_type 给不同的友好提示
-        "assessment":  "非常抱歉，评估服务暂时不可用，请稍后再试，或联系护理主管手动评估。",
-        "sop_qa":      "非常抱歉，护理问答服务暂时不可用，请稍后再试，或查阅纸质护理手册。",
-        "alert":       "非常抱歉，告警研判服务暂时不可用，本次告警已转交站长人工核实。",
-        "work_flow":   "非常抱歉，照护流程服务暂时不可用，请稍后重新开始。",
+        "assessment":  "非常抱歉，评估服务暂时不可用，请稍后再试，或联系作业主管手动评估。",
+        "sop_qa":      "非常抱歉，作业问答服务暂时不可用，请稍后再试，或查阅纸质作业手册。",
+        "alert":       "非常抱歉，告警研判服务暂时不可用，本次告警已转交值班主管人工核实。",
+        "work_flow":   "非常抱歉，作业流程服务暂时不可用，请稍后重新开始。",
     }
     content = messages.get(agent_type, "服务暂时不可用，请稍后再试。")  # 找不到就用通用提示
     return {

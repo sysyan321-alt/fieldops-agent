@@ -58,7 +58,7 @@ def test_should_trigger_summary_ignores_empty_history():
 async def test_sop_qa_save_memory_writes_summary_back(monkeypatch):
     """摘要必须写回 state，并记录覆盖条数，供下一轮判断。"""
     async def _fake_summary(messages, existing_summary=None):
-        return "【摘要】老人有高血压，夜间易醒"
+        return "【摘要】点位有高血压，夜间易醒"
 
     monkeypatch.setattr("backend.agents.sop_qa.nodes.compress_to_summary", _fake_summary)
     messages = _dialogue(10)
@@ -69,7 +69,7 @@ async def test_sop_qa_save_memory_writes_summary_back(monkeypatch):
         "answer": "答复", "answer_mode": "rag", "confidence": 0.9, "sources": ["sop"],
     })
 
-    assert update["existing_summary"] == "【摘要】老人有高血压，夜间易醒"
+    assert update["existing_summary"] == "【摘要】点位有高血压，夜间易醒"
     assert update["summary_message_count"] == len(messages)
     assert update["structured_output"]["answer"] == "答复"
 
@@ -93,9 +93,9 @@ async def test_sop_qa_save_memory_skips_when_not_needed(monkeypatch):
 
 
 async def test_work_flow_save_memory_writes_summary_back(monkeypatch):
-    """照护流程同样写回摘要（它下一轮 generate_response 会读）。"""
+    """作业流程同样写回摘要（它下一轮 generate_response 会读）。"""
     async def _fake_summary(messages, existing_summary=None):
-        return "【摘要】照护流程进度：日常巡检第 3 轮"
+        return "【摘要】作业流程进度：日常巡检第 3 轮"
 
     monkeypatch.setattr("backend.agents.work_flow.nodes.compress_to_summary", _fake_summary)
     messages = _dialogue(10)

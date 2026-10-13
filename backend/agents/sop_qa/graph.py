@@ -1,5 +1,5 @@
 # backend/agents/sop_qa/graph.py
-# 护理 SOP 问答 Agent 的 LangGraph 状态图构建
+# 作业规范 问答 Agent 的 LangGraph 状态图构建
 
 from langgraph.graph import StateGraph, START, END
 
@@ -60,7 +60,7 @@ def _route_after_web_search(state: SOPQAState) -> str:
 
 async def build_sop_qa_graph():
     """
-    构建并编译护理 SOP 问答 Agent 的 LangGraph 状态图。
+    构建并编译作业规范 问答 Agent 的 LangGraph 状态图。
 
     图拓扑：
         START → classify_query

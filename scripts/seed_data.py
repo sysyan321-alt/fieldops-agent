@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # scripts/seed_data.py
-# FieldOps 种子数据：5 位老人、10 台设备、3 份照护计划、20 条照护记录
+# FieldOps 种子数据：5 位点位、10 台设备、3 份服务计划、20 条服务记录
 
 import asyncio
 import os

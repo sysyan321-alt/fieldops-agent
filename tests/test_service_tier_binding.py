@@ -1,5 +1,5 @@
 # tests/test_risk_tier_binding.py
-# 「评估结论 → 护理等级 → 该等级服务项 → 照护任务清单」这条链路的边界测试。
+# 「评估结论 → 风险等级 → 该等级服务项 → 服务任务清单」这条链路的边界测试。
 #
 # 要守住的边界：**任务清单只能来自业务配置的服务项，不能由评估问题派生**。
 # 改造前 _build_service_plan_from_assessment 把 issues 的 suggestion 拼成
@@ -42,7 +42,7 @@ def test_daily_tasks_come_from_service_items_not_issues():
         "设备状态检查（2次/日） 时间窗：08:00-20:00",
         "日常巡检（3次/日）",
     ]
-    # 评估的处置建议不能出现在任务清单里（那是建议，不是机构排的服务）
+    # 评估的处置建议不能出现在任务清单里（那是建议，不是服务组织排的服务）
     assert not any("床栏" in t or "蛋白质" in t for t in plan["daily_tasks"])
 
 

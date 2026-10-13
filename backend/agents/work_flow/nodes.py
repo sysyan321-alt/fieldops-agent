@@ -1,5 +1,5 @@
 # backend/agents/work_flow/nodes.py
-# 照护流程 Agent 的所有节点函数
+# 作业流程 Agent 的所有节点函数
 
 import json
 from datetime import datetime, timedelta
@@ -21,7 +21,7 @@ from backend.core.logger import get_logger
 
 logger = get_logger(__name__)
 
-DEFAULT_MAX_TURNS = 40                     # 一轮照护流程的总轮数上限
+DEFAULT_MAX_TURNS = 40                     # 一轮作业流程的总轮数上限
 MAX_FOLLOWUP_PER_QUESTION = 2             # 同一问题最多追问几次
 
 # 异常子模式轮数上下限（独立于日常巡检的 stage_turn_count）
@@ -60,26 +60,25 @@ STAGE_PROMPTS = {
 }
 
 # 触发异常子模式的关键词（命中任一即从 normal 切到 abnormal）
-# 偏保守：只放明确的"照护中发现异常"信号词，
-# 通用词如"疼痛""不舒服"会误触，故不放进来
+# 偏保守：只放明确的"服务中发现异常"信号词，
+# 通用词如"有点脏""声音大"会误触，故不放进来
 ABNORMAL_KEYWORDS: tuple[str, ...] = (
-    "发现压红", "皮肤压红", "皮肤破损", "皮肤破溃", "压疮",
-    "胃液颜色异常", "胃液变色", "鼻饲异常", "鼻饲回抽",
-    "进食量骤降", "进食量骤减", "进食明显减少",
-    "精神萎靡", "精神不振", "嗜睡",
-    "呛咳", "误吸", "呕吐", "呕血",
-    "发热", "高烧", "体温骤升",
-    "跌倒", "坠床", "摔伤",
-    "面色异常", "面色苍白", "面色发紫", "紫绀",
-    "出血", "渗血", "出血不止",
-    "意识不清", "意识模糊", "昏迷",
-    "抽搐", "癫痫发作",
+    # 电气与设备
+    "过载", "跳闸", "温升异常", "温度过高", "异响", "焦糊味", "异味", "冒烟",
+    "设备离线", "失联", "掉线",
+    # 水患与环境
+    "渗漏", "漏水", "积水", "倒灌", "水位异常", "可燃气报警", "气体超标",
+    # 人身与作业
+    "触电", "人员跌倒", "坠落", "被困", "受伤", "划伤", "中毒",
+    "明火", "起火", "着火", "冒火",
+    # 设施状态
+    "结构开裂", "地面塌陷", "护栏损坏", "门禁强开", "消防设施损坏",
 )
 
-# 结束异常子模式的关键词（护理员说"异常处置完了"回到常规照护）
+# 结束异常子模式的关键词（作业人员说"异常处置完了"回到常规服务）
 ABNORMAL_DONE_KEYWORDS: tuple[str, ...] = (
-    "异常处置完", "异常已处理", "处理完毕", "已处置", "继续照护",
-    "继续日常巡检", "回到照护", "异常已解决",
+    "异常处置完", "异常已处理", "处理完毕", "已处置", "继续服务",
+    "继续日常巡检", "回到服务", "异常已解决",
 )
 
 
@@ -98,24 +97,24 @@ def _build_system_content(summary: str | None = None) -> str:
     """构建注入了历史摘要的 SystemMessage 内容。"""
     content = SYSTEM_PROMPT
     if summary:
-        content += f"\n\n【历史照护摘要】\n{summary}"
+        content += f"\n\n【历史服务摘要】\n{summary}"
     return content
 
 
 # ──────────────────────────────────────────────────────────────
-# 节点1：load_context — 加载照护计划和历史
+# 节点1：load_context — 加载服务计划和历史
 # ──────────────────────────────────────────────────────────────
 
 async def load_context_node(state: WorkFlowState) -> dict:
-    """加载老人的照护计划和近期照护历史。
+    """加载点位的服务计划和近期服务历史。
 
-    照护计划来源（按优先级）：
+    服务计划来源（按优先级）：
       ① Pipeline 上游（assessment）注入的 service_plan；
-      ② ServicePlanProvider（默认本地库：老人的照护服务项 site_service_items +
+      ② ServicePlanProvider（默认本地库：点位的服务项 site_service_items +
          最近一次评估派生的计划 service_plans；配了 SAAS_CARE_BASE_URL 就改读主系统）。
 
-    改造说明：原来第 ③ 级是**硬编码 mock 计划**（"二级" + 5 条固定任务），照护历史更是
-    无论计划来源如何都用两条写死的记录。结果是新入住/未评估的老人也会拿到一份看起来
+    改造说明：原来第 ③ 级是**硬编码 mock 计划**（"二级" + 5 条固定任务），服务历史更是
+    无论计划来源如何都用两条写死的记录。结果是新入住/未评估的点位也会拿到一份看起来
     完整的假计划继续推进状态机。现在取不到就标记 `service_plan_missing`，
     由 notify_missing_plan 节点如实告知并结束本轮——"没有计划"是必须让人知道的状态。
     """
@@ -125,7 +124,7 @@ async def load_context_node(state: WorkFlowState) -> dict:
 
     from backend.core.service_plan_provider import ServicePlanProviderError, get_service_plan_provider
 
-    # 先取数：计划与照护历史都从 Provider 来（历史与计划同源，避免两处不一致）
+    # 先取数：计划与服务历史都从 Provider 来（历史与计划同源，避免两处不一致）
     service_plan: dict | None = None
     service_history: list[dict] = []
     plan_source = "missing"
@@ -161,7 +160,7 @@ async def load_context_node(state: WorkFlowState) -> dict:
 
     logger.info("load_context.service_history_loaded", site_id=site_id, days=len(service_history))
 
-    # 当天照护计划（含执行状态）：日常巡检阶段要知道"今天还剩哪几项没做"
+    # 当天服务计划（含执行状态）：日常巡检阶段要知道"今天还剩哪几项没做"
     today_plan: list[dict] = []
     plan_progress: dict = {}
     if not service_plan_missing:
@@ -193,7 +192,7 @@ async def load_context_node(state: WorkFlowState) -> dict:
 def _format_today_plan(today_plan: list[dict], progress: dict) -> str:
     """把当天计划压成几行给 prompt 用（让指导落到"今天还剩什么没做"）。"""
     if not today_plan:
-        return "（今天没有可执行的照护计划条目）"
+        return "（今天没有可执行的服务计划条目）"
     lines = [
         f"- [{ {'done': '已完成', 'missed': '未完成', 'planned': '待执行'}.get(p.get('status'), '待执行') }]"
         f" {p.get('project_name', '')}"
@@ -207,23 +206,23 @@ def _format_today_plan(today_plan: list[dict], progress: dict) -> str:
 
 
 # ──────────────────────────────────────────────────────────────
-# 节点1b：notify_missing_plan — 照护计划缺失时如实告知
+# 节点1b：notify_missing_plan — 服务计划缺失时如实告知
 # ──────────────────────────────────────────────────────────────
 
 async def notify_missing_plan_node(state: WorkFlowState) -> dict:
-    """老人没有照护计划时，明确告诉使用方"流程无法开始"，而不是编一份计划继续跑。
+    """点位没有服务计划时，明确告诉使用方"流程无法开始"，而不是编一份计划继续跑。
 
-    什么情况会走到这里：该老人在业务系统里既没有登记照护服务项，也没有评估派生的计划
+    什么情况会走到这里：该点位在业务系统里既没有登记服务项，也没有评估派生的计划
     （典型是新入住还没建档、或评估还没做）。这时正确的动作是去补数据，而不是让 AI
-    凭空生成一套照护任务——照护项目与频次是机构业务配置，AI 无权代替。
+    凭空生成一套服务任务——服务项目与频次是业务配置，AI 无权代替。
     """
     site_id = state.get("site_id", "")
     content = (
-        f"老人 {site_id or '（未指定）'} 当前没有照护计划，无法开始照护流程。\n\n"
-        "可能原因：尚未完成能力评估，或机构侧还没有登记照护服务项。\n"
+        f"点位 {site_id or '（未指定）'} 当前没有服务计划，无法开始作业流程。\n\n"
+        "可能原因：尚未完成风险评估，或业务侧还没有登记服务项。\n"
         "请先完成其一后再开始：\n"
-        "1. 上传能力评估表，由评估结论生成照护计划；\n"
-        "2. 在机构系统里为该老人登记照护服务项（项目 / 频次 / 护理时间段）。"
+        "1. 上传风险评估表，由评估结论生成服务计划；\n"
+        "2. 在服务组织系统里为该点位登记服务项（项目 / 频次 / 作业时间段）。"
     )
     logger.warning("work_flow.plan_missing", site_id=site_id)
     return {
@@ -248,11 +247,11 @@ def _converge_under_discharge(current_stage: str, state: WorkFlowState) -> str:
 
     与 STAGE_ORDER 顺序推进的区别：
       - 建档评估 / 日常巡检：不走"下一阶段"，直插阶段复评（离院前综合评估），
-        日常巡检不再开新的照护循环；
+        日常巡检不再开新的服务循环；
       - 阶段复评：转退场评估；
       - 退场评估：走完 → FINISHED（触发报告生成）。
 
-    设计取舍：收到工单说明老人即将离院，继续推进日常巡检/复评循环已无意义；
+    设计取舍：收到工单说明点位即将离院，继续推进日常巡检/复评循环已无意义；
     但仍保留一次「阶段复评」作为离院前综合评估，再进入退场评估，不直接跳终态。
     """
     site_id = state.get("site_id")
@@ -275,12 +274,12 @@ async def check_stage_node(state: WorkFlowState) -> dict:
         层2 - 阶段流转（按 STAGE_ORDER 顺序推进）
 
     子模式切换条件：
-        normal → abnormal：护理员输入命中 ABNORMAL_KEYWORDS
-        abnormal → normal：护理员输入命中 ABNORMAL_DONE_KEYWORDS 或异常轮数到上限
+        normal → abnormal：作业人员输入命中 ABNORMAL_KEYWORDS
+        abnormal → normal：作业人员输入命中 ABNORMAL_DONE_KEYWORDS 或异常轮数到上限
 
     阶段流转条件：
         1. 达到阶段最大轮数
-        2. 护理员输入"结束照护"等关键词且已达阶段最少轮数
+        2. 作业人员输入"结束服务"等关键词且已达阶段最少轮数
         3. 达到总轮数上限
     """
     current_stage = state.get("current_stage", WorkStage.ONBOARDING_ASSESSMENT.value)
@@ -291,7 +290,7 @@ async def check_stage_node(state: WorkFlowState) -> dict:
     abnormal_turn_count = state.get("abnormal_turn_count", 0)
     discharge_order = state.get("discharge_order")  # SaaS 注入的退住工单（None=续住）
 
-    # 获取最近一条消息（护理员输入）
+    # 获取最近一条消息（作业人员输入）
     messages = state.get("messages", [])
     last_input = ""
     if messages:
@@ -330,7 +329,7 @@ async def check_stage_node(state: WorkFlowState) -> dict:
                 }
 
     # ── 层2：阶段流转（异常模式下不让用户主动结束阶段——异常没处理完不能跳走） ──
-    finish_keywords = ["结束照护", "完成照护", "进入下一阶段", "结束本阶段", "阶段完成"]
+    finish_keywords = ["结束服务", "完成服务", "进入下一阶段", "结束本阶段", "阶段完成"]
     user_wants_finish = any(kw in last_input for kw in finish_keywords)
 
     stage_max = STAGE_MAX_TURNS.get(current_stage, 10)
@@ -355,7 +354,7 @@ async def check_stage_node(state: WorkFlowState) -> dict:
             or (user_wants_finish and reached_min)
             or reached_max
             or discharge_converge):
-        # 总轮数到上限 → 直接结束（老人不出院也要结束本周期、生成报告、下周期重新开始）
+        # 总轮数到上限 → 直接结束（点位不出院也要结束本周期、生成报告、下周期重新开始）
         if reached_total_max:
             next_stage = WorkStage.FINISHED.value
         elif discharge_order:
@@ -363,7 +362,7 @@ async def check_stage_node(state: WorkFlowState) -> dict:
             next_stage = _converge_under_discharge(current_stage, state)
         elif current_stage == WorkStage.PERIODIC_REVIEW.value:
             # 阶段复评后无工单 → 回日常巡检开新循环
-            # 养老机构常态是老人长期住着不出院，"退场"是少数业务事件，不该靠轮数强制推进
+            # 项目现场常态是点位长期住着不出院，"退场"是少数业务事件，不该靠轮数强制推进
             next_stage = WorkStage.DAILY_INSPECTION.value
             logger.info("check_stage.loop_back_to_daily_inspection",
                         site_id=state.get("site_id"))
@@ -393,11 +392,11 @@ async def check_stage_node(state: WorkFlowState) -> dict:
 
 
 # ──────────────────────────────────────────────────────────────
-# 节点3：evaluate_response — 评估护理员回答质量
+# 节点3：evaluate_response — 评估作业人员回答质量
 # ──────────────────────────────────────────────────────────────
 
 async def evaluate_response_node(state: WorkFlowState) -> dict:
-    """用 LLM 评估护理员的回答/操作质量。"""
+    """用 LLM 评估作业人员的回答/操作质量。"""
     messages = state.get("messages", [])
     if not messages:
         return {"last_response_quality": ResponseQuality.NO_RESPONSE.value}
@@ -452,7 +451,7 @@ async def generate_response_node(state: WorkFlowState) -> dict:
     existing_summary = state.get("existing_summary")
     daily_mode = state.get("daily_mode", DailyMode.NORMAL.value)
 
-    # 获取护理员输入
+    # 获取作业人员输入
     messages = state.get("messages", [])
     worker_input = ""
     if messages:
@@ -490,7 +489,7 @@ async def generate_response_node(state: WorkFlowState) -> dict:
         ai_response = "".join(chunks_text)
     except Exception as e:
         logger.error("generate_response.failed", error=str(e))
-        ai_response = "照护指导生成失败，请稍后重试。"
+        ai_response = "服务指导生成失败，请稍后重试。"
 
     # 更新轮数计数：异常子模式独立累计 abnormal_turn_count
     stage_turn_count = state.get("stage_turn_count", 0) + 1
@@ -508,11 +507,11 @@ async def generate_response_node(state: WorkFlowState) -> dict:
 
 
 # ──────────────────────────────────────────────────────────────
-# 节点5：generate_report — 生成照护评估报告
+# 节点5：generate_report — 生成服务评估报告
 # ──────────────────────────────────────────────────────────────
 
 async def generate_report_node(state: WorkFlowState) -> dict:
-    """用 LLM 结构化输出生成照护评估报告。"""
+    """用 LLM 结构化输出生成服务评估报告。"""
     service_plan = state.get("service_plan", {})
     service_history = state.get("service_history", [])
     messages = state.get("messages", [])
@@ -570,7 +569,7 @@ async def generate_report_node(state: WorkFlowState) -> dict:
 # ──────────────────────────────────────────────────────────────
 
 async def save_report_node(state: WorkFlowState) -> dict:
-    """保存照护报告到数据库（尽力而为：失败不中断流程，仅记日志）。"""
+    """保存服务报告到数据库（尽力而为：失败不中断流程，仅记日志）。"""
     session_id = state.get("session_id", "")
     site_id = state.get("site_id", "")
 

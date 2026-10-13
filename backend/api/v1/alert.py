@@ -26,7 +26,7 @@ class AlertTriggerRequest(BaseModel):
 
 
 class AlertConfirmRequest(BaseModel):
-    """站长确认请求。"""
+    """值班主管确认请求。"""
     action:           str   # approve / modify / dismiss
     modified_actions: list[dict] = []
     supervisor_id:    str
@@ -34,7 +34,7 @@ class AlertConfirmRequest(BaseModel):
 
 
 class AlertIngestRequest(BaseModel):
-    """机构业务系统侧报警记录的下发请求。
+    """业务系统侧报警记录的下发请求。
 
     报警的权威源在业务系统（设备告警记录由它维护），care 只做研判与处置建议；
     处置终态经发件箱回传，业务系统按 `external_alert_id` 关联并回写处置结果。
@@ -163,7 +163,7 @@ async def ingest_alert(
     req: AlertIngestRequest,
     current_user: dict = Depends(get_current_user),
 ):
-    """机构 SaaS 下发报警记录 → care 研判（下行接入）。
+    """业务系统 下发报警记录 → care 研判（下行接入）。
 
     与 /trigger 的区别：/trigger 是 care 自己造 alert_id（演示/自触发），
     /ingest 接收业务系统的报警记录并保留 external_alert_id，处置终态经发件箱回传
@@ -217,7 +217,7 @@ async def get_alert_review(
 ):
     """获取告警审核数据（从 alerts 表读取风险评估 + 四轨数据，租户隔离）。"""
     if current_user["role"] not in ("supervisor", "admin"):
-        raise HTTPException(status_code=403, detail="仅站长可审核")
+        raise HTTPException(status_code=403, detail="仅值班主管可审核")
 
     from backend.db.repositories import get_alert_review as fetch_review
     row = await fetch_review(alert_id, tenant_id=current_user["tenant_id"])
@@ -236,11 +236,11 @@ async def get_alert_review(
         "service_records": row.get("three_tracks", {}).get("service_records", []),
         "health_indicators": row.get("three_tracks", {}).get("health_indicators", []),
         "assessment_snapshot": row.get("three_tracks", {}).get("assessment_snapshot"),
-        # 证据完整性：站长要能一眼看出"这次研判有几轨是真的有数据"
+        # 证据完整性：值班主管要能一眼看出"这次研判有几轨是真的有数据"
         "device_profile": row.get("three_tracks", {}).get("device_profile") or {},
         "evidence_quality": row.get("three_tracks", {}).get("evidence_quality", ""),
         "evidence_gaps": row.get("three_tracks", {}).get("evidence_gaps", []),
-        # 对接机构 SaaS 报警记录的字段（SaaS 下发的报警要能按 external_alert_id 追溯与回写）
+        # 对接业务系统 报警记录的字段（SaaS 下发的报警要能按 external_alert_id 追溯与回写）
         "source": row.get("source", "local"),
         "external_alert_id": row.get("external_alert_id", ""),
         "location": row.get("location", ""),
@@ -257,9 +257,9 @@ async def confirm_alert(
     req: AlertConfirmRequest,
     current_user: dict = Depends(get_current_user),
 ):
-    """站长确认告警处置，恢复图执行。"""
+    """值班主管确认告警处置，恢复图执行。"""
     if current_user["role"] not in ("supervisor", "admin"):
-        raise HTTPException(status_code=403, detail="仅站长可确认")
+        raise HTTPException(status_code=403, detail="仅值班主管可确认")
 
     # 租户守卫：告警不属于当前租户时拒绝（视为不存在，不泄露跨租户数据）
     from backend.db.repositories import get_alert_review as fetch_review

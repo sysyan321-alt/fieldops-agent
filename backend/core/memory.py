@@ -110,7 +110,7 @@ async def delete_thread_state(thread_id: str) -> dict:
     """
     原子删除整个线程的检查点：该 thread_id 下的所有 checkpoints、blobs、writes 一次清掉。
 
-    适用场景：确认这个照护周期已彻底结束，且审计期已过，不再需要任何会话状态
+    适用场景：确认这个服务周期已彻底结束，且审计期已过，不再需要任何会话状态
     （包括暂停中的 interrupt 断点）。不适合"只想重开一轮对话"——那用新的 session_id 即可，
     不要删历史。
 
@@ -169,7 +169,7 @@ def build_config(site_id: str, session_id: str, agent_type: Optional[str] = None
         result = await graph.ainvoke(state, config=config)
 
     Args:
-        site_id:   老人 ID
+        site_id:   点位 ID
         session_id: 会话 ID（告警场景传 alert_id）
         agent_type: Agent 标识。传入后写入 checkpoint_ns，
                     让同一 thread_id 下不同 Agent 的检查点互不覆盖（见文件头说明）。
@@ -251,7 +251,7 @@ async def compress_to_summary(
     existing_summary: Optional[str] = None,
 ) -> str:
     """
-    将历史对话压缩为结构化老人照护画像摘要。
+    将历史对话压缩为结构化点位服务画像摘要。
 
     增量压缩：传入 existing_summary 防止已记录内容被重复写入。
 
@@ -265,11 +265,11 @@ async def compress_to_summary(
     from langchain_core.messages import HumanMessage as LCHuman
     from backend.core.llm_factory import get_llm
 
-    SUMMARY_PROMPT = """请将以下护理员与 AI 的对话压缩为结构化老人照护画像摘要。
+    SUMMARY_PROMPT = """请将以下作业人员与 AI 的对话压缩为结构化点位服务画像摘要。
 
 【压缩规则】
-必须保留：老人明确的健康异常 / 反复出现的护理需求 / 照护偏好新增信息
-选择性保留：已稳定的照护项目（简短标注）/ 照护进度信息
+必须保留：点位明确的健康异常 / 反复出现的作业需求 / 服务偏好新增信息
+选择性保留：已稳定的服务项目（简短标注）/ 服务进度信息
 可以丢弃：已在上次摘要记录的内容 / 闲聊 / 已解决且无变化的问题
 
 【上一次摘要】
@@ -281,7 +281,7 @@ async def compress_to_summary(
 请直接输出摘要文本，不要加任何前缀。"""
 
     conversation_text = "\n".join([
-        f"{'护理员' if isinstance(m, HumanMessage) else 'AI'}：{m.text if hasattr(m, 'text') and not callable(m.text) else str(m.content)}"
+        f"{'作业人员' if isinstance(m, HumanMessage) else 'AI'}：{m.text if hasattr(m, 'text') and not callable(m.text) else str(m.content)}"
         for m in messages
         if isinstance(m, (HumanMessage, AIMessage))
     ])

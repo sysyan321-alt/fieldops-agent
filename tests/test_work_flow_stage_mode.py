@@ -1,5 +1,5 @@
 # tests/test_work_flow_stage_mode.py
-# 照护流程：异常子模式切换与阶段流转单元测试
+# 作业流程：异常子模式切换与阶段流转单元测试
 # 不依赖真实 LLM / DB——只验证 check_stage_node 的规则逻辑。
 
 import pytest
@@ -18,7 +18,7 @@ from backend.agents.work_flow.state import WorkStage, DailyMode
 
 def _state(stage="daily_inspection", stage_turns=5, total_turns=10,
            mode=DailyMode.NORMAL.value, abnormal_turns=0,
-           last_input="晨间护理完成", discharge_order=None,
+           last_input="早班巡检完成", discharge_order=None,
            max_turns=40):
     """构造一份只含必要字段的 State。"""
     state: dict = {
@@ -41,7 +41,7 @@ def _state(stage="daily_inspection", stage_turns=5, total_turns=10,
 @pytest.mark.asyncio
 async def test_normal_to_abnormal_by_keyword():
     """日常巡检 normal → abnormal：命中关键词即切模式，不切阶段。"""
-    s = _state(mode="normal", last_input="晨护时发现压红，皮肤有破损")
+    s = _state(mode="normal", last_input="巡检时发现接点温度过高，有焦糊味")
     out = await check_stage_node(s)
     assert out["daily_mode"] == "abnormal"
     assert out["abnormal_turn_count"] == 0
@@ -70,7 +70,7 @@ async def test_abnormal_to_normal_by_max_turns():
 @pytest.mark.asyncio
 async def test_abnormal_not_ended_without_keyword_or_max():
     """abnormal 既没命中'处理完'关键词、又没到 max → 保持在 abnormal。"""
-    s = _state(mode="abnormal", abnormal_turns=1, last_input="伤口还在渗血")
+    s = _state(mode="abnormal", abnormal_turns=1, last_input="渗漏还在继续")
     out = await check_stage_node(s)
     assert out == {}  # 无变化
 
@@ -78,7 +78,7 @@ async def test_abnormal_not_ended_without_keyword_or_max():
 @pytest.mark.asyncio
 async def test_normal_no_keyword_no_switch():
     """normal 模式没命中异常关键词 → 不切模式。"""
-    s = _state(mode="normal", last_input="继续翻身")
+    s = _state(mode="normal", last_input="继续巡检")
     out = await check_stage_node(s)
     assert out == {}
 
@@ -102,7 +102,7 @@ async def test_abnormal_mode_blocks_user_finish():
 async def test_daily_inspection_finish_to_review():
     """日常巡检 normal 模式 + 达到 min + 用户主动结束 → 流转阶段复评。"""
     s = _state(stage="daily_inspection", mode="normal", stage_turns=8,
-               last_input="结束照护")
+               last_input="结束服务")
     out = await check_stage_node(s)
     assert out["current_stage"] == WorkStage.PERIODIC_REVIEW.value
     assert out["stage_turn_count"] == 0
@@ -218,7 +218,7 @@ async def test_discharge_order_converges_all_stages_to_review_spine():
         stage="daily_inspection",
         stage_turns=STAGE_MAX_TURNS["daily_inspection"],
         mode="normal",
-        last_input="结束照护",
+        last_input="结束服务",
         discharge_order={"order_type": "discharge"},
     )
     out_daily = await check_stage_node(s_daily)
@@ -257,7 +257,7 @@ async def test_discharge_order_converges_daily_inspection_to_review_at_min():
 
 @pytest.mark.asyncio
 async def test_discharge_converge_requires_min_turns():
-    """日常巡检收到工单但未达 min → 本轮不收敛（保留最小照护轮数）。"""
+    """日常巡检收到工单但未达 min → 本轮不收敛（保留最小服务轮数）。"""
     s = _state(
         stage="daily_inspection",
         stage_turns=STAGE_MIN_TURNS["daily_inspection"] - 1,  # 差 1 轮
@@ -305,7 +305,7 @@ async def test_abnormal_mode_blocks_discharge_convergence():
         stage_turns=STAGE_MIN_TURNS["daily_inspection"],
         mode="abnormal",
         abnormal_turns=1,
-        last_input="伤口还在渗血",
+        last_input="渗漏还在继续",
         discharge_order={"order_type": "discharge"},
     )
     out = await check_stage_node(s)
@@ -335,7 +335,7 @@ async def test_daily_inspection_without_order_before_max_stays():
         stage="daily_inspection",
         stage_turns=STAGE_MIN_TURNS["daily_inspection"],
         mode="normal",
-        last_input="继续翻身",
+        last_input="继续巡检",
     )
     out = await check_stage_node(s)
     assert out == {}

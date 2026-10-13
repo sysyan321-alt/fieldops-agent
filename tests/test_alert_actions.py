@@ -3,7 +3,7 @@
 #
 # 背景（真实观察到的问题）：风险评估的结构化输出 schema 里 recommended_actions
 # 带默认空列表，模型偶尔省略该字段时校验照样通过，于是一路传到派单节点：
-# 工单文本生成了、措施列表却是空的，站长批准后拿到一张没有可执行动作的工单。
+# 工单文本生成了、措施列表却是空的，值班主管批准后拿到一张没有可执行动作的工单。
 
 from backend.agents.alert.nodes import (
     DEFAULT_ACTIONS_BY_RISK,
@@ -24,7 +24,7 @@ def test_ensure_actions_backfills_by_risk_level():
 
 def test_ensure_actions_keeps_model_output():
     """模型给了具体措施就原样保留，不改写、不叠加通用动作。"""
-    given = ["给老人吸氧", "测量血压"]
+    given = ["给点位吸氧", "测量血压"]
     assert ensure_actions("high", given) == given
 
 
@@ -47,7 +47,7 @@ class _FakeStructuredLLM:
 async def test_assess_risk_node_backfills_empty_actions(monkeypatch):
     """节点层兜底：模型漏措施时，落进 State 的风险评估必须带非空措施。"""
     empty = RiskAssessment(
-        risk_level="high", risk_score=85, reasoning="心率持续偏高且伴血氧下降",
+        risk_level="high", risk_score=85, reasoning="电流持续过载且柜内温升偏高",
         recommended_actions=[], confidence=0.8,
     )
     monkeypatch.setattr(
@@ -69,7 +69,7 @@ async def test_assess_risk_node_backfills_empty_actions(monkeypatch):
 
 async def test_assess_risk_node_keeps_model_actions(monkeypatch):
     """模型给了措施就不动它（兜底不能覆盖模型的具体判断）。"""
-    given = ["立即测量指尖血糖", "通知家属"]
+    given = ["立即测量指尖血糖", "通知使用方"]
     risk = RiskAssessment(
         risk_level="medium", risk_score=60, reasoning="血糖偏高",
         recommended_actions=given, confidence=0.7,

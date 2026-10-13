@@ -153,7 +153,7 @@ async def run_pipeline_service_workflow():
     print(f"    issues_count:      {len(assess_so.get('issues', []))}")
 
     assert assess_so.get("weighted_score"), "assessment 应产出 weighted_score"
-    assert summary.get("risk_tier_recommendation"), "assessment 应产出护理等级建议"
+    assert summary.get("risk_tier_recommendation"), "assessment 应产出风险等级建议"
 
     # ── 6. 验证 step 2: work_flow（上下文已传递）──
     work_flow_result = results.get("work_flow", {})
@@ -238,7 +238,7 @@ async def run_single_agent_smoke():
         session_id=session_id,
         agent_type="work_flow",
         mode="single",
-        query="老人今天精神不错，晨间护理已完成。",
+        query="点位今天精神不错，早班巡检已完成。",
         context={
             "service_plan_id": f"plan-{session_id}",
             "current_stage": "onboarding_assessment",

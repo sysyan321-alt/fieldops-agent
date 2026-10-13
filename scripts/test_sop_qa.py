@@ -1,5 +1,5 @@
 # scripts/test_sop_qa.py
-# 护理 SOP 问答 Agent 端到端测试（RAG 范式）
+# 作业规范 问答 Agent 端到端测试（RAG 范式）
 # 测试 4 种查询类型分支：PRECISE / VAGUE / BROAD / GENERAL
 # 检索节点为占位实现（返回空结果），所有检索类查询都会走 low_direct 兜底
 #
@@ -56,12 +56,12 @@ def _build_initial_state(query: str, session_id: str) -> dict:
 TEST_QUERIES = [
     {
         "label": "PRECISE（精确查询 → 检索占位空 → low_direct 兜底）",
-        "query": "鼻饲管置管后的日常维护操作步骤是什么？",
+        "query": "配电间巡检的操作步骤是什么？",
         "expected": "retrieve → generate_direct",
     },
     {
         "label": "VAGUE（模糊查询 → HyDE 假设文档 → 检索 → low_direct）",
-        "query": "那个压疮的分期我没太懂，能再说说吗",
+        "query": "那个设备温度的分级我没太懂，能再说说吗",
         "expected": "hyde_generate → retrieve → generate_direct",
     },
     {
@@ -80,7 +80,7 @@ TEST_QUERIES = [
 async def run_four_query_types():
     """跑 4 种查询类型分支。"""
     print("\n" + "=" * 60)
-    print("  护理 SOP 问答 Agent 端到端测试（RAG 范式）")
+    print("  作业规范 问答 Agent 端到端测试（RAG 范式）")
     print("=" * 60)
 
     graph = await build_sop_qa_graph()
@@ -89,7 +89,7 @@ async def run_four_query_types():
     for i, case in enumerate(TEST_QUERIES, 1):
         print("\n" + "-" * 60)
         print(f"\n[用例 {i}] {case['label']}")
-        print(f"  护理员输入：{case['query']}")
+        print(f"  作业人员输入：{case['query']}")
         print(f"  期望分支：{case['expected']}")
 
         session_id = _new_session_id()
@@ -129,12 +129,12 @@ async def run_multi_turn_conversation():
     config = build_config(ELDER_ID, session_id, agent_type="sop_qa")
 
     turns = [
-        "鼻饲管置管后第一天需要注意什么？",
+        "新接手的配电间第一天要注意什么？",
         "那第二天的重点观察项呢？",   # 带代词"那"，验证上下文记忆
     ]
 
     for i, q in enumerate(turns, 1):
-        print(f"\n[第 {i} 轮] 护理员：{q}")
+        print(f"\n[第 {i} 轮] 作业人员：{q}")
         state = _build_initial_state(q, session_id)
         result = await graph.ainvoke(state, config=config)
         answer = result.get("answer", "")

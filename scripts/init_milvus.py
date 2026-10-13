@@ -1,5 +1,5 @@
 # scripts/init_milvus.py
-# 初始化护理 SOP 知识库 Milvus 集合（schema + 索引）
+# 初始化作业规范 知识库 Milvus 集合（schema + 索引）
 # 执行：cd <项目根目录> && PYTHONPATH=. python scripts/init_milvus.py
 #
 # 前置：docker-compose --env-file .env.local up -d（启动 Milvus 容器）
@@ -68,7 +68,7 @@ def main():
     )
     print(f"✅ 集合 '{COLLECTION_NAME}' 创建完成（含索引，已加载）")
     print("当前集合：", client.list_collections())
-    print("⚠️  集合已重建，原有数据已清空，请运行 build_knowledge_base.py 导入护理 SOP 文档。")
+    print("⚠️  集合已重建，原有数据已清空，请运行 build_knowledge_base.py 导入作业规范 文档。")
 
 
 if __name__ == "__main__":

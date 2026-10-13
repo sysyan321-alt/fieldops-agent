@@ -1,12 +1,12 @@
 # tests/test_service_plan_fallback.py
-# work_flow load_context_node 的照护计划来源契约（不依赖 DB：monkeypatch repository 层）
+# work_flow load_context_node 的服务计划来源契约（不依赖 DB：monkeypatch repository 层）
 #
 # 契约（改造后）：
 #   ① Pipeline 上游注入的 service_plan 覆盖 Provider 的计划；
 #   ② 无上游时走 ServicePlanProvider：业务服务项 + 评估派生计划；
 #   ③ 两者都没有 → service_plan_missing=True，**不再编造 mock 计划**；
 #   ④ 取数抛异常 → 同样标记缺失，不编数据；
-#   ⑤ 照护历史来自真实记录，没有就是空列表（原来无论来源都用两条写死的记录）。
+#   ⑤ 服务历史来自真实记录，没有就是空列表（原来无论来源都用两条写死的记录）。
 
 import pytest
 
@@ -58,8 +58,8 @@ async def test_plan_from_pipeline_upstream(monkeypatch):
     upstream = {
         "plan_id": "plan-asmt-1",
         "risk_tier": "一级",
-        "daily_tasks": ["[HIGH] 鼻饲管护理"],
-        "special_notes": "卧床",
+        "daily_tasks": ["[HIGH] 配电间巡检"],
+        "special_notes": "高负荷",
     }
     out = await load_context_node(_base_state(service_plan=upstream))
 
@@ -74,7 +74,7 @@ async def test_plan_from_ai_assessment_when_only_ai_record(monkeypatch):
     """② 只有评估派生的计划时，来源标 ai_assessment。"""
     _patch_repo(monkeypatch, plan={
         "plan_id": "plan-seed-001", "site_id": "s001",
-        "plan_content": {"risk_tier": "二级", "daily_tasks": ["晨间护理", "每2小时翻身"],
+        "plan_content": {"risk_tier": "二级", "daily_tasks": ["早班巡检", "每2小时巡检"],
                          "special_notes": "高血压"},
         "created_at": "2026-10-01 00:00:00",
     })
@@ -90,9 +90,9 @@ async def test_plan_from_ai_assessment_when_only_ai_record(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_plan_from_service_items_when_no_ai_record(monkeypatch):
-    """②' 只有机构登记的服务项时，任务清单由服务项生成（不是模型编的）。"""
+    """②' 只有服务组织登记的服务项时，任务清单由服务项生成（不是模型编的）。"""
     _patch_repo(monkeypatch, items=[{
-        "project_name": "协助翻身", "frequency_name": "每2小时", "times_per_day": 6,
+        "project_name": "设备状态检查", "frequency_name": "每2小时", "times_per_day": 6,
         "nurse_time_slots": [{"startTime": "08:00", "endTime": "10:00"}],
         "is_required": True, "risk_tier": "一级",
     }])
@@ -100,7 +100,7 @@ async def test_plan_from_service_items_when_no_ai_record(monkeypatch):
     out = await load_context_node(_base_state())
 
     assert out["plan_source"] == "service_items"
-    assert out["service_plan"]["daily_tasks"] == ["协助翻身（每2小时） 时间窗：08:00-10:00"]
+    assert out["service_plan"]["daily_tasks"] == ["设备状态检查（每2小时） 时间窗：08:00-10:00"]
     assert out["service_plan"]["risk_tier"] == "一级"
 
 
@@ -109,7 +109,7 @@ async def test_service_items_override_ai_tasks_when_merged(monkeypatch):
     """两边都有 → merged，且任务清单以**业务服务项**为准（AI 不决定做什么服务）。"""
     _patch_repo(
         monkeypatch,
-        items=[{"project_name": "口腔护理", "frequency_name": "2次/日", "times_per_day": 2,
+        items=[{"project_name": "口腔作业", "frequency_name": "2次/日", "times_per_day": 2,
                 "is_required": True, "risk_tier": "二级"}],
         plan={"plan_id": "plan-1", "plan_content": {
             "risk_tier": "二级", "daily_tasks": ["[HIGH] AI 建议的任务"],
@@ -119,7 +119,7 @@ async def test_service_items_override_ai_tasks_when_merged(monkeypatch):
     out = await load_context_node(_base_state())
 
     assert out["plan_source"] == "merged"
-    assert out["service_plan"]["daily_tasks"] == ["口腔护理（2次/日）"], "业务服务项应覆盖 AI 任务清单"
+    assert out["service_plan"]["daily_tasks"] == ["口腔作业（2次/日）"], "业务服务项应覆盖 AI 任务清单"
     assert out["service_plan"]["special_notes"] == "认知障碍需提醒", "AI 的注意事项应保留"
     assert out["service_plan"]["plan_id"] == "plan-1"
 
@@ -152,15 +152,15 @@ async def test_plan_missing_when_provider_raises(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_service_history_comes_from_records(monkeypatch):
-    """⑤ 照护历史来自真实记录（原来是写死的两条 mock）。"""
+    """⑤ 服务历史来自真实记录（原来是写死的两条 mock）。"""
     _patch_repo(monkeypatch,
                 items=[{"project_name": "巡视", "is_required": True, "risk_tier": "二级"}],
-                history=[{"date": "2026-10-12", "tasks": ["巡视：老人安静休息"], "abnormal": ""}])
+                history=[{"date": "2026-10-12", "tasks": ["巡检：设备运行正常"], "abnormal": ""}])
 
     out = await load_context_node(_base_state())
 
     assert out["service_history"] == [
-        {"date": "2026-10-12", "tasks": ["巡视：老人安静休息"], "abnormal": ""}]
+        {"date": "2026-10-12", "tasks": ["巡检：设备运行正常"], "abnormal": ""}]
 
 
 def test_router_sends_missing_plan_to_notice():
@@ -179,4 +179,4 @@ async def test_notify_missing_plan_node_is_actionable():
 
     assert out["structured_output"]["plan_missing"] is True
     assert "e999" in out["answer"]
-    assert "能力评估" in out["answer"] and "照护服务项" in out["answer"]
+    assert "风险评估" in out["answer"] and "服务项" in out["answer"]

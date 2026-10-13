@@ -13,7 +13,7 @@ logger = get_logger(__name__)
 mcp = FastMCP(
     name="FieldOps-WebSearch",
     instructions=(
-        "FieldOps 护理能力工具 · 联网搜索（v1.0，只读，免鉴权）。"
+        "FieldOps 作业能力工具 · 联网搜索（v1.0，只读，免鉴权）。"
         "工具：web_search（Tavily 优先，未配置或失败时降级 DuckDuckGo），用于知识库覆盖不到时的补充检索。"
     ),
     stateless_http=True,
@@ -23,7 +23,7 @@ mcp = FastMCP(
 
 @mcp.tool()
 async def web_search(query: str, max_results: int = 5) -> list[dict]:
-    """联网搜索（护理 SOP 知识库覆盖不到时补充互联网信息）。
+    """联网搜索（作业规范 知识库覆盖不到时补充互联网信息）。
 
     自动选择可用后端：配置了 TAVILY_API_KEY 时优先 Tavily（结果更结构化），
     否则/失败时降级到免费的 DuckDuckGo。

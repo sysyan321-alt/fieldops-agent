@@ -1,5 +1,5 @@
 # backend/agents/sop_qa/state.py
-# 护理 SOP 问答 Agent 的状态定义
+# 作业规范 问答 Agent 的状态定义
 
 from typing import Annotated, Optional
 from typing_extensions import TypedDict
@@ -9,7 +9,7 @@ from langchain_core.messages import BaseMessage
 
 class SOPQAState(TypedDict):
     """
-    护理 SOP 问答 Agent 的完整状态定义。
+    作业规范 问答 Agent 的完整状态定义。
     所有节点通过读写此 State 进行数据传递。
     """
 
@@ -17,13 +17,13 @@ class SOPQAState(TypedDict):
     messages: Annotated[list[BaseMessage], add_messages]
 
     # ── ② 请求上下文（Orchestrator 注入，节点只读）───────────────
-    site_id:    str            # 老人 ID
+    site_id:    str            # 点位 ID
     tenant_id:   str            # 租户 ID（Milvus / DB 多租户隔离）
     session_id:  str            # 会话 ID（用于构造 thread_id）
-    org_id:      Optional[str]  # 机构 ID，限制检索范围；None = 全库检索
+    org_id:      Optional[str]  # 服务组织 ID，限制检索范围；None = 全库检索
 
     # ── ③ Query 处理中间结果──────────────────────────────────────
-    original_query:    str         # 护理员原始输入，全程不变
+    original_query:    str         # 作业人员原始输入，全程不变
     query_type:        str         # GENERAL / PRECISE / VAGUE / BROAD
     rewritten_queries: list[str]   # BROAD 分支：Multi-Query 改写后的子 Query 列表
     hyde_document:     Optional[str]  # VAGUE 分支：HyDE 生成的假设文档文本

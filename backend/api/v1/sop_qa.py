@@ -1,5 +1,5 @@
 # backend/api/v1/sop_qa.py
-# 护理 SOP 问答 Agent API 路由（SSE 流式）
+# 作业规范 问答 Agent API 路由（SSE 流式）
 
 import json
 import uuid
@@ -27,7 +27,7 @@ async def sop_qa_chat(
     req: SOPQARequest,
     current_user: dict = Depends(get_current_user),
 ):
-    """护理 SOP 问答（SSE 流式响应）。"""
+    """作业规范 问答（SSE 流式响应）。"""
     session_id = req.session_id or f"sopqa-{uuid.uuid4().hex[:12]}"
 
     async def event_generator():

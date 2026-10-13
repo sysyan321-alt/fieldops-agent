@@ -38,7 +38,7 @@ async def check_sop_kb(base: str, tenant_id: str) -> bool:
     try:
         hits = await call_mcp_tool(
             base, "search_sop",
-            {"query": "鼻饲管日常护理步骤", "tenant_id": tenant_id, "top_k": 3},
+            {"query": "配电间日常巡检步骤", "tenant_id": tenant_id, "top_k": 3},
             timeout=180.0,
         )
         print(f"检索命中：{len(hits)} 条")
@@ -50,18 +50,18 @@ async def check_sop_kb(base: str, tenant_id: str) -> bool:
 
 
 async def check_service_data(base: str, site_id: str, tenant_id: str) -> bool:
-    print(f"\n=== 照护数据 MCP：{base}/mcp ===")
+    print(f"\n=== 服务数据 MCP：{base}/mcp ===")
     tools = await list_mcp_tools(base)
     print("已注册工具：", [t["name"] for t in tools])
 
     profile = await call_mcp_tool(
         base, "get_site_profile", {"site_id": site_id, "tenant_id": tenant_id}
     )
-    print("老人档案：", {k: profile.get(k) for k in ("found", "name", "risk_tier", "location")})
+    print("点位档案：", {k: profile.get(k) for k in ("found", "name", "risk_tier", "location")})
 
     for tool, label in (
         ("get_recent_device_readings", "设备读数"),
-        ("get_recent_service_records", "照护记录"),
+        ("get_recent_service_records", "服务记录"),
         ("get_recent_health_indicators", "健康指标"),
     ):
         rows = await call_mcp_tool(
@@ -79,7 +79,7 @@ async def check_web_search(base: str) -> bool:
     tools = await list_mcp_tools(base)
     print("已注册工具：", [t["name"] for t in tools])
     try:
-        results = await call_mcp_tool(base, "web_search", {"query": "养老机构跌倒预防", "max_results": 2}, timeout=30.0)
+        results = await call_mcp_tool(base, "web_search", {"query": "项目现场跌倒预防", "max_results": 2}, timeout=30.0)
         print(f"搜索结果：{len(results)} 条")
         for r in results[:2]:
             print(f"  - {r.get('title', '')[:50]} | {r.get('url', '')[:60]}")

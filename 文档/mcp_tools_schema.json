@@ -4,14 +4,14 @@
   "note": "由 scripts/dump_mcp_tools.py 自动生成；工具定义变更后请重新导出并提交。",
   "servers": {
     "sop-kb": {
-      "cn_name": "护理知识库检索",
+      "cn_name": "作业规范知识库检索",
       "endpoint": "http://127.0.0.1:8099/mcp/sop-kb/mcp",
       "auth": "无（只读）",
       "tool_count": 3,
       "tools": [
         {
           "name": "search_sop",
-          "description": "检索养老护理 SOP 知识库（Hybrid 召回 + BGE-Reranker 精排）。\n\n    适用场景：护理标准、操作规范、风险处置流程类问题（如\"鼻饲管护理步骤\"）。\n\n    Args:\n        query:     护理问题，中文或英文\n        tenant_id: 租户 ID，用于数据隔离，必填（如 tenant_default）\n        category:  可选，SOP 类别 ID（如 feeding_tube / fall_prevention），用于缩小检索范围\n        top_k:     精排后返回条数，默认 3\n\n    Returns:\n        按相关性降序的片段列表，每项含 content / source_name / category /\n        score / confidence / is_high_confidence（confidence >= 0.75 视为高置信）\n    ",
+          "description": "检索养老作业规范 知识库（Hybrid 召回 + BGE-Reranker 精排）。\n\n    适用场景：作业标准、操作规范、风险处置流程类问题（如\"配电间巡检步骤\"）。\n\n    Args:\n        query:     作业问题，中文或英文\n        tenant_id: 租户 ID，用于数据隔离，必填（如 tenant_default）\n        category:  可选，SOP 类别 ID（如 feeding_tube / fall_prevention），用于缩小检索范围\n        top_k:     精排后返回条数，默认 3\n\n    Returns:\n        按相关性降序的片段列表，每项含 content / source_name / category /\n        score / confidence / is_high_confidence（confidence >= 0.75 视为高置信）\n    ",
           "inputSchema": {
             "properties": {
               "query": {
@@ -119,14 +119,14 @@
       ]
     },
     "care-data": {
-      "cn_name": "照护数据查询",
+      "cn_name": "服务数据查询",
       "endpoint": "http://127.0.0.1:8099/mcp/care-data/mcp",
       "auth": "无（只读）",
       "tool_count": 8,
       "tools": [
         {
           "name": "get_elder_profile",
-          "description": "查询老人基本档案（含当前照护计划与绑定设备）。\n\n    Args:\n        elder_id:  老人 ID（如 e001）\n        tenant_id: 租户 ID，必填\n\n    Returns:\n        老人信息 + 照护计划 + 设备列表；老人不存在或跨租户时返回 {\"found\": false}\n    ",
+          "description": "查询点位基本档案（含当前服务计划与绑定设备）。\n\n    Args:\n        elder_id:  点位 ID（如 e001）\n        tenant_id: 租户 ID，必填\n\n    Returns:\n        点位信息 + 服务计划 + 设备列表；点位不存在或跨租户时返回 {\"found\": false}\n    ",
           "inputSchema": {
             "properties": {
               "elder_id": {
@@ -148,7 +148,7 @@
         },
         {
           "name": "get_recent_care_records",
-          "description": "查询老人最近的照护记录（告警研判四轨中的第二轨）。\n\n    Args:\n        elder_id:  老人 ID\n        tenant_id: 租户 ID，必填\n        limit:     返回条数，默认 8\n    ",
+          "description": "查询点位最近的服务记录（告警研判四轨中的第二轨）。\n\n    Args:\n        elder_id:  点位 ID\n        tenant_id: 租户 ID，必填\n        limit:     返回条数，默认 8\n    ",
           "inputSchema": {
             "properties": {
               "elder_id": {
@@ -192,7 +192,7 @@
         },
         {
           "name": "get_recent_health_indicators",
-          "description": "查询老人最近健康指标（告警研判四轨中的第三轨）。\n\n    Args:\n        elder_id:  老人 ID\n        tenant_id: 租户 ID，必填\n        limit:     返回条数，默认 8\n    ",
+          "description": "查询点位最近健康指标（告警研判四轨中的第三轨）。\n\n    Args:\n        elder_id:  点位 ID\n        tenant_id: 租户 ID，必填\n        limit:     返回条数，默认 8\n    ",
           "inputSchema": {
             "properties": {
               "elder_id": {
@@ -236,7 +236,7 @@
         },
         {
           "name": "get_recent_device_readings",
-          "description": "查询老人最近设备读数（告警研判四轨中的第一轨）。\n\n    Args:\n        elder_id:  老人 ID\n        tenant_id: 租户 ID，必填\n        limit:     返回条数，默认 10\n    ",
+          "description": "查询点位最近设备读数（告警研判四轨中的第一轨）。\n\n    Args:\n        elder_id:  点位 ID\n        tenant_id: 租户 ID，必填\n        limit:     返回条数，默认 10\n    ",
           "inputSchema": {
             "properties": {
               "elder_id": {
@@ -280,7 +280,7 @@
         },
         {
           "name": "list_alerts",
-          "description": "查询告警列表（按时间倒序），可按老人过滤。\n\n    Args:\n        tenant_id: 租户 ID，必填\n        elder_id:  可选，只看某位老人\n        limit:     返回条数，默认 10\n    ",
+          "description": "查询告警列表（按时间倒序），可按点位过滤。\n\n    Args:\n        tenant_id: 租户 ID，必填\n        elder_id:  可选，只看某位点位\n        limit:     返回条数，默认 10\n    ",
           "inputSchema": {
             "properties": {
               "tenant_id": {
@@ -331,7 +331,7 @@
         },
         {
           "name": "list_elder_service_items",
-          "description": "查询该老人当前生效的照护服务项（要做什么、多久做一次、护理时间窗、是否必选）。\n\n    Args:\n        elder_id:  老人 ID\n        tenant_id: 租户 ID，必填\n\n    Returns:\n        {\"found\": bool, \"items\": [...]}；没有登记过服务项时 items 为空数组\n        （表示\"该老人还没有照护计划\"，调用方应引导先做评估或登记服务项）\n    ",
+          "description": "查询该点位当前生效的服务项（要做什么、多久做一次、作业时间窗、是否必选）。\n\n    Args:\n        elder_id:  点位 ID\n        tenant_id: 租户 ID，必填\n\n    Returns:\n        {\"found\": bool, \"items\": [...]}；没有登记过服务项时 items 为空数组\n        （表示\"该点位还没有服务计划\"，调用方应引导先做评估或登记服务项）\n    ",
           "inputSchema": {
             "properties": {
               "elder_id": {
@@ -353,7 +353,7 @@
         },
         {
           "name": "list_care_level_configs",
-          "description": "按护理等级查询可用的照护项目（业务系统提供「该等级允许做什么」）。\n\n    用途：评估给出护理等级后，先看这个等级\"允许做哪些服务\"，再决定给老人挂哪些；\n    AI 可以在可选集合内推荐，但不能新增集合外的服务。\n\n    Args:\n        care_level:    护理等级，如 自理 / 介助 / 介护\n        tenant_id:     租户 ID，必填\n        required_only: True 只返回必选项\n    ",
+          "description": "按风险等级查询可用的服务项目（业务系统提供「该等级允许做什么」）。\n\n    用途：评估给出风险等级后，先看这个等级\"允许做哪些服务\"，再决定给点位挂哪些；\n    AI 可以在可选集合内推荐，但不能新增集合外的服务。\n\n    Args:\n        care_level:    风险等级，如 自理 / 介助 / 介护\n        tenant_id:     租户 ID，必填\n        required_only: True 只返回必选项\n    ",
           "inputSchema": {
             "properties": {
               "care_level": {
@@ -397,7 +397,7 @@
         },
         {
           "name": "get_today_care_plan",
-          "description": "查询老人**当天**的照护计划与执行进度（今天还剩哪几项没做）。\n\n    注意：生成规则属于业务侧。本地 Provider 下\n    该工具会按服务项展开当天条目（演示/离线用），SaaS Provider 下读主系统的当天计划。\n\n    Args:\n        elder_id:  老人 ID\n        tenant_id: 租户 ID，必填\n\n    Returns:\n        {\"elder_id\", \"plan\": [...含 status/done|missed|planned...], \"progress\": {...}}\n    ",
+          "description": "查询点位**当天**的服务计划与执行进度（今天还剩哪几项没做）。\n\n    注意：生成规则属于业务侧。本地 Provider 下\n    该工具会按服务项展开当天条目（演示/离线用），SaaS Provider 下读主系统的当天计划。\n\n    Args:\n        elder_id:  点位 ID\n        tenant_id: 租户 ID，必填\n\n    Returns:\n        {\"elder_id\", \"plan\": [...含 status/done|missed|planned...], \"progress\": {...}}\n    ",
           "inputSchema": {
             "properties": {
               "elder_id": {
@@ -427,7 +427,7 @@
       "tools": [
         {
           "name": "web_search",
-          "description": "联网搜索（护理 SOP 知识库覆盖不到时补充互联网信息）。\n\n    自动选择可用后端：配置了 TAVILY_API_KEY 时优先 Tavily（结果更结构化），\n    否则/失败时降级到免费的 DuckDuckGo。\n\n    Args:\n        query:       搜索关键词，中文或英文\n        max_results: 返回条数，默认 5\n\n    Returns:\n        结果列表，每项含 title / url / snippet / content\n    ",
+          "description": "联网搜索（作业规范 知识库覆盖不到时补充互联网信息）。\n\n    自动选择可用后端：配置了 TAVILY_API_KEY 时优先 Tavily（结果更结构化），\n    否则/失败时降级到免费的 DuckDuckGo。\n\n    Args:\n        query:       搜索关键词，中文或英文\n        max_results: 返回条数，默认 5\n\n    Returns:\n        结果列表，每项含 title / url / snippet / content\n    ",
           "inputSchema": {
             "properties": {
               "query": {
@@ -474,7 +474,7 @@
       "tools": [
         {
           "name": "ingest_sop_document",
-          "description": "导入（或新增）一篇护理 SOP 文档到知识库。\n\n    对应脚本：scripts/build_knowledge_base.py\n    流程：读取 → 智能分块 →（可选）Contextual RAG 增强 → BGE-M3 嵌入 → 写入 Milvus。\n\n    Args:\n        file_path:   文档路径，必须在 data/ 目录下（如 data/sop/feeding_tube.md）\n        category:    SOP 类别 ID（如 feeding_tube），写入 course_id 字段供检索过滤\n        tenant_id:   租户 ID，必填且必须在 MCP_WRITE_TENANTS 白名单内\n        version:     文档版本号，默认 1.0\n        use_context: 是否启用 Contextual RAG 增强（需调 LLM，关闭可显著加快导入）\n\n    Returns:\n        {status, document_id, category, file_path, version, use_context}\n    ",
+          "description": "导入（或新增）一篇作业规范 文档到知识库。\n\n    对应脚本：scripts/build_knowledge_base.py\n    流程：读取 → 智能分块 →（可选）Contextual RAG 增强 → BGE-M3 嵌入 → 写入 Milvus。\n\n    Args:\n        file_path:   文档路径，必须在 data/ 目录下（如 data/sop/feeding_tube.md）\n        category:    SOP 类别 ID（如 feeding_tube），写入 course_id 字段供检索过滤\n        tenant_id:   租户 ID，必填且必须在 MCP_WRITE_TENANTS 白名单内\n        version:     文档版本号，默认 1.0\n        use_context: 是否启用 Contextual RAG 增强（需调 LLM，关闭可显著加快导入）\n\n    Returns:\n        {status, document_id, category, file_path, version, use_context}\n    ",
           "inputSchema": {
             "properties": {
               "file_path": {
@@ -563,7 +563,7 @@
       "tools": [
         {
           "name": "trigger_alert",
-          "description": "触发告警研判（跑四轨采集 + 风险评估，图会在站长审核处暂停）。\n\n    对应 REST：POST /api/v1/alert/trigger\n\n    Args:\n        elder_id:        老人 ID\n        device_id:       触发告警的设备 ID\n        tenant_id:       租户 ID，必填且必须在 MCP_WRITE_TENANTS 白名单内\n        alert_type:      告警类型：heart_rate_abnormal / off_bed_timeout /\n                         fall_detected / room_temp_abnormal\n        alert_timestamp: 告警时间（可选，ISO 字符串）\n\n    Returns:\n        {alert_id, session_id, status=\"awaiting_review\", review_data}\n        review_data 内含风险评估与四轨采集结果，可直接展示给站长审核。\n    ",
+          "description": "触发告警研判（跑四轨采集 + 风险评估，图会在值班主管审核处暂停）。\n\n    对应 REST：POST /api/v1/alert/trigger\n\n    Args:\n        elder_id:        点位 ID\n        device_id:       触发告警的设备 ID\n        tenant_id:       租户 ID，必填且必须在 MCP_WRITE_TENANTS 白名单内\n        alert_type:      告警类型：heart_rate_abnormal / off_bed_timeout /\n                         fall_detected / room_temp_abnormal\n        alert_timestamp: 告警时间（可选，ISO 字符串）\n\n    Returns:\n        {alert_id, session_id, status=\"awaiting_review\", review_data}\n        review_data 内含风险评估与四轨采集结果，可直接展示给值班主管审核。\n    ",
           "inputSchema": {
             "properties": {
               "elder_id": {
@@ -622,7 +622,7 @@
         },
         {
           "name": "confirm_alert",
-          "description": "站长确认告警处置（恢复被 interrupt 暂停的图，生成并派发工单）。\n\n    对应 REST：POST /api/v1/alert/{alert_id}/confirm\n\n    Args:\n        alert_id:         告警 ID\n        tenant_id:        租户 ID，必填且必须在白名单内\n        action:           决策：approve（采用 AI 措施）/ modify（采用修改后措施）/ dismiss（取消处置）\n        modified_actions: action=modify 时的措施列表，形如 [{\"action\": \"...\", \"owner\": \"...\"}]\n        comment:          站长备注\n        supervisor_id:    操作人标识（MCP 场景默认 mcp-client）\n\n    Returns:\n        {alert_id, status, dispatch_order}\n    ",
+          "description": "值班主管确认告警处置（恢复被 interrupt 暂停的图，生成并派发工单）。\n\n    对应 REST：POST /api/v1/alert/{alert_id}/confirm\n\n    Args:\n        alert_id:         告警 ID\n        tenant_id:        租户 ID，必填且必须在白名单内\n        action:           决策：approve（采用 AI 措施）/ modify（采用修改后措施）/ dismiss（取消处置）\n        modified_actions: action=modify 时的措施列表，形如 [{\"action\": \"...\", \"owner\": \"...\"}]\n        comment:          值班主管备注\n        supervisor_id:    操作人标识（MCP 场景默认 mcp-client）\n\n    Returns:\n        {alert_id, status, dispatch_order}\n    ",
           "inputSchema": {
             "properties": {
               "alert_id": {
@@ -675,7 +675,7 @@
         },
         {
           "name": "list_pending_alerts",
-          "description": "列出待站长审核的告警（status = reviewing）。\n\n    Args:\n        tenant_id: 租户 ID，必填\n        limit:     返回条数，默认 10\n    ",
+          "description": "列出待值班主管审核的告警（status = reviewing）。\n\n    Args:\n        tenant_id: 租户 ID，必填\n        limit:     返回条数，默认 10\n    ",
           "inputSchema": {
             "properties": {
               "tenant_id": {
@@ -715,14 +715,14 @@
       ]
     },
     "care-flow": {
-      "cn_name": "照护流程",
+      "cn_name": "作业流程",
       "endpoint": "http://127.0.0.1:8099/mcp/care-flow/mcp",
       "auth": "Bearer Token",
       "tool_count": 5,
       "tools": [
         {
           "name": "start_care_flow",
-          "description": "启动一场照护流程会话（入住评估 → 日常照护 → 阶段复评 → 出院评估）。\n\n    对应 REST：POST /api/v1/care-flow/start\n\n    Args:\n        elder_id:        老人 ID\n        tenant_id:       租户 ID，必填且必须在 MCP_WRITE_TENANTS 白名单内\n        care_plan_id:    照护计划 ID（可选）\n        initial_stage:   起始阶段，默认 admission_assessment\n        discharge_order: 可选退住工单（入住时已知要出院可一并下发）\n\n    Returns:\n        {session_id, current_stage, ai_message}\n    ",
+          "description": "启动一场作业流程会话（入住评估 → 日常服务 → 阶段复评 → 出院评估）。\n\n    对应 REST：POST /api/v1/care-flow/start\n\n    Args:\n        elder_id:        点位 ID\n        tenant_id:       租户 ID，必填且必须在 MCP_WRITE_TENANTS 白名单内\n        care_plan_id:    服务计划 ID（可选）\n        initial_stage:   起始阶段，默认 admission_assessment\n        discharge_order: 可选退住工单（入住时已知要出院可一并下发）\n\n    Returns:\n        {session_id, current_stage, ai_message}\n    ",
           "inputSchema": {
             "properties": {
               "elder_id": {
@@ -767,7 +767,7 @@
         },
         {
           "name": "send_discharge_order",
-          "description": "向进行中的照护流程会话下发退住工单（SaaS 主动通知）。\n\n    对应 REST：POST /api/v1/care-flow/sessions/{session_id}/discharge-order\n\n    只更新该会话检查点里的 state.discharge_order，**不推进对话**：护理员下一次发言时，\n    check_stage_node 会识别工单并触发阶段收敛（当前阶段达 min 即并入 复评 → 出院评估）。\n\n    Args:\n        session_id: 照护流程会话 ID（由 start_care_flow 或 GET /active/{elder_id} 获得）\n        tenant_id:  租户 ID，必填且必须在白名单内\n        order:      退住工单 dict，如 {\"order_type\": \"discharge\", \"reason\": \"转院\"}\n\n    Returns:\n        {found, session_id, status, message}；found=False 表示会话不存在/跨租户/已结束。\n    ",
+          "description": "向进行中的作业流程会话下发退住工单（SaaS 主动通知）。\n\n    对应 REST：POST /api/v1/care-flow/sessions/{session_id}/discharge-order\n\n    只更新该会话检查点里的 state.discharge_order，**不推进对话**：作业人员下一次发言时，\n    check_stage_node 会识别工单并触发阶段收敛（当前阶段达 min 即并入 复评 → 出院评估）。\n\n    Args:\n        session_id: 作业流程会话 ID（由 start_care_flow 或 GET /active/{elder_id} 获得）\n        tenant_id:  租户 ID，必填且必须在白名单内\n        order:      退住工单 dict，如 {\"order_type\": \"discharge\", \"reason\": \"转院\"}\n\n    Returns:\n        {found, session_id, status, message}；found=False 表示会话不存在/跨租户/已结束。\n    ",
           "inputSchema": {
             "properties": {
               "session_id": {
@@ -795,7 +795,7 @@
         },
         {
           "name": "get_care_flow_status",
-          "description": "查询照护流程会话的当前状态（阶段 / 轮数 / 是否进行中）。\n\n    Args:\n        session_id: 照护流程会话 ID\n        tenant_id:  租户 ID，必填\n\n    Returns:\n        会话状态；会话不存在或跨租户时返回 {\"found\": false}\n    ",
+          "description": "查询作业流程会话的当前状态（阶段 / 轮数 / 是否进行中）。\n\n    Args:\n        session_id: 作业流程会话 ID\n        tenant_id:  租户 ID，必填\n\n    Returns:\n        会话状态；会话不存在或跨租户时返回 {\"found\": false}\n    ",
           "inputSchema": {
             "properties": {
               "session_id": {
@@ -817,7 +817,7 @@
         },
         {
           "name": "get_care_flow_report",
-          "description": "取出院/照护评估报告（流程走到 finished 时生成）。\n\n    对应 REST：GET /api/v1/care-flow/{session_id}/report\n\n    Args:\n        session_id: 照护流程会话 ID\n        tenant_id:  租户 ID，必填\n\n    Returns:\n        报告内容；未生成或跨租户时返回 {\"found\": false}\n    ",
+          "description": "取出院/服务评估报告（流程走到 finished 时生成）。\n\n    对应 REST：GET /api/v1/care-flow/{session_id}/report\n\n    Args:\n        session_id: 作业流程会话 ID\n        tenant_id:  租户 ID，必填\n\n    Returns:\n        报告内容；未生成或跨租户时返回 {\"found\": false}\n    ",
           "inputSchema": {
             "properties": {
               "session_id": {
@@ -839,7 +839,7 @@
         },
         {
           "name": "confirm_care_plan_item",
-          "description": "护工确认某项照护任务执行完成（回写执行结果）。\n\n    对应 REST：POST /api/v1/care-flow/plan-items/{plan_item_id}/confirm\n    对齐业务系统侧的执行结果回写接口。\n\n    这里回写的是**执行结果**这类事实数据（谁在什么时候做了/没做），\n    不是业务规则——照护项目与频次仍由业务侧决定，care 不改。\n    漏做（status=missed）会进入照护历史的异常记录，供下一轮对话与复评参考。\n\n    Args:\n        plan_item_id:     计划条目 ID（来自 get_today_care_plan）\n        tenant_id:        租户 ID，必填且必须在白名单内\n        status:           done=已完成 / missed=该做没做\n        carer_name:       执行人姓名（便于审计，可空）\n        actual_care_time: 实际执行时间，如 \"08:05\"\n\n    Returns:\n        {confirmed, plan_item_id, status}；条目不存在或跨租户时 confirmed=False\n    ",
+          "description": "护工确认某项服务任务执行完成（回写执行结果）。\n\n    对应 REST：POST /api/v1/care-flow/plan-items/{plan_item_id}/confirm\n    对齐业务系统侧的执行结果回写接口。\n\n    这里回写的是**执行结果**这类事实数据（谁在什么时候做了/没做），\n    不是业务规则——服务项目与频次仍由业务侧决定，care 不改。\n    漏做（status=missed）会进入服务历史的异常记录，供下一轮对话与复评参考。\n\n    Args:\n        plan_item_id:     计划条目 ID（来自 get_today_care_plan）\n        tenant_id:        租户 ID，必填且必须在白名单内\n        status:           done=已完成 / missed=该做没做\n        carer_name:       执行人姓名（便于审计，可空）\n        actual_care_time: 实际执行时间，如 \"08:05\"\n\n    Returns:\n        {confirmed, plan_item_id, status}；条目不存在或跨租户时 confirmed=False\n    ",
           "inputSchema": {
             "properties": {
               "plan_item_id": {
