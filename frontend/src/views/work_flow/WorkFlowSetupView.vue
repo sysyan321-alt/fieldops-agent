@@ -59,8 +59,8 @@
         type="info"
         :closable="false"
         style="margin-top: 16px"
-        title="照护流程包含四个阶段：入住评估 → 日常照护 → 阶段复评 → 出院评估"
-        description="日常照护内含异常子模式；阶段复评后由 SaaS 退住工单驱动出院 or 续住循环。结束后自动生成照护报告并落库。"
+        title="照护流程包含四个阶段：建档评估 → 日常巡检 → 阶段复评 → 退场评估"
+        description="日常巡检内含异常子模式；阶段复评后由 SaaS 退住工单驱动出院 or 续住循环。结束后自动生成照护报告并落库。"
       />
     </el-card>
   </div>
@@ -80,15 +80,15 @@ const loading = ref(false)
 const form = reactive({
   site_id: '',
   service_plan_id: '',
-  initial_stage: 'admission_assessment',
+  initial_stage: 'onboarding_assessment',
   planned_discharge: false,
 })
 
 const stageOptions = [
-  { value: 'admission_assessment', label: '入住评估' },
-  { value: 'daily_care',           label: '日常照护' },
+  { value: 'onboarding_assessment', label: '建档评估' },
+  { value: 'daily_inspection',           label: '日常巡检' },
   { value: 'periodic_review',      label: '阶段复评' },
-  { value: 'discharge_assessment', label: '出院评估' },
+  { value: 'decommission_assessment', label: '退场评估' },
 ]
 
 const rules: FormRules = {

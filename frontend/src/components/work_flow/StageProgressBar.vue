@@ -16,7 +16,7 @@
       </div>
       <div class="stage-label">
         {{ stage.label }}
-        <span v-if="stage.key === 'daily_care' && isAbnormalMode" class="abnormal-tag">· 异常处置</span>
+        <span v-if="stage.key === 'daily_inspection' && isAbnormalMode" class="abnormal-tag">· 异常处置</span>
       </div>
       <div v-if="i < stages.length - 1" class="stage-line" />
     </div>
@@ -27,12 +27,12 @@
 import { computed } from 'vue'
 import { Check } from '@element-plus/icons-vue'
 
-// 与后端 WorkStage 枚举一一对应（异常处理已并入日常照护子模式）
+// 与后端 WorkStage 枚举一一对应（异常处置已并入日常巡检子模式）
 const stages = [
-  { key: 'admission_assessment', label: '入住评估' },
-  { key: 'daily_care',           label: '日常照护' },
+  { key: 'onboarding_assessment', label: '建档评估' },
+  { key: 'daily_inspection',           label: '日常巡检' },
   { key: 'periodic_review',      label: '阶段复评' },
-  { key: 'discharge_assessment', label: '出院评估' },
+  { key: 'decommission_assessment', label: '退场评估' },
   { key: 'finished',             label: '完成' },
 ]
 
@@ -42,9 +42,9 @@ const props = defineProps<{ current: string; mode?: string }>()
 
 const currentIndex = computed(() => stageOrder.indexOf(props.current))
 
-// 当日常照护处于异常子模式时，dot 上叠加异常标记
+// 当日常巡检处于异常子模式时，dot 上叠加异常标记
 const isAbnormalMode = computed(() =>
-  props.current === 'daily_care' && props.mode === 'abnormal',
+  props.current === 'daily_inspection' && props.mode === 'abnormal',
 )
 </script>
 

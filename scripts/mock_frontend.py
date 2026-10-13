@@ -297,11 +297,11 @@ def scenario_a_auto_route_sop_qa(client: FrontendMock) -> bool:
 
 
 def scenario_b_auto_route_work_flow(client: FrontendMock) -> bool:
-    """场景 B：自动路由到 CARE_FLOW（流程执行）。
+    """场景 B：自动路由到 WORK_FLOW（流程执行）。
 
     注意：work_flow 不一定有真实 service_plan，可能走 mock 兜底，但流程应能跑通。
     """
-    print_section("场景 B：自动路由 → CARE_FLOW（照护流程）")
+    print_section("场景 B：自动路由 → WORK_FLOW（照护流程）")
     print("  query='明天执行入住流程第二阶段'  agent_type=None")
     events = client.chat(
         query="明天执行入住流程第二阶段",
@@ -447,7 +447,7 @@ def main():
         # ── 3. 跑场景 ──
         results = []
         results.append(("场景 A - 自动路由 SOP_QA", scenario_a_auto_route_sop_qa(client)))
-        results.append(("场景 B - 自动路由 CARE_FLOW", scenario_b_auto_route_work_flow(client)))
+        results.append(("场景 B - 自动路由 WORK_FLOW", scenario_b_auto_route_work_flow(client)))
         results.append(("场景 C - 多轮对话",          scenario_c_multi_turn(client)))
         results.append(("场景 D - clarify 触发",       scenario_d_clarify(client)))
         results.append(("场景 E - 显式 alert",          scenario_e_direct_alert(client)))

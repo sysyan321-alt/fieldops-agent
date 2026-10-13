@@ -22,7 +22,7 @@ class AgentType(str, Enum):
     ASSESSMENT = "assessment"   # 老年人能力评估
     SOP_QA     = "sop_qa"       # 护理 SOP 问答
     ALERT      = "alert"        # 告警研判
-    CARE_FLOW  = "work_flow"   # 照护流程
+    WORK_FLOW  = "work_flow"   # 照护流程
 
 
 class ExecutionMode(str, Enum):
@@ -56,7 +56,7 @@ class AgentRequest(BaseModel):
 
 PIPELINES: dict[str, list[AgentType]] = {
     # 先评估再制定照护流程
-    "service_workflow": [AgentType.ASSESSMENT, AgentType.CARE_FLOW],
+    "service_workflow": [AgentType.ASSESSMENT, AgentType.WORK_FLOW],
 }
 
 
@@ -94,7 +94,7 @@ class Orchestrator:
             elif agent_type == AgentType.ALERT.value:
                 from backend.agents.alert.graph import build_alert_graph
                 self._graphs[agent_type] = await build_alert_graph()
-            elif agent_type == AgentType.CARE_FLOW.value:
+            elif agent_type == AgentType.WORK_FLOW.value:
                 from backend.agents.work_flow.graph import build_work_flow_graph
                 self._graphs[agent_type] = await build_work_flow_graph()
             else:
@@ -144,15 +144,15 @@ class Orchestrator:
             # 报警自带的设备类型声明（SaaS 的 报警记录 带"设备类型"）——
             # 它是"这台报警设备是干什么的"的直接声明，解析设备谱系时优先级高于本地登记
             state["device_type_declared"] = request.context.get("device_type", "")
-        elif agent_type == AgentType.CARE_FLOW.value:
+        elif agent_type == AgentType.WORK_FLOW.value:
             state["service_plan_id"] = request.context.get("service_plan_id", "")
-            state["current_stage"] = request.context.get("current_stage", "admission_assessment")
+            state["current_stage"] = request.context.get("current_stage", "onboarding_assessment")
             # Pipeline 模式下，上游（如 assessment）传入的 service_plan 注入 state；
             # 单 Agent 直调时 service_plan 为 None，由 load_context 节点用 mock 兜底
             upstream_service_plan = request.context.get("service_plan")
             if upstream_service_plan:
                 state["service_plan"] = upstream_service_plan
-            # SaaS 注入的退住工单（None=续住）：阶段复评流转时据此决定出院 or 回日常照护
+            # SaaS 注入的退住工单（None=续住）：阶段复评流转时据此决定出院 or 回日常巡检
             discharge_order = request.context.get("discharge_order")
             if discharge_order:
                 state["discharge_order"] = discharge_order

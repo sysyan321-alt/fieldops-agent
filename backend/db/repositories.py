@@ -871,7 +871,7 @@ async def create_work_flow_session(
                 "session_id": session_id,
                 "site_id": site_id,
                 "staff_id": staff_id,
-                "current_stage": current_stage or "admission_assessment",
+                "current_stage": current_stage or "onboarding_assessment",
                 "tenant_id": tenant_id,
             })
             await session.commit()

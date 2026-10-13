@@ -143,7 +143,7 @@ async def test_work_flow_session_roundtrip():
     session_id = make_id("cf")
 
     assert await repo.create_work_flow_session(
-        session_id, site_id, make_id("staff"), "admission_assessment") is True
+        session_id, site_id, make_id("staff"), "onboarding_assessment") is True
 
     # /chat 依赖按 session_id 找回 site_id，保证 thread_id 与 /start 一致
     lookup = await repo.get_work_flow_session(session_id)
@@ -154,14 +154,14 @@ async def test_work_flow_session_roundtrip():
     row = await repo.get_active_work_flow_session(site_id)
     assert row is not None
     assert row["session_id"] == session_id
-    assert row["current_stage"] == "admission_assessment"
+    assert row["current_stage"] == "onboarding_assessment"
     assert row["total_turns"] == 0
 
     assert await repo.update_work_flow_session_progress(
-        session_id, "daily_care", 5) is True
+        session_id, "daily_inspection", 5) is True
     row = await repo.get_active_work_flow_session(site_id)
     assert row is not None
-    assert row["current_stage"] == "daily_care"
+    assert row["current_stage"] == "daily_inspection"
     assert row["total_turns"] == 5
 
     # 走到 finished：状态置完成，"进行中"查询不再返回
@@ -177,13 +177,13 @@ async def test_work_flow_session_create_idempotent():
     session_id = make_id("cf")
 
     assert await repo.create_work_flow_session(
-        session_id, site_id, make_id("staff"), "admission_assessment") is True
+        session_id, site_id, make_id("staff"), "onboarding_assessment") is True
     assert await repo.create_work_flow_session(
-        session_id, site_id, make_id("staff"), "daily_care") is True
+        session_id, site_id, make_id("staff"), "daily_inspection") is True
 
     row = await repo.get_active_work_flow_session(site_id)
     assert row is not None
-    assert row["current_stage"] == "admission_assessment"
+    assert row["current_stage"] == "onboarding_assessment"
 
 
 @pytest.mark.asyncio
@@ -198,10 +198,10 @@ async def test_work_flow_session_latest_wins():
     s1, s2 = make_id("cf"), make_id("cf")
 
     assert await repo.create_work_flow_session(
-        s1, site_id, make_id("staff"), "admission_assessment") is True
+        s1, site_id, make_id("staff"), "onboarding_assessment") is True
     await asyncio.sleep(0.01)  # 保证 started_at 时间戳可区分
     assert await repo.create_work_flow_session(
-        s2, site_id, make_id("staff"), "daily_care") is True
+        s2, site_id, make_id("staff"), "daily_inspection") is True
 
     row = await repo.get_active_work_flow_session(site_id)
     assert row is not None

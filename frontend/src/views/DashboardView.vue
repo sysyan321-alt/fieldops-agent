@@ -65,7 +65,7 @@ const featureCards = [
   {
     icon: '📋',
     title: '照护流程',
-    desc: '入住评估→日常照护→异常处理→复评→出院 五阶段引导',
+    desc: '建档评估→日常巡检→异常处置→复评→出院 五阶段引导',
     action: '发起流程',
     route: '/work-flow',
   },

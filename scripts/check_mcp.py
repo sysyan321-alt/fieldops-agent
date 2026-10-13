@@ -94,7 +94,7 @@ async def check_write_servers(base: str, token: str, tenant_id: str, site_id: st
     labels = {
         "alert-ops": "告警触发与派单",
         "sop-kb-admin": "知识库管理",
-        "work-flow": "照护流程",
+        "work-flow": "作业流程",
     }
     for name in ("alert-ops", "sop-kb-admin", "work-flow"):
         url = f"{base}/{name}"

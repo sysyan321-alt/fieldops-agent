@@ -3,7 +3,7 @@
 #
 # 设计取舍：工单是"业务指令"而非对话内容——
 #   投递只更新 LangGraph 检查点里的 state.discharge_order，不跑图、不耗 LLM、不生成 AI 回复；
-#   等护理员下一次 /chat 时由 check_stage_node 识别并触发阶段收敛（复评 → 出院评估）。
+#   等护理员下一次 /chat 时由 check_stage_node 识别并触发阶段收敛（复评 → 退场评估）。
 #
 # 这样 SaaS 就能"主动通知"一个进行中的会话，而不必等护理员开口时把字段捎带进来。
 # MCP 工具（/mcp/work-flow 的 send_discharge_order）与 REST 回调
@@ -87,5 +87,5 @@ async def deliver_discharge_order(
         "site_id": row["site_id"],
         "current_stage": row.get("current_stage"),
         "status": "delivered",
-        "message": "工单已投递；护理员下一次对话时由状态机识别并收敛到 复评 → 出院评估",
+        "message": "工单已投递；护理员下一次对话时由状态机识别并收敛到 复评 → 退场评估",
     }

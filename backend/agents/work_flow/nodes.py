@@ -7,11 +7,11 @@ from datetime import datetime, timedelta
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, BaseMessage
 
 from backend.agents.work_flow.state import (
-    WorkFlowState, WorkStage, DailyCareMode, ResponseQuality, WorkReport,
+    WorkFlowState, WorkStage, DailyMode, ResponseQuality, WorkReport,
 )
 from backend.agents.work_flow.prompts import (
-    SYSTEM_PROMPT, ADMISSION_PROMPT, DAILY_CARE_PROMPT, ABNORMAL_PROMPT,
-    REVIEW_PROMPT, DISCHARGE_PROMPT, EVALUATE_PROMPT, REPORT_PROMPT,
+    SYSTEM_PROMPT, ONBOARDING_PROMPT, DAILY_INSPECTION_PROMPT, ABNORMAL_PROMPT,
+    REVIEW_PROMPT, DECOMMISSION_PROMPT, EVALUATE_PROMPT, REPORT_PROMPT,
 )
 from backend.core.llm_factory import get_llm, get_structured_llm
 from backend.core.memory import (
@@ -24,39 +24,39 @@ logger = get_logger(__name__)
 DEFAULT_MAX_TURNS = 40                     # 一轮照护流程的总轮数上限
 MAX_FOLLOWUP_PER_QUESTION = 2             # 同一问题最多追问几次
 
-# 异常子模式轮数上下限（独立于日常照护的 stage_turn_count）
+# 异常子模式轮数上下限（独立于日常巡检的 stage_turn_count）
 ABNORMAL_MIN_TURNS = 2                      # 异常至少 2 轮（防偷懒跳过处置）
 ABNORMAL_MAX_TURNS = 6                      # 异常最多 6 轮（防发散拖延）
 
-# 各阶段「最少 / 最多」轮数（check_stage 用；日常照护内含异常子模式）
+# 各阶段「最少 / 最多」轮数（check_stage 用；日常巡检内含异常子模式）
 STAGE_MIN_TURNS = {
-    WorkStage.ADMISSION_ASSESSMENT.value: 3,   # 入住评估至少 3 轮
-    WorkStage.DAILY_CARE.value: 8,             # 日常照护至少 8 轮（含异常处理轮数）
+    WorkStage.ONBOARDING_ASSESSMENT.value: 3,   # 建档评估至少 3 轮
+    WorkStage.DAILY_INSPECTION.value: 8,             # 日常巡检至少 8 轮（含异常处置轮数）
     WorkStage.PERIODIC_REVIEW.value: 3,        # 阶段复评至少 3 轮
-    WorkStage.DISCHARGE_ASSESSMENT.value: 2,   # 出院评估至少 2 轮
+    WorkStage.DECOMMISSION_ASSESSMENT.value: 2,   # 退场评估至少 2 轮
 }
 STAGE_MAX_TURNS = {
-    WorkStage.ADMISSION_ASSESSMENT.value: 8,   # 入住评估最多 8 轮
-    WorkStage.DAILY_CARE.value: 15,            # 日常照护最多 15 轮
+    WorkStage.ONBOARDING_ASSESSMENT.value: 8,   # 建档评估最多 8 轮
+    WorkStage.DAILY_INSPECTION.value: 15,            # 日常巡检最多 15 轮
     WorkStage.PERIODIC_REVIEW.value: 6,        # 阶段复评最多 6 轮
-    WorkStage.DISCHARGE_ASSESSMENT.value: 5,   # 出院评估最多 5 轮
+    WorkStage.DECOMMISSION_ASSESSMENT.value: 5,   # 退场评估最多 5 轮
 }
 
 # 阶段顺序（流转方向；异常不再作为独立阶段）
 STAGE_ORDER = [
-    WorkStage.ADMISSION_ASSESSMENT.value,
-    WorkStage.DAILY_CARE.value,
+    WorkStage.ONBOARDING_ASSESSMENT.value,
+    WorkStage.DAILY_INSPECTION.value,
     WorkStage.PERIODIC_REVIEW.value,
-    WorkStage.DISCHARGE_ASSESSMENT.value,
+    WorkStage.DECOMMISSION_ASSESSMENT.value,
     WorkStage.FINISHED.value,
 ]
 
-# 各阶段的 Prompt 映射（日常照护按 daily_mode 在 DAILY/ABNORMAL 间切换）
+# 各阶段的 Prompt 映射（日常巡检按 daily_mode 在 DAILY/ABNORMAL 间切换）
 STAGE_PROMPTS = {
-    WorkStage.ADMISSION_ASSESSMENT.value: ADMISSION_PROMPT,
-    WorkStage.DAILY_CARE.value: DAILY_CARE_PROMPT,
+    WorkStage.ONBOARDING_ASSESSMENT.value: ONBOARDING_PROMPT,
+    WorkStage.DAILY_INSPECTION.value: DAILY_INSPECTION_PROMPT,
     WorkStage.PERIODIC_REVIEW.value: REVIEW_PROMPT,
-    WorkStage.DISCHARGE_ASSESSMENT.value: DISCHARGE_PROMPT,
+    WorkStage.DECOMMISSION_ASSESSMENT.value: DECOMMISSION_PROMPT,
 }
 
 # 触发异常子模式的关键词（命中任一即从 normal 切到 abnormal）
@@ -76,10 +76,10 @@ ABNORMAL_KEYWORDS: tuple[str, ...] = (
     "抽搐", "癫痫发作",
 )
 
-# 结束异常子模式的关键词（护理员说"异常处理完了"回到常规照护）
+# 结束异常子模式的关键词（护理员说"异常处置完了"回到常规照护）
 ABNORMAL_DONE_KEYWORDS: tuple[str, ...] = (
-    "异常处理完", "异常已处理", "处理完毕", "已处置", "继续照护",
-    "继续日常照护", "回到照护", "异常已解决",
+    "异常处置完", "异常已处理", "处理完毕", "已处置", "继续照护",
+    "继续日常巡检", "回到照护", "异常已解决",
 )
 
 
@@ -161,7 +161,7 @@ async def load_context_node(state: WorkFlowState) -> dict:
 
     logger.info("load_context.service_history_loaded", site_id=site_id, days=len(service_history))
 
-    # 当天照护计划（含执行状态）：日常照护阶段要知道"今天还剩哪几项没做"
+    # 当天照护计划（含执行状态）：日常巡检阶段要知道"今天还剩哪几项没做"
     today_plan: list[dict] = []
     plan_progress: dict = {}
     if not service_plan_missing:
@@ -174,7 +174,7 @@ async def load_context_node(state: WorkFlowState) -> dict:
             logger.warning("load_context.today_plan_failed", site_id=site_id, error=str(exc))
 
     # 初始化阶段（如果未设置）
-    current_stage = state.get("current_stage", WorkStage.ADMISSION_ASSESSMENT.value)
+    current_stage = state.get("current_stage", WorkStage.ONBOARDING_ASSESSMENT.value)
 
     logger.info("load_context.done", site_id=site_id, stage=current_stage)
 
@@ -240,38 +240,38 @@ async def notify_missing_plan_node(state: WorkFlowState) -> dict:
 
 
 # ──────────────────────────────────────────────────────────────
-# 节点2：check_stage — 检查阶段是否需要流转 + 日常照护内子模式切换
+# 节点2：check_stage — 检查阶段是否需要流转 + 日常巡检内子模式切换
 # ──────────────────────────────────────────────────────────────
 
 def _converge_under_discharge(current_stage: str, state: WorkFlowState) -> str:
-    """退住工单驱动的阶段收敛路由 —— 统一并入「复评 → 出院评估」主干道。
+    """退住工单驱动的阶段收敛路由 —— 统一并入「复评 → 退场评估」主干道。
 
     与 STAGE_ORDER 顺序推进的区别：
-      - 入住评估 / 日常照护：不走"下一阶段"，直插阶段复评（离院前综合评估），
-        日常照护不再开新的照护循环；
-      - 阶段复评：转出院评估；
-      - 出院评估：走完 → FINISHED（触发报告生成）。
+      - 建档评估 / 日常巡检：不走"下一阶段"，直插阶段复评（离院前综合评估），
+        日常巡检不再开新的照护循环；
+      - 阶段复评：转退场评估；
+      - 退场评估：走完 → FINISHED（触发报告生成）。
 
-    设计取舍：收到工单说明老人即将离院，继续推进日常照护/复评循环已无意义；
-    但仍保留一次「阶段复评」作为离院前综合评估，再进入出院评估，不直接跳终态。
+    设计取舍：收到工单说明老人即将离院，继续推进日常巡检/复评循环已无意义；
+    但仍保留一次「阶段复评」作为离院前综合评估，再进入退场评估，不直接跳终态。
     """
     site_id = state.get("site_id")
-    if current_stage in (WorkStage.ADMISSION_ASSESSMENT.value,
-                         WorkStage.DAILY_CARE.value):
+    if current_stage in (WorkStage.ONBOARDING_ASSESSMENT.value,
+                         WorkStage.DAILY_INSPECTION.value):
         logger.info("check_stage.converge_to_review",
                     site_id=site_id, from_stage=current_stage)
         return WorkStage.PERIODIC_REVIEW.value
     if current_stage == WorkStage.PERIODIC_REVIEW.value:
         logger.info("check_stage.discharge_by_order", site_id=site_id)
-        return WorkStage.DISCHARGE_ASSESSMENT.value
-    # DISCHARGE_ASSESSMENT 及兜底：出院评估走完直接终态
+        return WorkStage.DECOMMISSION_ASSESSMENT.value
+    # DECOMMISSION_ASSESSMENT 及兜底：退场评估走完直接终态
     return WorkStage.FINISHED.value
 
 
 async def check_stage_node(state: WorkFlowState) -> dict:
     """
     两层决策：
-        层1 - 日常照护内的子模式切换（normal ⇄ abnormal）
+        层1 - 日常巡检内的子模式切换（normal ⇄ abnormal）
         层2 - 阶段流转（按 STAGE_ORDER 顺序推进）
 
     子模式切换条件：
@@ -283,11 +283,11 @@ async def check_stage_node(state: WorkFlowState) -> dict:
         2. 护理员输入"结束照护"等关键词且已达阶段最少轮数
         3. 达到总轮数上限
     """
-    current_stage = state.get("current_stage", WorkStage.ADMISSION_ASSESSMENT.value)
+    current_stage = state.get("current_stage", WorkStage.ONBOARDING_ASSESSMENT.value)
     stage_turn_count = state.get("stage_turn_count", 0)
     total_turn_count = state.get("total_turn_count", 0)
     max_turns = state.get("max_turns", DEFAULT_MAX_TURNS)
-    daily_mode = state.get("daily_mode", DailyCareMode.NORMAL.value)
+    daily_mode = state.get("daily_mode", DailyMode.NORMAL.value)
     abnormal_turn_count = state.get("abnormal_turn_count", 0)
     discharge_order = state.get("discharge_order")  # SaaS 注入的退住工单（None=续住）
 
@@ -301,15 +301,15 @@ async def check_stage_node(state: WorkFlowState) -> dict:
     if current_stage == WorkStage.FINISHED.value:
         return {}  # 已结束
 
-    # ── 层1：日常照护子模式切换（不切阶段，只切模式） ──
-    if current_stage == WorkStage.DAILY_CARE.value:
-        if daily_mode == DailyCareMode.NORMAL.value:
+    # ── 层1：日常巡检子模式切换（不切阶段，只切模式） ──
+    if current_stage == WorkStage.DAILY_INSPECTION.value:
+        if daily_mode == DailyMode.NORMAL.value:
             # normal → abnormal：关键词触发
             if any(kw in last_input for kw in ABNORMAL_KEYWORDS):
                 logger.info("check_stage.abnormal_triggered",
                             query=last_input[:40])
                 return {
-                    "daily_mode": DailyCareMode.ABNORMAL.value,
+                    "daily_mode": DailyMode.ABNORMAL.value,
                     "abnormal_turn_count": 0,
                 }
         else:  # abnormal 模式
@@ -318,14 +318,14 @@ async def check_stage_node(state: WorkFlowState) -> dict:
                 logger.info("check_stage.abnormal_done_by_keyword",
                             turns=abnormal_turn_count)
                 return {
-                    "daily_mode": DailyCareMode.NORMAL.value,
+                    "daily_mode": DailyMode.NORMAL.value,
                     "abnormal_turn_count": 0,
                 }
             if abnormal_turn_count >= ABNORMAL_MAX_TURNS:
                 logger.info("check_stage.abnormal_done_by_max",
                             turns=abnormal_turn_count)
                 return {
-                    "daily_mode": DailyCareMode.NORMAL.value,
+                    "daily_mode": DailyMode.NORMAL.value,
                     "abnormal_turn_count": 0,
                 }
 
@@ -341,13 +341,13 @@ async def check_stage_node(state: WorkFlowState) -> dict:
 
     # 异常子模式内，用户说"结束本阶段"不生效——必须先处理完异常回到 normal 才能流转
     # （异常 max 到了会自动切回 normal，下一轮才能正常流转）
-    in_abnormal = (current_stage == WorkStage.DAILY_CARE.value
-                   and daily_mode == DailyCareMode.ABNORMAL.value)
+    in_abnormal = (current_stage == WorkStage.DAILY_INSPECTION.value
+                   and daily_mode == DailyMode.ABNORMAL.value)
     if in_abnormal:
         user_wants_finish = False
 
     # 工单驱动的收敛触发：存在退住工单时，当前阶段达到 min 即可流转（不必等 max），
-    # 由 _converge_under_discharge 决定去向（统一并入 复评 → 出院评估 主干道）。
+    # 由 _converge_under_discharge 决定去向（统一并入 复评 → 退场评估 主干道）。
     # 异常子模式内不收敛（异常未处理完不能因工单被勾走），仍走原有 max 流转兜底。
     discharge_converge = bool(discharge_order) and reached_min and not in_abnormal
 
@@ -359,13 +359,13 @@ async def check_stage_node(state: WorkFlowState) -> dict:
         if reached_total_max:
             next_stage = WorkStage.FINISHED.value
         elif discharge_order:
-            # 有退住工单：按当前阶段收敛到 复评 → 出院评估 主干道
+            # 有退住工单：按当前阶段收敛到 复评 → 退场评估 主干道
             next_stage = _converge_under_discharge(current_stage, state)
         elif current_stage == WorkStage.PERIODIC_REVIEW.value:
-            # 阶段复评后无工单 → 回日常照护开新循环
-            # 养老机构常态是老人长期住着不出院，"出院"是少数业务事件，不该靠轮数强制推进
-            next_stage = WorkStage.DAILY_CARE.value
-            logger.info("check_stage.loop_back_to_daily_care",
+            # 阶段复评后无工单 → 回日常巡检开新循环
+            # 养老机构常态是老人长期住着不出院，"退场"是少数业务事件，不该靠轮数强制推进
+            next_stage = WorkStage.DAILY_INSPECTION.value
+            logger.info("check_stage.loop_back_to_daily_inspection",
                         site_id=state.get("site_id"))
         else:
             # 其他阶段按 STAGE_ORDER 顺序推进
@@ -385,7 +385,7 @@ async def check_stage_node(state: WorkFlowState) -> dict:
             "current_stage": next_stage,
             "stage_turn_count": 0,
             # 重置子模式状态（阶段流转后新阶段默认 normal）
-            "daily_mode": DailyCareMode.NORMAL.value,
+            "daily_mode": DailyMode.NORMAL.value,
             "abnormal_turn_count": 0,
         }
 
@@ -442,15 +442,15 @@ async def evaluate_response_node(state: WorkFlowState) -> dict:
 async def generate_response_node(state: WorkFlowState) -> dict:
     """根据当前阶段生成 AI 指导响应。
 
-    日常照护阶段按 daily_mode 在 DAILY_CARE_PROMPT 和 ABNORMAL_PROMPT 间切换：
-      - normal：日常照护指导
+    日常巡检阶段按 daily_mode 在 DAILY_INSPECTION_PROMPT 和 ABNORMAL_PROMPT 间切换：
+      - normal：日常巡检指导
       - abnormal：异常处置指导（评估严重度、处置步骤、观察指标、紧急程度）
     """
-    current_stage = state.get("current_stage", WorkStage.ADMISSION_ASSESSMENT.value)
+    current_stage = state.get("current_stage", WorkStage.ONBOARDING_ASSESSMENT.value)
     service_plan = state.get("service_plan", {})
     service_history = state.get("service_history", [])
     existing_summary = state.get("existing_summary")
-    daily_mode = state.get("daily_mode", DailyCareMode.NORMAL.value)
+    daily_mode = state.get("daily_mode", DailyMode.NORMAL.value)
 
     # 获取护理员输入
     messages = state.get("messages", [])
@@ -459,10 +459,10 @@ async def generate_response_node(state: WorkFlowState) -> dict:
         last_msg = messages[-1]
         worker_input = _msg_text(last_msg)
 
-    # 获取阶段对应 Prompt；日常照护按子模式选
-    prompt_template = STAGE_PROMPTS.get(current_stage, DAILY_CARE_PROMPT)
-    if (current_stage == WorkStage.DAILY_CARE.value
-            and daily_mode == DailyCareMode.ABNORMAL.value):
+    # 获取阶段对应 Prompt；日常巡检按子模式选
+    prompt_template = STAGE_PROMPTS.get(current_stage, DAILY_INSPECTION_PROMPT)
+    if (current_stage == WorkStage.DAILY_INSPECTION.value
+            and daily_mode == DailyMode.ABNORMAL.value):
         prompt_template = ABNORMAL_PROMPT
 
     prompt = prompt_template.format(
@@ -501,8 +501,8 @@ async def generate_response_node(state: WorkFlowState) -> dict:
         "total_turn_count": total_turn_count,
         "should_summarize": should_trigger_summary(messages, state.get("summary_message_count", 0)),
     }
-    if (current_stage == WorkStage.DAILY_CARE.value
-            and daily_mode == DailyCareMode.ABNORMAL.value):
+    if (current_stage == WorkStage.DAILY_INSPECTION.value
+            and daily_mode == DailyMode.ABNORMAL.value):
         update["abnormal_turn_count"] = state.get("abnormal_turn_count", 0) + 1
     return update
 

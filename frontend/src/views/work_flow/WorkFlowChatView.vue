@@ -131,7 +131,7 @@ const inputText = ref('')
 const messagesEl = ref<HTMLElement>()
 
 const isStreaming = ref(false)
-const currentStage = ref('admission_assessment')
+const currentStage = ref('onboarding_assessment')
 const dailyCareMode = ref('normal')
 const totalTurns = ref(0)
 const isFinished = ref(false)
@@ -141,16 +141,16 @@ const reportLoading = ref(false)
 const pendingDischargeOrder = ref(false)  // 标记：下一条消息将携带 SaaS 退住工单
 
 const STAGE_LABELS: Record<string, string> = {
-  admission_assessment: '入住评估',
-  daily_care: '日常照护',
+  onboarding_assessment: '建档评估',
+  daily_inspection: '日常巡检',
   periodic_review: '阶段复评',
-  discharge_assessment: '出院评估',
+  decommission_assessment: '退场评估',
   finished: '已完成',
 }
 
 function stageLabel(key?: string, mode?: string) {
   const label = STAGE_LABELS[key ?? ''] ?? key ?? '-'
-  if (key === 'daily_care' && mode === 'abnormal') {
+  if (key === 'daily_inspection' && mode === 'abnormal') {
     return `${label}（异常处置）`
   }
   return label

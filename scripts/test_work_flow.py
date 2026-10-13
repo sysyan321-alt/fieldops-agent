@@ -1,6 +1,6 @@
 # scripts/test_work_flow.py
 # 照护流程 Agent 端到端测试（状态机范式）
-# 测试 3 个场景：① 单轮日常照护 ② 多轮触发阶段流转 ③ FINISHED 触发报告生成
+# 测试 3 个场景：① 单轮日常巡检 ② 多轮触发阶段流转 ③ FINISHED 触发报告生成
 #
 # 用法：cd <项目根目录> && PYTHONPATH=. python scripts/test_work_flow.py
 
@@ -28,7 +28,7 @@ def _build_initial_state(session_id: str, stage: str = None, max_turns: int = 40
         "tenant_id":              "tenant_default",
         "session_id":             session_id,
         "service_plan_id":           f"plan-{session_id}",
-        "current_stage":          stage or WorkStage.ADMISSION_ASSESSMENT.value,
+        "current_stage":          stage or WorkStage.ONBOARDING_ASSESSMENT.value,
         "stage_turn_count":       stage_turn,
         "total_turn_count":       total_turn,
         "max_turns":              max_turns,
@@ -55,12 +55,12 @@ def _last_ai_content(result: dict) -> str:
 
 
 # ──────────────────────────────────────────────────────────────
-# 用例①：单轮日常照护（入住评估阶段）
+# 用例①：单轮日常巡检（建档评估阶段）
 # ──────────────────────────────────────────────────────────────
 
 async def run_single_turn_care():
     print("\n" + "=" * 60)
-    print("  照护流程 Agent - 用例①：单轮日常照护（入住评估阶段）")
+    print("  照护流程 Agent - 用例①：单轮日常巡检（建档评估阶段）")
     print("=" * 60)
 
     graph = await build_work_flow_graph()
@@ -87,7 +87,7 @@ async def run_single_turn_care():
     print(f"    service_plan.level:        {cp.get('risk_tier')}")
 
     print("\n" + "=" * 60)
-    print("  ✅ 单轮日常照护链路跑通！")
+    print("  ✅ 单轮日常巡检链路跑通！")
     print("=" * 60)
 
 
@@ -110,7 +110,7 @@ async def run_stage_transition():
     turns = [
         "老人今早生命体征平稳，已完成入住体检。",
         "个人物品已核对，家属已介绍完毕。",
-        "入住评估完成，请进入下一阶段。",   # 这轮 check_stage 会触发流转
+        "建档评估完成，请进入下一阶段。",   # 这轮 check_stage 会触发流转
     ]
 
     for i, content in enumerate(turns, 1):
@@ -134,7 +134,7 @@ async def run_stage_transition():
         base["total_turn_count"] = result.get("total_turn_count", base["total_turn_count"])
 
     print(f"\n[结果] 最终阶段：{base['current_stage']}")
-    print("  （期望：从 admission_assessment 流转到 daily_care）")
+    print("  （期望：从 onboarding_assessment 流转到 daily_inspection）")
 
     print("\n" + "=" * 60)
     print("  ✅ 阶段流转链路跑通！")

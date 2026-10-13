@@ -95,7 +95,7 @@ async def test_sop_qa_save_memory_skips_when_not_needed(monkeypatch):
 async def test_work_flow_save_memory_writes_summary_back(monkeypatch):
     """照护流程同样写回摘要（它下一轮 generate_response 会读）。"""
     async def _fake_summary(messages, existing_summary=None):
-        return "【摘要】照护流程进度：日常照护第 3 轮"
+        return "【摘要】照护流程进度：日常巡检第 3 轮"
 
     monkeypatch.setattr("backend.agents.work_flow.nodes.compress_to_summary", _fake_summary)
     messages = _dialogue(10)

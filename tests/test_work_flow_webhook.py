@@ -27,7 +27,7 @@ def _event(**overrides) -> dict:
     base = {
         "event_id": "evt-test-1",
         "tenant_id": TENANT,
-        "event_type": outbound_mod.EVENT_CARE_FLOW_FINISHED,
+        "event_type": outbound_mod.EVENT_WORK_FLOW_FINISHED,
         "aggregate_id": "cf-test-1",
         "payload": {"event": "work_flow.finished", "session_id": "cf-test-1"},
         "status": "pending",
@@ -141,7 +141,7 @@ def test_sign_payload_matches_hmac_reference():
 def test_build_headers_carries_event_id_and_signature():
     body = b"{}"
     headers = outbound_mod.build_headers(_event(attempts=2), body, "s3cr3t")
-    assert headers["X-FieldOps-Event"] == outbound_mod.EVENT_CARE_FLOW_FINISHED
+    assert headers["X-FieldOps-Event"] == outbound_mod.EVENT_WORK_FLOW_FINISHED
     assert headers["X-FieldOps-Event-Id"] == "evt-test-1"
     assert headers["X-FieldOps-Delivery-Attempt"] == "3"   # 投递前 attempts=2 → 本次是第 3 次
     assert headers["X-FieldOps-Signature"].startswith("sha256=")
@@ -267,7 +267,7 @@ async def test_enqueue_work_flow_finished_builds_payload(monkeypatch):
 
     assert event_id == "evt-enqueued"
     call = fake.enqueue_calls[0]
-    assert call["event_type"] == outbound_mod.EVENT_CARE_FLOW_FINISHED
+    assert call["event_type"] == outbound_mod.EVENT_WORK_FLOW_FINISHED
     assert call["aggregate_id"] == "cf-abc"          # 幂等键就是 session_id
     payload = call["payload"]
     assert payload["report"] == {"overall_score": 88}

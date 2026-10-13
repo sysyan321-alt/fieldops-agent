@@ -27,7 +27,7 @@ from backend.db import repositories as repo
 logger = get_logger(__name__)
 
 # ── 事件类型 ─────────────────────────────────────────────────
-EVENT_CARE_FLOW_FINISHED = "work_flow.finished"   # 照护流程走到终态、报告已落库
+EVENT_WORK_FLOW_FINISHED = "work_flow.finished"   # 照护流程走到终态、报告已落库
 EVENT_ALERT_DISPATCHED = "alert.dispatched"       # 告警研判通过站长确认、工单已派发
 EVENT_ALERT_DISMISSED = "alert.dismissed"         # 告警被站长取消处置（不派单）
 
@@ -139,7 +139,7 @@ async def enqueue_work_flow_finished(
     幂等：同一 session 重复落库不会产生第二条（发件箱唯一索引兜底）。
     """
     payload = {
-        "event": EVENT_CARE_FLOW_FINISHED,
+        "event": EVENT_WORK_FLOW_FINISHED,
         "session_id": session_id,
         "site_id": site_id,
         "service_plan_id": service_plan_id or "",
@@ -151,7 +151,7 @@ async def enqueue_work_flow_finished(
         "occurred_at": datetime.now(timezone.utc).isoformat(),
     }
     return await repo.enqueue_outbound_event(
-        event_type=EVENT_CARE_FLOW_FINISHED,
+        event_type=EVENT_WORK_FLOW_FINISHED,
         aggregate_id=session_id,
         payload=payload,
         tenant_id=tenant_id,

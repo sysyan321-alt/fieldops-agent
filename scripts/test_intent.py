@@ -35,7 +35,7 @@ DIRECT_CASES = [
     ("对老人做能力评估",                    IntentAgentType.ASSESSMENT, "评估动作"),
     ("鼻饲管日常怎么维护",                  IntentAgentType.SOP_QA,     "护理 SOP"),
     ("301 房老人心率 130 触发告警",         IntentAgentType.ALERT,      "实时告警"),
-    ("明天执行入住流程第三阶段",            IntentAgentType.CARE_FLOW,  "流程执行"),
+    ("明天执行入住流程第三阶段",            IntentAgentType.WORK_FLOW,  "流程执行"),
 ]
 
 # 2. 跨域冲突样本（关键词匹配会错，LLM 应正确判定）
@@ -144,7 +144,7 @@ async def test_llm_failure_fallback():
     keyword_cases = [
         ("请对老人做能力评估",  IntentAgentType.ASSESSMENT, "评估"),
         ("301 房心率异常告警", IntentAgentType.ALERT,      "告警"),
-        ("明天执行入住流程",    IntentAgentType.CARE_FLOW,  "入住流程"),
+        ("明天执行入住流程",    IntentAgentType.WORK_FLOW,  "建档流程"),
     ]
     for query, expected, kw in keyword_cases:
         total += 1
@@ -224,7 +224,7 @@ async def test_clarification_trigger():
         agent_type=IntentAgentType.ASSESSMENT,
         confidence=0.4,
         needs_clarification=True,
-        candidates=[IntentAgentType.ASSESSMENT, IntentAgentType.CARE_FLOW],
+        candidates=[IntentAgentType.ASSESSMENT, IntentAgentType.WORK_FLOW],
         reasoning="跨域：评估 + 照护流程",
     )
     r1 = await _run_mock(mock1, "评估照护流程", "5-1")
@@ -232,7 +232,7 @@ async def test_clarification_trigger():
         r1.needs_clarification is True
         and len(r1.candidates) == 2
         and IntentAgentType.ASSESSMENT in r1.candidates
-        and IntentAgentType.CARE_FLOW in r1.candidates
+        and IntentAgentType.WORK_FLOW in r1.candidates
     )
     print(f"\n  {'✅' if ok1 else '❌'} [5-1] 正常 2 候选 → 保持不变")
     print(f"     needs_clarification={r1.needs_clarification}, candidates={[c.value for c in r1.candidates]}")
@@ -265,7 +265,7 @@ async def test_clarification_trigger():
         agent_type=IntentAgentType.ASSESSMENT,
         confidence=0.4,
         needs_clarification=True,
-        candidates=[IntentAgentType.CARE_FLOW],   # 不含 agent_type
+        candidates=[IntentAgentType.WORK_FLOW],   # 不含 agent_type
         reasoning="跨域：评估 + 照护流程",
     )
     r3 = await _run_mock(mock3, "评估照护流程", "5-3")
@@ -273,7 +273,7 @@ async def test_clarification_trigger():
         r3.needs_clarification is True
         and len(r3.candidates) == 2
         and IntentAgentType.ASSESSMENT in r3.candidates
-        and IntentAgentType.CARE_FLOW in r3.candidates
+        and IntentAgentType.WORK_FLOW in r3.candidates
     )
     print(f"\n  {'✅' if ok3 else '❌'} [5-3] candidates 不含 agent_type → 补 agent_type 到候选")
     print(f"     原始 candidates=['work_flow']（缺 agent_type）")
@@ -319,7 +319,7 @@ async def test_orchestrator_execute_clarify():
         agent_type=IntentAgentType.ASSESSMENT,
         confidence=0.4,
         needs_clarification=True,
-        candidates=[IntentAgentType.ASSESSMENT, IntentAgentType.CARE_FLOW],
+        candidates=[IntentAgentType.ASSESSMENT, IntentAgentType.WORK_FLOW],
         reasoning="跨域无法判断",
     )
     with patch("backend.core.intent.classify_intent", AsyncMock(return_value=mock_intent)):

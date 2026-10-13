@@ -186,10 +186,10 @@ async def test_saas_provider_normalizes_status(monkeypatch):
 # ── ④ 提示词里要带上当日进度 ──────────────────────────────────
 
 def test_prompts_include_today_plan_placeholder():
-    """日常照护/异常处理阶段必须能看到"今天还剩哪几项"（缺占位符会格式化失败）。"""
-    from backend.agents.work_flow.prompts import ABNORMAL_PROMPT, DAILY_CARE_PROMPT
+    """日常巡检/异常处置阶段必须能看到"今天还剩哪几项"（缺占位符会格式化失败）。"""
+    from backend.agents.work_flow.prompts import ABNORMAL_PROMPT, DAILY_INSPECTION_PROMPT
 
-    for tpl in (DAILY_CARE_PROMPT, ABNORMAL_PROMPT):
+    for tpl in (DAILY_INSPECTION_PROMPT, ABNORMAL_PROMPT):
         text = tpl.format(service_plan="{}", worker_input="x", today_plan="今日共 3 项")
         assert "今日共 3 项" in text
 

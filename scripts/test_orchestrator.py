@@ -241,7 +241,7 @@ async def run_single_agent_smoke():
         query="老人今天精神不错，晨间护理已完成。",
         context={
             "service_plan_id": f"plan-{session_id}",
-            "current_stage": "admission_assessment",
+            "current_stage": "onboarding_assessment",
         },
     )
 

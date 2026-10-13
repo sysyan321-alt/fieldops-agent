@@ -27,7 +27,7 @@ SERVERS = [
     {"name": "web-search", "cn": "联网搜索", "auth": "none"},
     {"name": "sop-kb-admin", "cn": "知识库管理", "auth": "token"},
     {"name": "alert-ops", "cn": "告警触发与派单", "auth": "token"},
-    {"name": "work-flow", "cn": "照护流程", "auth": "token"},
+    {"name": "work-flow", "cn": "作业流程", "auth": "token"},
 ]
 
 

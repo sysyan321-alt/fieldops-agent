@@ -32,10 +32,10 @@ logger = get_logger(__name__)
 
 class IntentAgentType(str, Enum):
     """意图识别可路由到的 Agent（与 orchestrator.AgentType 对齐）。"""
-    ASSESSMENT = "assessment"   # 老年人能力评估
-    SOP_QA     = "sop_qa"       # 护理 SOP 问答 / 通用问答兜底
+    ASSESSMENT = "assessment"   # 点位风险评级
+    SOP_QA     = "sop_qa"       # 作业规范问答 / 通用问答兜底
     ALERT      = "alert"        # 告警研判
-    CARE_FLOW  = "work_flow"   # 照护流程
+    WORK_FLOW  = "work_flow"   # 作业流程
 
 
 class IntentClassification(BaseModel):
@@ -45,10 +45,10 @@ class IntentClassification(BaseModel):
         ...,
         description=(
             "路由目标 Agent。"
-            "assessment=老人能力评估（明确要做评估/复评动作）；"
+            "assessment=点位风险评级（明确要做评估/复评动作）；"
             "alert=设备告警/心率异常/跌倒事件实时研判；"
-            "work_flow=照护计划/入住出院流程执行；"
-            "sop_qa=护理 SOP 知识问答或通用闲聊兜底。"
+            "work_flow=服务计划/建档退场流程执行；"
+            "sop_qa=作业规范知识问答或通用闲聊兜底。"
         ),
     )
     confidence: float = Field(
@@ -81,33 +81,34 @@ class IntentClassification(BaseModel):
 # 二、Prompt 模板（few-shot）
 # ──────────────────────────────────────────────────────────────
 
-INTENT_SYSTEM_PROMPT = """你是养老机构 AI 照护智能体的意图识别模块。
-你的任务：把护理员/站长的一句话路由到最合适的下游 Agent。
+INTENT_SYSTEM_PROMPT = """你是 FieldOps 现场作业智能体的意图识别模块。
+你的任务：把作业人员/值班主管的一句话路由到最合适的下游 Agent。
 
 【下游 Agent 职责】
-- assessment：老年人能力评估。触发词：要做评估、复评、ADL 评分、入住评估、营养/认知/跌倒风险「评估动作」。
-- alert：设备告警实时研判。触发词：心率异常、跌倒事件、离床报警、设备报警、紧急情况。
-- work_flow：照护流程执行。触发词：照护计划、入住流程、出院流程、日常照护任务、阶段执行。
-- sop_qa：护理 SOP 知识问答 + 通用闲聊兜底。问护理操作规范、并发症处理、护理知识、或非业务闲聊。
+- assessment：点位风险评级。触发词：要做评估、复评、结构/设备/环境/作业风险「评估动作」。
+- alert：设备告警实时研判。触发词：过载、设备离线、跌倒事件、人员闯入、可燃气报警、紧急情况。
+- work_flow：作业流程执行。触发词：服务计划、建档流程、退场流程、日常巡检任务、阶段执行。
+- sop_qa：作业规范知识问答 + 通用闲聊兜底。问操作规程、处置步骤、规范条款、或非业务闲聊。
 
 【跨域冲突样本（重点）】
-1. "评估跌倒风险" → SOP_QA（问的是「跌倒风险预防知识」，不是要做评估动作）
-2. "对老人做能力评估" → ASSESSMENT（明确要做评估动作）
-3. "跌倒后怎么处理" → SOP_QA（问护理处置 SOP）
-4. "301 房老人跌倒告警" → ALERT（实时事件告警）
-5. "评估老人的营养状况" → ASSESSMENT（明确是评估动作）
-6. "鼻饲管怎么维护" → SOP_QA（护理操作规范）
-7. "明天执行入住流程" → CARE_FLOW（流程执行）
+1. "评一下这个点位的作业风险" → ASSESSMENT（明确要做评估动作）
+2. "高处作业要系安全带吗" → SOP_QA（问规范条款，不是评估动作）
+3. "有人在屋面坠落了" → ALERT（实时事件告警）
+4. "触电后怎么急救" → SOP_QA（问处置规范）
+5. "B1 配电间过载告警" → ALERT（实时事件告警）
+6. "配电柜多久巡检一次" → SOP_QA（问规范条款）
+7. "明天执行建档流程" → WORK_FLOW（流程执行）
 8. "你是谁" → SOP_QA（闲聊兜底）
 9. "今天天气" → SOP_QA（非业务兜底）
-10. "评估照护流程" → needs_clarification=True, candidates=[ASSESSMENT, CARE_FLOW]（跨域，无法判断主意图）
+10. "评估一下这个点位的服务计划" → needs_clarification=True,
+    candidates=[ASSESSMENT, WORK_FLOW]（跨域，无法判断主意图）
 
 【判定规则】
 1. 明确单域问题 → confidence>=0.8, needs_clarification=False, candidates=[]
 2. 跨域但能判断主意图 → confidence 0.6-0.8, needs_clarification=False, candidates=[]
 3. 跨域无法判断主意图 → needs_clarification=True, candidates 必须 ≥2 个
    - 硬约束：candidates 长度必须 >= 2，且必须包含 agent_type 之外的其他 Agent
-   - 例：agent_type=ASSESSMENT 时 candidates 至少含 [ASSESSMENT, CARE_FLOW/SOP_QA/ALERT] 等两个以上
+   - 例：agent_type=ASSESSMENT 时 candidates 至少含 [ASSESSMENT, WORK_FLOW/SOP_QA/ALERT] 等两个以上
    - 只有 1 个候选时不应触发 clarify，应直接路由到该 Agent
 4. 闲聊/非业务 → SOP_QA, confidence>=0.7, needs_clarification=False, candidates=[]
 
@@ -136,9 +137,9 @@ def _build_user_prompt(query: str, history: Optional[list[dict]] = None) -> str:
 # 关键词优先级：评估 > 告警 > 照护流程 > SOP_QA 兜底
 # 注意：跨域冲突样本（如"评估跌倒风险"）关键词无法处理，会落到 SOP_QA 兜底
 _KEYWORD_MAP: list[tuple[list[str], IntentAgentType]] = [
-    (["评估", "评分", "能力评估", "入住评估", "复评", "ADL"], IntentAgentType.ASSESSMENT),
+    (["评估", "评分", "能力评估", "建档评估", "复评", "ADL"], IntentAgentType.ASSESSMENT),
     (["告警", "报警", "心率异常", "跌倒告警", "离床", "设备报警"], IntentAgentType.ALERT),
-    (["照护流程", "照护计划", "日常照护", "入住流程", "出院"], IntentAgentType.CARE_FLOW),
+    (["作业流程", "服务计划", "日常巡检", "建档流程", "退场"], IntentAgentType.WORK_FLOW),
 ]
 
 

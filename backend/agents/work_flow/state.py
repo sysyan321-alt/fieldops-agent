@@ -10,22 +10,22 @@ from enum import Enum
 
 
 class WorkStage(str, Enum):
-    """照护流程的四个阶段（异常处理改为日常照护内的子模式，不再作为独立阶段）。
+    """照护流程的四个阶段（异常处置改为日常巡检内的子模式，不再作为独立阶段）。
 
     设计取舍：异常是事件不是阶段——晨间护理发现压红、鼻饲时发现胃液异常
-    本就是日常照护动作中发现的，把它做成独立阶段会导致：①老人没异常时空转；
-    ②日常上下文被打散；③报告里"异常处理阶段得分"语义错位。
-    正确做法是日常照护内用 daily_mode 字段切换 normal/abnormal 模式。
+    本就是日常巡检动作中发现的，把它做成独立阶段会导致：①老人没异常时空转；
+    ②日常上下文被打散；③报告里"异常处置阶段得分"语义错位。
+    正确做法是日常巡检内用 daily_mode 字段切换 normal/abnormal 模式。
     """
-    ADMISSION_ASSESSMENT = "admission_assessment"  # 入住评估
-    DAILY_CARE           = "daily_care"             # 日常照护（内含异常子模式）
+    ONBOARDING_ASSESSMENT = "onboarding_assessment"  # 建档评估
+    DAILY_INSPECTION           = "daily_inspection"             # 日常巡检（内含异常子模式）
     PERIODIC_REVIEW      = "periodic_review"         # 阶段复评
-    DISCHARGE_ASSESSMENT = "discharge_assessment"    # 出院评估
+    DECOMMISSION_ASSESSMENT = "decommission_assessment"    # 退场评估
     FINISHED             = "finished"               # 终态：触发报告生成
 
 
-class DailyCareMode(str, Enum):
-    """日常照护阶段内的子模式：常规模式 / 异常模式。
+class DailyMode(str, Enum):
+    """日常巡检阶段内的子模式：常规模式 / 异常模式。
 
     normal → abnormal：关键词触发（晨护发现压红、鼻饲胃液异常等）
     abnormal → normal：用户说"处理完/异常已处理"或达到异常子模式轮数上限
@@ -76,9 +76,9 @@ class WorkFlowState(TypedDict):
     stage_turn_count:     int           # 当前阶段已进行的轮数
     total_turn_count:     int           # 总轮数（跨阶段累计）
     max_turns:            int           # 轮数上限，默认 40
-    daily_mode:      str           # 日常照护子模式：normal / abnormal
+    daily_mode:      str           # 日常巡检子模式：normal / abnormal
     abnormal_turn_count:  int           # 异常子模式内的轮数（仅 abnormal 累计）
-    discharge_order:      Optional[dict]  # 退住工单（SaaS 注入，None=续住；阶段复评时据此决定出院评估 or 回日常照护）
+    discharge_order:      Optional[dict]  # 退住工单（SaaS 注入，None=续住；阶段复评时据此决定退场评估 or 回日常巡检）
 
     # ── 照护计划与历史 ──
     service_plan:          Optional[dict]  # 照护计划（来自 Provider：业务服务项 + 评估结论）

@@ -43,10 +43,10 @@ async def start_work_flow(
     site_id: str,
     tenant_id: str,
     service_plan_id: str = "",
-    initial_stage: str = "admission_assessment",
+    initial_stage: str = "onboarding_assessment",
     discharge_order: dict | None = None,
 ) -> dict:
-    """启动一场照护流程会话（入住评估 → 日常照护 → 阶段复评 → 出院评估）。
+    """启动一场照护流程会话（建档评估 → 日常巡检 → 阶段复评 → 退场评估）。
 
     对应 REST：POST /api/v1/work-flow/start
 
@@ -54,7 +54,7 @@ async def start_work_flow(
         site_id:        老人 ID
         tenant_id:       租户 ID，必填且必须在 MCP_WRITE_TENANTS 白名单内
         service_plan_id:    照护计划 ID（可选）
-        initial_stage:   起始阶段，默认 admission_assessment
+        initial_stage:   起始阶段，默认 onboarding_assessment
         discharge_order: 可选退住工单（入住时已知要出院可一并下发）
 
     Returns:
@@ -118,7 +118,7 @@ async def send_discharge_order(
     对应 REST：POST /api/v1/work-flow/sessions/{session_id}/discharge-order
 
     只更新该会话检查点里的 state.discharge_order，**不推进对话**：护理员下一次发言时，
-    check_stage_node 会识别工单并触发阶段收敛（当前阶段达 min 即并入 复评 → 出院评估）。
+    check_stage_node 会识别工单并触发阶段收敛（当前阶段达 min 即并入 复评 → 退场评估）。
 
     Args:
         session_id: 照护流程会话 ID（由 start_work_flow 或 GET /active/{site_id} 获得）

@@ -21,7 +21,7 @@ class WorkFlowStartRequest(BaseModel):
     """启动照护流程请求。"""
     site_id:     str
     service_plan_id: str = ""
-    initial_stage: str = "admission_assessment"
+    initial_stage: str = "onboarding_assessment"
     discharge_order: dict | None = None  # SaaS 退住工单（入住时已知要出院可注入；None=续住）
 
 
@@ -239,7 +239,7 @@ async def get_today_plan(
 ):
     """查该会话对应老人**当天**的照护计划与执行进度。
 
-    用途：护理员的手持机/前端进日常照护时先拉一次，知道"今天还剩哪几项没做"；
+    用途：护理员的手持机/前端进日常巡检时先拉一次，知道"今天还剩哪几项没做"；
     care 侧对计划只读（生成规则在业务侧），只有 confirm 才回写。
     """
     from backend.db.repositories import daily_plan_progress, get_work_flow_session

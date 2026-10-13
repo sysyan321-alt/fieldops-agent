@@ -46,7 +46,7 @@ async def test_deliver_writes_checkpoint_with_consistent_thread_key(monkeypatch)
     """正常投递：只调 aupdate_state 写 discharge_order，thread_id / checkpoint_ns 与编排器一致。"""
     _patch_session(monkeypatch, {
         "session_id": "cf-abc", "site_id": "s001",
-        "status": "in_progress", "current_stage": "daily_care",
+        "status": "in_progress", "current_stage": "daily_inspection",
     })
 
     captured: dict = {}
