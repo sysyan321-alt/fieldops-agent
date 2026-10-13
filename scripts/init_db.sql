@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS alerts (
     risk_level   VARCHAR(20),                      -- 风险等级：high/medium/low
     risk_assessment JSONB,                          -- AI 风险评估结果（assess_risk 节点产出）
     three_tracks    JSONB,                          -- 四轨采集数据（设备/服务/健康/最近一次风险评估，供 review 接口读取；列名沿用历史命名）
-    source       VARCHAR(16) NOT NULL DEFAULT 'local',  -- 来源：care=care 自触发 / saas=业务系统 下发
+    source       VARCHAR(16) NOT NULL DEFAULT 'local',  -- 来源：local=本服务自触发 / saas=业务系统下发
     external_alert_id    VARCHAR(64),                       -- 业务系统的报警记录 ID（处置结果按它回写）
     location     VARCHAR(128) DEFAULT '',           -- 报警位置（对齐 报警记录 的"报警位置"）
     handled_by   VARCHAR(64) DEFAULT '',            -- 处理人（对齐 报警记录 的"处理人"）
@@ -103,8 +103,8 @@ CREATE TABLE IF NOT EXISTS site_service_items (
 );
 
 -- ──────────────────────────────────────────────────────────────
--- 每日服务计划（对齐业务系统）：care 侧只读。
--- 生成规则属于业务侧（每日计划由业务系统生成），care 不重复实现。
+-- 每日服务计划（对齐业务系统）：本服务侧只读。
+-- 生成规则属于业务侧（每日计划由业务系统生成），本服务不重复实现。
 -- ──────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS daily_work_plans (
     plan_item_id    VARCHAR(64) PRIMARY KEY,
@@ -115,7 +115,7 @@ CREATE TABLE IF NOT EXISTS daily_work_plans (
     nurse_time      VARCHAR(64) DEFAULT '',       -- 作业时间（对齐 nurseTime）
     worker_id        VARCHAR(64) DEFAULT '',
     worker_name      VARCHAR(64) DEFAULT '',       -- 服务人员（对齐 workerName）
-    actual_care_time VARCHAR(64) DEFAULT '',      -- 实际作业时间（对齐 actualCareTime）
+    actual_work_time VARCHAR(64) DEFAULT '',      -- 实际作业时间（对齐 actualWorkTime）
     status          VARCHAR(16) NOT NULL DEFAULT 'planned',  -- planned/done/missed
     tenant_id       VARCHAR(64) NOT NULL DEFAULT 'tenant_default',
     updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -123,9 +123,9 @@ CREATE TABLE IF NOT EXISTS daily_work_plans (
 );
 
 -- ──────────────────────────────────────────────────────────────
--- 风险等级 → 服务项目模板（对齐业务系统 的 /care/config）
--- 生产形态下这份配置由 SaaS 按 nurseLevelName 维护；care 只在
--- CARE_PLAN_PROVIDER=local（本地/演示）时用它兜住"该等级该做哪些服务"。
+-- 风险等级 → 服务项目模板（对齐业务系统的服务模板配置）
+-- 生产形态下这份配置由 SaaS 按风险等级维护；本服务只在
+-- SERVICE_PLAN_PROVIDER=local（本地/演示）时用它兜住"该等级该做哪些服务"。
 -- ──────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS service_tier_configs (
     config_id       VARCHAR(64) PRIMARY KEY,

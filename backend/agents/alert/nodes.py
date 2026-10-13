@@ -320,7 +320,7 @@ async def run_four_tracks_node(state: AlertState) -> dict:
     logger.info(
         "four_tracks.done",
         device=len(device_readings),
-        care=len(service_records),
+        service=len(service_records),
         health=len(health_indicators),
         assessment=bool(assessment_snapshot),
         evidence_quality=evidence_quality,
@@ -351,7 +351,7 @@ async def aggregate_tracks_node(state: AlertState) -> dict:
     logger.info(
         "aggregate_tracks.done",
         device=len(device_readings),
-        care=len(service_records),
+        service=len(service_records),
         health=len(health_indicators),
     )
     return {}  # 四轨数据已在 State 中，无需额外处理

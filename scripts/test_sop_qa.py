@@ -16,7 +16,7 @@ from backend.core.logger import configure_logging, get_logger
 configure_logging()
 logger = get_logger(__name__)
 
-ELDER_ID = "s001"
+SITE_ID = "s001"
 SESSION_COUNTER = [0]
 
 
@@ -29,7 +29,7 @@ def _build_initial_state(query: str, session_id: str) -> dict:
     """构造单次查询的初始 State。"""
     return {
         "messages":          [HumanMessage(content=query)],
-        "site_id":          ELDER_ID,
+        "site_id":          SITE_ID,
         "tenant_id":         "tenant_default",
         "session_id":        session_id,
         "org_id":            None,
@@ -93,7 +93,7 @@ async def run_four_query_types():
         print(f"  期望分支：{case['expected']}")
 
         session_id = _new_session_id()
-        config = build_config(ELDER_ID, session_id, agent_type="sop_qa")
+        config = build_config(SITE_ID, session_id, agent_type="sop_qa")
         state = _build_initial_state(case["query"], session_id)
         result = await graph.ainvoke(state, config=config)
 
@@ -126,7 +126,7 @@ async def run_multi_turn_conversation():
 
     graph = await build_sop_qa_graph()
     session_id = "qa-multi-turn"
-    config = build_config(ELDER_ID, session_id, agent_type="sop_qa")
+    config = build_config(SITE_ID, session_id, agent_type="sop_qa")
 
     turns = [
         "新接手的配电间第一天要注意什么？",

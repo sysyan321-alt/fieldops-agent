@@ -3,7 +3,7 @@
 #
 # 边界提醒（和服务计划那组用例一致）：
 #   计划的**生成规则**属于业务侧，本地实现只是演示/离线替身；
-#   care 可以回写的是"执行结果"这类事实数据（谁在什么时候做了），不是业务规则。
+#   本服务可以回写的是"执行结果"这类事实数据（谁在什么时候做了），不是业务规则。
 
 from datetime import date
 
@@ -121,7 +121,7 @@ def test_progress_on_empty_plan():
 # ── ③ Provider 的回写责任差异 ─────────────────────────────────
 
 async def test_local_provider_confirms_locally(monkeypatch):
-    """本地实现：回写 care 自己的 daily_work_plans。"""
+    """本地实现：回写本服务自己的 daily_work_plans。"""
     from backend.core.service_plan_provider import LocalServicePlanProvider
 
     seen = {}
@@ -134,12 +134,12 @@ async def test_local_provider_confirms_locally(monkeypatch):
 
     ok = await LocalServicePlanProvider().confirm_plan_item(
         "dcp-2026-10-13-001", "tenant_default",
-        status="done", worker_id="u-1", worker_name="张三", actual_care_time="08:05")
+        status="done", worker_id="u-1", worker_name="张三", actual_work_time="08:05")
 
     assert ok is True
     assert seen["plan_item_id"] == "dcp-2026-10-13-001"
     assert seen["status"] == "done"
-    assert seen["actual_care_time"] == "08:05"
+    assert seen["actual_work_time"] == "08:05"
 
 
 async def test_saas_provider_posts_confirm(monkeypatch):
@@ -157,16 +157,16 @@ async def test_saas_provider_posts_confirm(monkeypatch):
 
     ok = await provider.confirm_plan_item(
         "P-100", "tenant_default", status="done", worker_id="u-1",
-        worker_name="张三", actual_care_time="08:05")
+        worker_name="张三", actual_work_time="08:05")
 
     assert ok is True
     assert seen["path"] == SaasServicePlanProvider.PATH_CONFIRM_ITEM
     assert seen["payload"]["id"] == "P-100"
-    assert seen["payload"]["actualCareTime"] == "08:05"
+    assert seen["payload"]["actualWorkTime"] == "08:05"
 
 
 async def test_saas_provider_normalizes_status(monkeypatch):
-    """主系统的状态值要归一成 care 的 done/missed/planned。"""
+    """主系统的状态值要归一成本服务的 done/missed/planned。"""
     from backend.core.service_plan_provider import SaasServicePlanProvider
 
     provider = SaasServicePlanProvider(base_url="http://saas.local/api")
@@ -335,9 +335,9 @@ async def test_confirm_writes_back_operator(monkeypatch):
                         lambda: _Provider())
 
     out = await confirm_plan_item(
-        "dcp-1", PlanItemConfirmRequest(status="done", actual_care_time="08:05"),
+        "dcp-1", PlanItemConfirmRequest(status="done", actual_work_time="08:05"),
         current_user=USER)
 
     assert out["confirmed"] is True
     assert seen["worker_id"] == "u-supervisor"
-    assert seen["actual_care_time"] == "08:05"
+    assert seen["actual_work_time"] == "08:05"

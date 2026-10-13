@@ -92,7 +92,7 @@
             <template #default="{ row }">
               <span v-if="row.worker_name">
                 {{ row.worker_name }}
-                <span v-if="row.actual_care_time" class="muted">（{{ row.actual_care_time }}）</span>
+                <span v-if="row.actual_work_time" class="muted">（{{ row.actual_work_time }}）</span>
               </span>
               <span v-else class="muted">—</span>
             </template>
@@ -204,7 +204,7 @@ async function confirm(row: DailyPlanItem, status: 'done' | 'missed') {
     const hhmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
     await servicePlanApi.confirmItem(row.plan_item_id, {
       status,
-      actual_care_time: status === 'done' ? hhmm : '',
+      actual_work_time: status === 'done' ? hhmm : '',
     })
     ElMessage.success(status === 'done' ? '已记录完成' : '已记录未完成')
     await load()

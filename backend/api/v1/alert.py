@@ -36,14 +36,14 @@ class AlertConfirmRequest(BaseModel):
 class AlertIngestRequest(BaseModel):
     """业务系统侧报警记录的下发请求。
 
-    报警的权威源在业务系统（设备告警记录由它维护），care 只做研判与处置建议；
+    报警的权威源在业务系统（设备告警记录由它维护），本服务只做研判与处置建议；
     处置终态经发件箱回传，业务系统按 `external_alert_id` 关联并回写处置结果。
     字段名（如报警内容、报警位置、处理人）请按你自己的后端契约调整。
     """
     external_alert_id: str           # 业务系统的报警记录 ID（回写关联与幂等键）
     device_id:       str
     site_id:        str
-    device_type:     str = ""             # SaaS 的设备类型（中文名或编码，care 侧解析）
+    device_type:     str = ""             # SaaS 的设备类型（中文名或编码，本服务侧解析）
     alert_content:   str = ""             # 报警内容
     location:        str = ""             # 报警位置
     alert_time:      str = ""             # 报警时间
@@ -51,7 +51,7 @@ class AlertIngestRequest(BaseModel):
 
 
 def _infer_alert_type(device_type: str, alert_content: str) -> str:
-    """SaaS 只给设备类型与报警内容时，推一个 care 的告警类型编码。
+    """SaaS 只给设备类型与报警内容时，推一个本服务的告警类型编码。
 
     规则简单、可解释：先按设备类型查它可能产生哪些告警，再用报警内容里的
     关键词收敛到具体一种；都判不出就用设备类型的第一种可能，最后兜底 heart_rate_abnormal。
@@ -163,9 +163,9 @@ async def ingest_alert(
     req: AlertIngestRequest,
     current_user: dict = Depends(get_current_user),
 ):
-    """业务系统 下发报警记录 → care 研判（下行接入）。
+    """业务系统下发报警记录 → 本服务研判（下行接入）。
 
-    与 /trigger 的区别：/trigger 是 care 自己造 alert_id（演示/自触发），
+    与 /trigger 的区别：/trigger 是本服务自己造 alert_id（演示/自触发），
     /ingest 接收业务系统的报警记录并保留 external_alert_id，处置终态经发件箱回传
     由业务系统回写——报警的双向闭环。
 

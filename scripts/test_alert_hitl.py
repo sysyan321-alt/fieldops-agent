@@ -21,12 +21,12 @@ logger = get_logger(__name__)
 # ── 模拟告警初始状态 ──────────────────────────────────────────
 
 ALERT_ID = "alert-test-001"
-ELDER_ID = "s001"
+SITE_ID = "s001"
 SESSION_ID = ALERT_ID  # 用 alert_id 同时做 session_id，保证 thread_id 一致
 
 INITIAL_STATE = {
     "messages": [],
-    "site_id":        ELDER_ID,
+    "site_id":        SITE_ID,
     "tenant_id":       "tenant_default",
     "alert_id":        ALERT_ID,
     "session_id":      SESSION_ID,
@@ -46,7 +46,7 @@ INITIAL_STATE = {
 }
 
 # thread_id 必须在 trigger 和 confirm 之间保持一致
-CONFIG = build_config(ELDER_ID, SESSION_ID, agent_type="alert")
+CONFIG = build_config(SITE_ID, SESSION_ID, agent_type="alert")
 
 
 async def run_full_hitl_flow():
@@ -138,7 +138,7 @@ async def run_modify_flow():
     print("=" * 60)
 
     graph = await build_alert_graph()
-    config = build_config(ELDER_ID, "alert-test-002", agent_type="alert")
+    config = build_config(SITE_ID, "alert-test-002", agent_type="alert")
     state = {**INITIAL_STATE, "alert_id": "alert-test-002", "session_id": "alert-test-002"}
 
     # 首次调用跑到 interrupt

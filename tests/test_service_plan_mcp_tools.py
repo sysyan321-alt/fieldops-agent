@@ -123,7 +123,7 @@ async def test_confirm_tool_calls_provider(monkeypatch):
 
     out = await work_flow_server.confirm_service_plan_item(
         "dcp-1", "tenant_default", status="done",
-        worker_name="张三", actual_care_time="08:05")
+        worker_name="张三", actual_work_time="08:05")
 
     assert out["confirmed"] is True
     assert seen["plan_item_id"] == "dcp-1"

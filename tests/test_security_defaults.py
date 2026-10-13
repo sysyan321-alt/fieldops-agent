@@ -46,11 +46,11 @@ def test_cors_wildcard_forces_credentials_off(monkeypatch):
 
 def test_cors_explicit_whitelist_allows_credentials(monkeypatch):
     """明确白名单下才允许携带凭证（Cookie 场景）。"""
-    app = _build_app(monkeypatch, cors_origins="https://care.example.com,http://localhost:3000",
+    app = _build_app(monkeypatch, cors_origins="https://erp.example.com,http://localhost:3000",
                      cors_allow_credentials=True)
     kwargs = _cors_kwargs(app)
 
-    assert kwargs["allow_origins"] == ["https://care.example.com", "http://localhost:3000"]
+    assert kwargs["allow_origins"] == ["https://erp.example.com", "http://localhost:3000"]
     assert kwargs["allow_credentials"] is True
 
 

@@ -10,7 +10,7 @@
 #   - 服务项目、频次、作业时间段 = **业务配置**，属于 SaaS，Agent 不得增删改；
 #   - 评估结论 → 风险等级建议、以及异常情况下的处置建议 = AI 的增量；
 #   - 每日服务计划的**生成规则**也在业务侧（由业务系统生成），
-#     care 只读不造——本地实现只是让 demo 能独立跑，不是第二套业务规则。
+#     本服务 只读不造——本地实现只是让 demo 能独立跑，不是第二套业务规则。
 
 from __future__ import annotations
 
@@ -51,8 +51,8 @@ class ServicePlanProvider(Protocol):
 
         这是"评估结论 → 业务配置"的那一步：评估给出风险等级，等级决定该点位
         应做哪些服务项目。**谁负责落地在两种 Provider 下是不同的**——
-        本地实现由 care 写自己的库；SaaS 实现只取回"该等级可选什么"，
-        实际落地由主系统负责（care 不写主系统的业务数据）。这个差异必须显式，
+        本地实现由 本服务 写自己的库；SaaS 实现只取回"该等级可选什么"，
+        实际落地由主系统负责（本服务 不写主系统的业务数据）。这个差异必须显式，
         否则很容易演变成"AI 系统偷偷改了业务配置"。
         """
         ...
@@ -63,17 +63,17 @@ class ServicePlanProvider(Protocol):
 
     async def confirm_plan_item(self, plan_item_id: str, tenant_id: str, *,
                                 status: str = "done", worker_id: str = "",
-                                worker_name: str = "", actual_care_time: str = "") -> bool:
+                                worker_name: str = "", actual_work_time: str = "") -> bool:
         """护工执行后回写某项计划的状态（对应业务系统的执行结果回写接口）。"""
         ...
 
 
 # ──────────────────────────────────────────────────────────────
-# 本地实现：读 care 自己的库（demo / 离线可跑）
+# 本地实现：读 本服务 自己的库（demo / 离线可跑）
 # ──────────────────────────────────────────────────────────────
 
 class LocalServicePlanProvider:
-    """从 care 本地库取服务计划与服务历史。
+    """从 本服务 本地库取服务计划与服务历史。
 
     计划的优先级：
       ① 点位的服务项（site_service_items，服务组织配置的业务数据）→ 决定"要做什么、多久做一次"
@@ -118,7 +118,7 @@ class LocalServicePlanProvider:
 
     async def ensure_items_for_level(self, site_id: str, risk_tier: str,
                                      tenant_id: str) -> list[dict]:
-        """本地实现：把该等级的必选项目写进 care 自己的 site_service_items。"""
+        """本地实现：把该等级的必选项目写进 本服务 自己的 site_service_items。"""
         from backend.db.repositories import bind_service_items_for_level
 
         return await bind_service_items_for_level(site_id, risk_tier, tenant_id=tenant_id)
@@ -131,13 +131,13 @@ class LocalServicePlanProvider:
 
     async def confirm_plan_item(self, plan_item_id: str, tenant_id: str, *,
                                 status: str = "done", worker_id: str = "",
-                                worker_name: str = "", actual_care_time: str = "") -> bool:
-        """本地实现：直接回写 care 自己的 daily_work_plans。"""
+                                worker_name: str = "", actual_work_time: str = "") -> bool:
+        """本地实现：直接回写本服务自己的 daily_work_plans。"""
         from backend.db.repositories import confirm_daily_plan_item
 
         return await confirm_daily_plan_item(
             plan_item_id, tenant_id=tenant_id, status=status, worker_id=worker_id,
-            worker_name=worker_name, actual_care_time=actual_care_time)
+            worker_name=worker_name, actual_work_time=actual_work_time)
 
     @staticmethod
     def _tasks_from_items(items: list[dict]) -> list[str]:
@@ -216,12 +216,12 @@ class SaasServicePlanProvider:
 
     PATH_SERVICE_ITEMS = "/site/service-items"
     PATH_AVAILABLE_ITEMS = "/site/available-service-items"
-    PATH_DAILY_PLAN = "/care-plan/daily"
-    PATH_CONFIRM_ITEM = "/care-plan/confirm"
+    PATH_DAILY_PLAN = "/service-plan/daily"
+    PATH_CONFIRM_ITEM = "/service-plan/confirm"
 
     def __init__(self, base_url: str, token: str = "", timeout: float = 10.0):
         if not base_url:
-            raise ServicePlanProviderError("SaaS Provider 未配置 base_url（SAAS_CARE_BASE_URL）")
+            raise ServicePlanProviderError("SaaS Provider 未配置 base_url（SAAS_BASE_URL）")
         self._base = base_url.rstrip("/")
         self._token = token
         self._timeout = timeout
@@ -273,14 +273,14 @@ class SaasServicePlanProvider:
         """SaaS 实现：只**读取**该风险等级可选的服务内容，不在主系统里写数据。
 
         返回的是"该等级允许做的项目"；实际给点位挂哪些项目由主系统决定，
-        care 用它来做计划渲染与"从可选项里推荐"的输入。
+        本服务 用它来做计划渲染与"从可选项里推荐"的输入。
         """
         raw = await self._post(self.PATH_AVAILABLE_ITEMS,
                                {"siteId": site_id, "nurseLevelName": risk_tier})
         return self._parse_items(raw)
 
     async def today_plan(self, site_id: str, tenant_id: str) -> list[dict]:
-        """SaaS 实现：读主系统的当天服务计划（care 不生成）。"""
+        """SaaS 实现：读主系统的当天服务计划（本服务 不生成）。"""
         raw = await self._post(self.PATH_DAILY_PLAN, {"siteId": site_id, "today": True})
         return [{
             "plan_item_id": str(r.get("id") or r.get("planId") or ""),
@@ -288,27 +288,27 @@ class SaasServicePlanProvider:
             "nurse_time": r.get("nurseTime") or "",
             "worker_id": str(r.get("workerId") or ""),
             "worker_name": r.get("workerName") or "",
-            "actual_care_time": r.get("actualCareTime") or "",
+            "actual_work_time": r.get("actualWorkTime") or "",
             "status": self._normalize_status(r.get("statusF") or r.get("status")),
         } for r in self._parse_daily(raw)]
 
     async def confirm_plan_item(self, plan_item_id: str, tenant_id: str, *,
                                 status: str = "done", worker_id: str = "",
-                                worker_name: str = "", actual_care_time: str = "") -> bool:
+                                worker_name: str = "", actual_work_time: str = "") -> bool:
         """SaaS 实现：回写主系统的服务计划（PATH_CONFIRM_ITEM）。
 
-        这里 care **会写主系统**，但写的是"执行结果"这一类事实数据（谁在什么时候做了），
+        这里 本服务 **会写主系统**，但写的是"执行结果"这一类事实数据（谁在什么时候做了），
         不是业务规则本身——这是与"不重复实现生成规则"并不矛盾的分工。
         """
         await self._post(self.PATH_CONFIRM_ITEM, {
             "id": plan_item_id, "status": status, "workerId": worker_id,
-            "workerName": worker_name, "actualCareTime": actual_care_time,
+            "workerName": worker_name, "actualWorkTime": actual_work_time,
         })
         return True
 
     @staticmethod
     def _normalize_status(raw) -> str:
-        """主系统状态值 → care 的 done/missed/planned。"""
+        """主系统状态值 → 本服务 的 done/missed/planned。"""
         text = str(raw or "").strip().lower()
         if text in ("done", "finished", "完成", "已完成", "1"):
             return "done"
@@ -348,7 +348,7 @@ class SaasServicePlanProvider:
 # ──────────────────────────────────────────────────────────────
 
 def get_service_plan_provider() -> ServicePlanProvider:
-    """按配置返回 Provider。默认本地；配了 SAAS_CARE_BASE_URL 才走主系统。
+    """按配置返回 Provider。默认本地；配了 SAAS_BASE_URL 才走主系统。
 
     SaaS 实现初始化失败时**回落本地并告警**，而不是让整条作业流程挂掉——
     取不到业务数据时，Agent 应该报告"计划缺失"，不是崩溃，也不是编一份假的。
@@ -358,8 +358,8 @@ def get_service_plan_provider() -> ServicePlanProvider:
     if backend == "saas":
         try:
             return SaasServicePlanProvider(
-                base_url=getattr(settings, "saas_care_base_url", ""),
-                token=getattr(settings, "saas_care_token", ""),
+                base_url=getattr(settings, "saas_base_url", ""),
+                token=getattr(settings, "saas_token", ""),
             )
         except ServicePlanProviderError as e:
             logger.error("service_plan_provider.saas_unavailable", error=str(e), fallback="local")

@@ -13,11 +13,11 @@
 | 中文名 | 服务名（路径） | 干什么 | 工具数 | 鉴权 | 独立端口 |
 |---|---|---|---|---|---|
 | 作业规范知识库检索 | `/mcp/sop-kb` | 查作业规范 知识库（混合召回 + 精排），列文档、看知识库状态 | 3（只读） | 无 | 8011 |
-| 服务数据查询 | `/mcp/care-data` | 查点位档案、服务记录、健康指标、设备读数、告警列表 | 5（只读） | 无 | 8012 |
+| 服务数据查询 | `/mcp/本服务-data` | 查点位档案、服务记录、健康指标、设备读数、告警列表 | 5（只读） | 无 | 8012 |
 | 联网搜索 | `/mcp/web-search` | 知识库覆盖不到时搜互联网（Tavily → DuckDuckGo 兜底） | 1（只读） | 无 | 8013 |
 | 知识库管理 | `/mcp/sop-kb-admin` | 导入/更新 SOP 文档、删除文档、重建集合 | 3（写） | Bearer Token | 8015 |
 | 告警触发与派单 | `/mcp/alert-ops` | 触发告警研判、读审核数据、值班主管确认派工单、列待审核告警 | 4（写） | Bearer Token | 8014 |
-| 作业流程 | `/mcp/care-flow` | 启动作业流程、下发退住工单、查会话状态、取报告 | 4（写） | Bearer Token | 8016 |
+| 作业流程 | `/mcp/本服务-flow` | 启动作业流程、下发退住工单、查会话状态、取报告 | 4（写） | Bearer Token | 8016 |
 
 独立运行（`python -m backend.mcp.sop_kb_server`）只建议在需要单独扩缩容时使用：BGE-M3 与 BGE-Reranker 是进程内单例，各约占 2-3GB，拆进程会各加载一份，内存翻倍。
 
@@ -36,7 +36,7 @@
 | `list_sop_documents`（列 SOP 文档） | `tenant_id` | 文档清单：`document_id` / `source_name` / `category` / `version` / `chunks` | Milvus 按租户聚合 |
 | `get_kb_status`（看知识库状态） | `tenant_id` | `{collection, exists, tenant_id, chunks}` | Milvus `has_collection` + `count(*)` |
 
-### 只读 · 服务数据查询（`care-data`）
+### 只读 · 服务数据查询（`本服务-data`）
 
 | 工具 | 参数 | 返回 | 包装的现有代码 |
 |---|---|---|---|
@@ -69,14 +69,14 @@
 | `confirm_alert`（值班主管确认派单） | `alert_id`、`tenant_id`、`action`、`modified_actions?`、`comment?`、`supervisor_id?` | `POST /api/v1/alert/{id}/confirm`：恢复图执行并派发工单 |
 | `list_pending_alerts`（列待审核告警） | `tenant_id`、`limit=10` | 列出 `status=reviewing` 的告警（MCP 新增能力） |
 
-### 写 · 作业流程（`care-flow`，需 Token）
+### 写 · 作业流程（`本服务-flow`，需 Token）
 
 | 工具 | 参数 | 对应 REST |
 |---|---|---|
-| `start_care_flow`（启动作业流程） | `elder_id`、`tenant_id`、`care_plan_id?`、`initial_stage?`、`discharge_order?` | `POST /api/v1/care-flow/start` |
-| `send_discharge_order`（下发退住工单） | `session_id`、`tenant_id`、`order`（dict） | `POST /api/v1/care-flow/sessions/{sid}/discharge-order` |
-| `get_care_flow_status`（查会话状态） | `session_id`、`tenant_id` | `GET /api/v1/care-flow/active/{elder_id}` |
-| `get_care_flow_report`（取报告） | `session_id`、`tenant_id` | `GET /api/v1/care-flow/{sid}/report` |
+| `start_care_flow`（启动作业流程） | `elder_id`、`tenant_id`、`care_plan_id?`、`initial_stage?`、`discharge_order?` | `POST /api/v1/work-flow/start` |
+| `send_discharge_order`（下发退住工单） | `session_id`、`tenant_id`、`order`（dict） | `POST /api/v1/work-flow/sessions/{sid}/discharge-order` |
+| `get_care_flow_status`（查会话状态） | `session_id`、`tenant_id` | `GET /api/v1/work-flow/active/{elder_id}` |
+| `get_care_flow_report`（取报告） | `session_id`、`tenant_id` | `GET /api/v1/work-flow/{sid}/report` |
 
 > 与 `alert-ops` 的差异：告警是"无状态一次性触发"（`trigger_alert` 新建 `alert_id` 再跑图）；作业流程是"有状态多轮会话"，所以 `send_discharge_order` **只往已有 thread 的检查点写 `state.discharge_order`，不跑图、不耗 LLM**，等作业人员下一次对话时由 `check_stage_node` 识别并触发阶段收敛（复评 → 出院评估）。MCP 与 REST 两个入口共用 `backend/agents/care_flow/discharge.py:deliver_discharge_order`，落地逻辑只有一份。
 
@@ -107,7 +107,7 @@ curl（原生 JSON-RPC，stateless 调用无需握手）：
 
 ```bash
 # 只读：查点位档案
-curl -s -X POST http://localhost:8000/mcp/care-data/mcp \
+curl -s -X POST http://localhost:8000/mcp/本服务-data/mcp \
   -H 'Content-Type: application/json' -H 'Accept: application/json' \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{
         "name":"get_elder_profile",
@@ -127,7 +127,7 @@ Python 客户端（`backend/mcp/client.py`）：
 ```python
 from backend.mcp.client import call_mcp_tool, list_mcp_tools
 
-profile = await call_mcp_tool("http://localhost:8000/mcp/care-data",
+profile = await call_mcp_tool("http://localhost:8000/mcp/本服务-data",
                              "get_elder_profile",
                              {"elder_id": "e001", "tenant_id": "tenant_default"})
 

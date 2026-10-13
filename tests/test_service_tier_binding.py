@@ -91,7 +91,7 @@ def test_default_level_configs_cover_three_levels():
 # ── ③ Provider 的落地责任差异 ─────────────────────────────────
 
 async def test_local_provider_writes_items(monkeypatch):
-    """本地实现：care 自己把该等级的必选项写进 site_service_items。"""
+    """本地实现：本服务把该等级的必选项写进 site_service_items。"""
     called = {}
 
     async def _bind(site_id, risk_tier, tenant_id="tenant_default"):

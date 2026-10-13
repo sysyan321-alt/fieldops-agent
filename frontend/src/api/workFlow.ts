@@ -53,7 +53,7 @@ export const workFlowApi = {
 
 // ── 服务计划（风险等级 → 服务项 → 当天执行）──────────────────
 
-/** 服务项：来自业务配置（care 不改它，只读并据此生成任务清单） */
+/** 服务项：来自业务配置（本服务不改它，只读并据此生成任务清单） */
 export interface ServiceItem {
   item_id?: string
   project_name: string
@@ -71,7 +71,7 @@ export interface DailyPlanItem {
   project_name: string
   nurse_time?: string
   worker_name?: string
-  actual_care_time?: string
+  actual_work_time?: string
   status: 'planned' | 'done' | 'missed'
 }
 
@@ -106,7 +106,7 @@ export const servicePlanApi = {
   /** 护工回写执行结果：done=完成 / missed=该做没做 */
   confirmItem: (
     planItemId: string,
-    data: { status: 'done' | 'missed'; worker_name?: string; actual_care_time?: string },
+    data: { status: 'done' | 'missed'; worker_name?: string; actual_work_time?: string },
   ) => client.post<{ plan_item_id: string; status: string; confirmed: boolean }>(
     `/work-flow/plan-items/${planItemId}/confirm`, data,
   ),

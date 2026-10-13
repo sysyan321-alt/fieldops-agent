@@ -177,7 +177,7 @@ async def enqueue_alert_decision(
     值班主管一按确认，工单就该同步到业务系统，而不是让 SaaS 轮询告警接口。
     幂等键用 order_id（每张派发工单唯一）；dismiss 不派单但仍通知业务方"已取消处置"。
 
-    external_alert_id 是业务系统 报警记录 ID（报警记录）：SaaS 下发的报警经 care 研判处置后，
+    external_alert_id 是业务系统报警记录 ID（报警记录）：SaaS 下发的报警经 本服务 研判处置后，
     它要按这个 ID 回写处置结果，
     所以必须原样带回，不能让 SaaS 做二次匹配。
     """

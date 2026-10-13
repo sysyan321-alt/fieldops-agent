@@ -124,11 +124,11 @@ class Settings(BaseSettings):
     outbound_timeout: float = 10.0             # 单次 HTTP 投递超时（秒）
 
     # ── 服务计划数据来源（Provider 抽象，见 backend/core/service_plan_provider.py）──
-    # local = 读 care 自己的库（demo / 离线可跑）
-    # saas  = 读业务系统（需要 saas_care_base_url；取不到时回落 local 并告警）
+    # local = 读本服务自己的库（demo / 离线可跑）
+    # saas  = 读业务系统（需要 saas_base_url；取不到时回落 local 并告警）
     service_plan_provider: str = "local"
-    saas_care_base_url: str = ""               # 业务系统 地址，如 http://sass.example.com/api
-    saas_care_token: str = ""                  # 主系统鉴权令牌（按需）
+    saas_base_url: str = ""               # 业务系统 地址，如 http://sass.example.com/api
+    saas_token: str = ""                  # 业务系统鉴权令牌（按需）
 
     # ── MCP（Model Context Protocol）能力层 ──
     mcp_enabled: bool = True                   # 是否把 MCP Server 挂载进主应用（/mcp/*）

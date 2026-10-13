@@ -320,8 +320,8 @@ async def get_latest_service_plan(
 
 
 # ── 服务项与每日服务计划（对齐业务系统 的业务模型）──────
-# site_service_items = 业务配置的"该点位要做什么服务"（care 只读，由业务侧维护）
-# daily_work_plans    = 每日执行计划（care 只读，生成规则在业务侧）
+# site_service_items = 业务配置的"该点位要做什么服务"（本服务只读，由业务侧维护）
+# daily_work_plans    = 每日执行计划（本服务只读，生成规则在业务侧）
 
 async def save_service_item(
     site_id: str,
@@ -665,7 +665,7 @@ async def list_daily_plan(site_id: str, plan_date=None,
         async with AsyncSessionLocal() as session:
             rows = (await session.execute(text("""
                 SELECT plan_item_id, project_name, nurse_time, worker_id, worker_name,
-                       actual_care_time, status
+                       actual_work_time, status
                 FROM daily_work_plans
                 WHERE site_id = :eid AND tenant_id = :tid AND plan_date = :pdate
                 ORDER BY plan_item_id ASC
@@ -673,7 +673,7 @@ async def list_daily_plan(site_id: str, plan_date=None,
         return [{
             "plan_item_id": r.plan_item_id, "project_name": r.project_name,
             "nurse_time": r.nurse_time or "", "worker_id": r.worker_id or "",
-            "worker_name": r.worker_name or "", "actual_care_time": r.actual_care_time or "",
+            "worker_name": r.worker_name or "", "actual_work_time": r.actual_work_time or "",
             "status": r.status, "plan_date": plan_date.isoformat(),
         } for r in rows]
     except Exception as e:
@@ -684,7 +684,7 @@ async def list_daily_plan(site_id: str, plan_date=None,
 async def confirm_daily_plan_item(plan_item_id: str, tenant_id: str = DEFAULT_TENANT,
                                   status: str = "done", worker_id: str = "",
                                   worker_name: str = "",
-                                  actual_care_time: str = "") -> bool:
+                                  actual_work_time: str = "") -> bool:
     """护工执行后回写：标记该项完成/未完成 + 执行人与实际时间。
 
     对应业务系统侧的执行结果回写接口。状态语义：
@@ -699,10 +699,10 @@ async def confirm_daily_plan_item(plan_item_id: str, tenant_id: str = DEFAULT_TE
             result = await session.execute(text("""
                 UPDATE daily_work_plans
                 SET status = :status, worker_id = :cid, worker_name = :cname,
-                    actual_care_time = :atime, updated_at = CURRENT_TIMESTAMP
+                    actual_work_time = :atime, updated_at = CURRENT_TIMESTAMP
                 WHERE plan_item_id = :pid AND tenant_id = :tid
             """), {"status": status, "cid": worker_id, "cname": worker_name,
-                   "atime": actual_care_time, "pid": plan_item_id, "tid": tenant_id})
+                   "atime": actual_work_time, "pid": plan_item_id, "tid": tenant_id})
             if result.rowcount == 0:
                 await session.rollback()
                 return False
@@ -735,7 +735,7 @@ async def list_service_history(site_id: str, tenant_id: str = DEFAULT_TENANT,
     try:
         async with AsyncSessionLocal() as session:
             rows = (await session.execute(text("""
-                SELECT plan_date, project_name, status, worker_name, actual_care_time
+                SELECT plan_date, project_name, status, worker_name, actual_work_time
                 FROM daily_work_plans
                 WHERE site_id = :site_id AND tenant_id = :tenant_id
                 ORDER BY plan_date DESC LIMIT :lim
@@ -746,8 +746,8 @@ async def list_service_history(site_id: str, tenant_id: str = DEFAULT_TENANT,
             label = r.project_name + ("（已完成）" if r.status == "done" else "（未完成）")
             if r.worker_name:
                 label += f" 执行：{r.worker_name}"
-            if r.actual_care_time:
-                label += f" 实际：{r.actual_care_time}"
+            if r.actual_work_time:
+                label += f" 实际：{r.actual_work_time}"
             entry["tasks"].append(label)
             if r.status in ("missed", "未完成"):
                 entry["abnormal"] = (entry["abnormal"] + "；" if entry["abnormal"] else "") + \
@@ -1255,7 +1255,7 @@ async def save_alert_triggered(
     供 GET /alert/{id}/review 接口读取，替代 MemorySaver 反查。
 
     source / external_alert_id / location 用于对接业务系统 的报警记录（报警记录）：
-      care = care 自触发；saas = SaaS 下发，external_alert_id 是 SaaS 侧报警记录 ID，
+      local = 本服务自触发；saas = 业务系统下发，external_alert_id 是 SaaS 侧报警记录 ID，
       处置完成后业务系统可按它回写处置结果。
     """
     try:
@@ -1303,7 +1303,7 @@ async def save_alert_triggered(
 
 async def find_alert_by_external_id(external_alert_id: str,
                                   tenant_id: str = DEFAULT_TENANT) -> dict | None:
-    """按 SaaS 报警记录 ID 反查 care 告警（下行重放幂等：同一条报警只研判一次）。"""
+    """按 SaaS 报警记录 ID 反查本服务告警（下行重放幂等：同一条报警只研判一次）。"""
     if not external_alert_id:
         return None
     try:

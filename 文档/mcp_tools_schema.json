@@ -118,9 +118,9 @@
         }
       ]
     },
-    "care-data": {
+    "本服务-data": {
       "cn_name": "服务数据查询",
-      "endpoint": "http://127.0.0.1:8099/mcp/care-data/mcp",
+      "endpoint": "http://127.0.0.1:8099/mcp/本服务-data/mcp",
       "auth": "无（只读）",
       "tool_count": 8,
       "tools": [
@@ -714,15 +714,15 @@
         }
       ]
     },
-    "care-flow": {
+    "本服务-flow": {
       "cn_name": "作业流程",
-      "endpoint": "http://127.0.0.1:8099/mcp/care-flow/mcp",
+      "endpoint": "http://127.0.0.1:8099/mcp/work-flow/mcp",
       "auth": "Bearer Token",
       "tool_count": 5,
       "tools": [
         {
           "name": "start_care_flow",
-          "description": "启动一场作业流程会话（入住评估 → 日常服务 → 阶段复评 → 出院评估）。\n\n    对应 REST：POST /api/v1/care-flow/start\n\n    Args:\n        elder_id:        点位 ID\n        tenant_id:       租户 ID，必填且必须在 MCP_WRITE_TENANTS 白名单内\n        care_plan_id:    服务计划 ID（可选）\n        initial_stage:   起始阶段，默认 admission_assessment\n        discharge_order: 可选退住工单（入住时已知要出院可一并下发）\n\n    Returns:\n        {session_id, current_stage, ai_message}\n    ",
+          "description": "启动一场作业流程会话（入住评估 → 日常服务 → 阶段复评 → 出院评估）。\n\n    对应 REST：POST /api/v1/work-flow/start\n\n    Args:\n        elder_id:        点位 ID\n        tenant_id:       租户 ID，必填且必须在 MCP_WRITE_TENANTS 白名单内\n        care_plan_id:    服务计划 ID（可选）\n        initial_stage:   起始阶段，默认 admission_assessment\n        discharge_order: 可选退住工单（入住时已知要出院可一并下发）\n\n    Returns:\n        {session_id, current_stage, ai_message}\n    ",
           "inputSchema": {
             "properties": {
               "elder_id": {
@@ -767,7 +767,7 @@
         },
         {
           "name": "send_discharge_order",
-          "description": "向进行中的作业流程会话下发退住工单（SaaS 主动通知）。\n\n    对应 REST：POST /api/v1/care-flow/sessions/{session_id}/discharge-order\n\n    只更新该会话检查点里的 state.discharge_order，**不推进对话**：作业人员下一次发言时，\n    check_stage_node 会识别工单并触发阶段收敛（当前阶段达 min 即并入 复评 → 出院评估）。\n\n    Args:\n        session_id: 作业流程会话 ID（由 start_care_flow 或 GET /active/{elder_id} 获得）\n        tenant_id:  租户 ID，必填且必须在白名单内\n        order:      退住工单 dict，如 {\"order_type\": \"discharge\", \"reason\": \"转院\"}\n\n    Returns:\n        {found, session_id, status, message}；found=False 表示会话不存在/跨租户/已结束。\n    ",
+          "description": "向进行中的作业流程会话下发退住工单（SaaS 主动通知）。\n\n    对应 REST：POST /api/v1/work-flow/sessions/{session_id}/discharge-order\n\n    只更新该会话检查点里的 state.discharge_order，**不推进对话**：作业人员下一次发言时，\n    check_stage_node 会识别工单并触发阶段收敛（当前阶段达 min 即并入 复评 → 出院评估）。\n\n    Args:\n        session_id: 作业流程会话 ID（由 start_care_flow 或 GET /active/{elder_id} 获得）\n        tenant_id:  租户 ID，必填且必须在白名单内\n        order:      退住工单 dict，如 {\"order_type\": \"discharge\", \"reason\": \"转院\"}\n\n    Returns:\n        {found, session_id, status, message}；found=False 表示会话不存在/跨租户/已结束。\n    ",
           "inputSchema": {
             "properties": {
               "session_id": {
@@ -817,7 +817,7 @@
         },
         {
           "name": "get_care_flow_report",
-          "description": "取出院/服务评估报告（流程走到 finished 时生成）。\n\n    对应 REST：GET /api/v1/care-flow/{session_id}/report\n\n    Args:\n        session_id: 作业流程会话 ID\n        tenant_id:  租户 ID，必填\n\n    Returns:\n        报告内容；未生成或跨租户时返回 {\"found\": false}\n    ",
+          "description": "取出院/服务评估报告（流程走到 finished 时生成）。\n\n    对应 REST：GET /api/v1/work-flow/{session_id}/report\n\n    Args:\n        session_id: 作业流程会话 ID\n        tenant_id:  租户 ID，必填\n\n    Returns:\n        报告内容；未生成或跨租户时返回 {\"found\": false}\n    ",
           "inputSchema": {
             "properties": {
               "session_id": {
@@ -839,7 +839,7 @@
         },
         {
           "name": "confirm_care_plan_item",
-          "description": "护工确认某项服务任务执行完成（回写执行结果）。\n\n    对应 REST：POST /api/v1/care-flow/plan-items/{plan_item_id}/confirm\n    对齐业务系统侧的执行结果回写接口。\n\n    这里回写的是**执行结果**这类事实数据（谁在什么时候做了/没做），\n    不是业务规则——服务项目与频次仍由业务侧决定，care 不改。\n    漏做（status=missed）会进入服务历史的异常记录，供下一轮对话与复评参考。\n\n    Args:\n        plan_item_id:     计划条目 ID（来自 get_today_care_plan）\n        tenant_id:        租户 ID，必填且必须在白名单内\n        status:           done=已完成 / missed=该做没做\n        carer_name:       执行人姓名（便于审计，可空）\n        actual_care_time: 实际执行时间，如 \"08:05\"\n\n    Returns:\n        {confirmed, plan_item_id, status}；条目不存在或跨租户时 confirmed=False\n    ",
+          "description": "护工确认某项服务任务执行完成（回写执行结果）。\n\n    对应 REST：POST /api/v1/work-flow/plan-items/{plan_item_id}/confirm\n    对齐业务系统侧的执行结果回写接口。\n\n    这里回写的是**执行结果**这类事实数据（谁在什么时候做了/没做），\n    不是业务规则——服务项目与频次仍由业务侧决定，本服务 不改。\n    漏做（status=missed）会进入服务历史的异常记录，供下一轮对话与复评参考。\n\n    Args:\n        plan_item_id:     计划条目 ID（来自 get_today_care_plan）\n        tenant_id:        租户 ID，必填且必须在白名单内\n        status:           done=已完成 / missed=该做没做\n        carer_name:       执行人姓名（便于审计，可空）\n        actual_work_time: 实际执行时间，如 \"08:05\"\n\n    Returns:\n        {confirmed, plan_item_id, status}；条目不存在或跨租户时 confirmed=False\n    ",
           "inputSchema": {
             "properties": {
               "plan_item_id": {
@@ -860,7 +860,7 @@
                 "title": "Carer Name",
                 "type": "string"
               },
-              "actual_care_time": {
+              "actual_work_time": {
                 "default": "",
                 "title": "Actual Care Time",
                 "type": "string"

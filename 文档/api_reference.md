@@ -169,12 +169,12 @@ curl -H "Authorization: Bearer <token>" \
 
 > 四轨数据优先从库里读（租户过滤）：第一轨按**设备类型**过滤指标（见 `device_types`），
 > 查不到的数据**记为「证据缺失」**（`evidence_gaps` / `evidence_quality`）交给研判，
-> 不再生成模拟读数。结果落库 `alerts`，`source=care`。
+> 不再生成模拟读数。结果落库 `alerts`，`source=本服务`。
 
 ### 1b. POST /api/v1/alert/ingest — 接收业务系统 的报警记录（下行接入）
 
 角色：caregiver / supervisor / admin。业务系统 才是报警的权威源：SaaS 的
-业务系统的报警记录接口下发一条报警，care 研判后把处置结果经
+业务系统的报警记录接口下发一条报警，本服务 研判后把处置结果经
 发件箱回传（payload 带 `external_alert_id`），由业务系统回写处置结果，形成双向闭环。
 
 **请求体**（字段对齐 报警记录）
@@ -263,7 +263,7 @@ curl -H "Authorization: Bearer <token>" \
 
 ## 六、作业流程 Agent（状态机）
 
-### POST /api/v1/care-flow/start
+### POST /api/v1/work-flow/start
 
 启动作业流程会话（阶段：入住评估→日常服务→阶段复评→出院评估；异常处理为日常服务内子模式，由关键词触发切换）。
 
@@ -288,11 +288,11 @@ curl -H "Authorization: Bearer <token>" \
 
 **响应 200**：`{session_id, current_stage, ai_message, structured_output}`；同时在 `care_flow_sessions` 登记会话（业务侧权威记录，供"继续未完成流程"查询）。报告只在流程走到 `finished` 时才由 `save_report` 节点落库 `care_flow_reports`（阶段复评不会触发——续住回日常服务、走出院评估都要继续对话）。
 
-### GET /api/v1/care-flow/active/{elder_id}
+### GET /api/v1/work-flow/active/{elder_id}
 
 按点位查最近一场**进行中**的作业流程会话（租户隔离，无则 `active=false`）。
 
-### GET /api/v1/care-flow/sessions/{session_id}/plan-overview — 服务计划总览
+### GET /api/v1/work-flow/sessions/{session_id}/plan-overview — 服务计划总览
 
 前端「服务计划」页的数据源：风险等级 + 服务项 + 当天计划与执行进度，**一个接口给足**。
 不跑 LangGraph、不调 LLM（只读 Provider），所以很快。
@@ -315,7 +315,7 @@ curl -H "Authorization: Bearer <token>" \
   "today_plan": [
     { "plan_item_id": "dcp-2026-10-13-001", "project_name": "环境检查",
       "nurse_time": "07:00-08:00", "status": "done",
-      "carer_name": "张三", "actual_care_time": "08:05" }
+      "carer_name": "张三", "actual_work_time": "08:05" }
   ],
   "progress": { "total": 16, "done": 1, "missed": 1, "pending": 14 },
   "message": ""
@@ -329,27 +329,27 @@ curl -H "Authorization: Bearer <token>" \
   （"先完成风险评估或登记服务项"），前端应展示引导而不是空表格。
 - 会话不存在或跨租户 → 404。
 
-### POST /api/v1/care-flow/plan-items/{plan_item_id}/confirm — 执行回写
+### POST /api/v1/work-flow/plan-items/{plan_item_id}/confirm — 执行回写
 
 护工确认某项服务任务执行完成（对应业务系统侧的执行结果回写接口）。
 
 **请求体**
 
 ```json
-{ "status": "done", "carer_name": "张三", "actual_care_time": "08:05" }
+{ "status": "done", "carer_name": "张三", "actual_work_time": "08:05" }
 ```
 
 - `status` 只接受 `done`（完成）/ `missed`（该做没做），其它值 → 400。
 - `missed` 会进入服务历史的异常记录，供后续对话与阶段复评参考。
 - 回写的是**执行结果**（谁在什么时候做了/没做）这类事实数据；服务项目与频次等业务规则
-  仍由业务侧决定，care 不改——两种 Provider 的落点不同（本地写 care 自己的
+  仍由业务侧决定，本服务 不改——两种 Provider 的落点不同（本地写 本服务 自己的
   `daily_care_plans`，SaaS 实现调主系统接口）。
 
 **响应 200**：`{active: true, session: {session_id, elder_id, staff_id, current_stage, total_turns, started_at, updated_at}}`。
 
 用途：作业人员从点位详情页进入时，前端先调这里；有进行中的会话就提示"继续原流程"，拿回 session_id 进入对话页即可命中检查点续跑，不依赖浏览器记住 URL。
 
-### POST /api/v1/care-flow/chat
+### POST /api/v1/work-flow/chat
 
 阶段内对话（SSE 流式）。**请求体**：
 
@@ -374,9 +374,9 @@ curl -H "Authorization: Bearer <token>" \
 | `report` | 流程到 `finished` 阶段时推送完整服务报告 |
 | `error` / `done` | 同通用约定 |
 
-### POST /api/v1/care-flow/sessions/{session_id}/discharge-order
+### POST /api/v1/work-flow/sessions/{session_id}/discharge-order
 
-SaaS **主动下发**退住工单到指定会话（无需作业人员发言）。与 MCP 工具 `/mcp/care-flow` 的 `send_discharge_order` 共用同一段落地逻辑（`backend/agents/care_flow/discharge.py`）。
+SaaS **主动下发**退住工单到指定会话（无需作业人员发言）。与 MCP 工具 `/mcp/本服务-flow` 的 `send_discharge_order` 共用同一段落地逻辑（`backend/agents/care_flow/discharge.py`）。
 
 **请求体**：
 
@@ -411,7 +411,7 @@ SaaS **主动下发**退住工单到指定会话（无需作业人员发言）�
   "total_turns": 18,
   "discharge_driven": true,
   "report": { "overall_score": 88, "dimensions": [], "care_suggestions": [] },
-  "report_url": "/api/v1/care-flow/cf-xxxx/report",
+  "report_url": "/api/v1/work-flow/cf-xxxx/report",
   "occurred_at": "2026-10-12T10:30:00+00:00"
 }
 ```
@@ -447,33 +447,33 @@ SaaS **主动下发**退住工单到指定会话（无需作业人员发言）�
 
 投递与重试语义：2xx 视为成功；失败按 30s → 120s → 600s → 1800s 退避重试，第 5 次仍失败置 `failed`（保留记录、可人工重投）。租户未配置回调地址或 `enabled=false` 时，事件保留 `pending` 且**不计尝试次数**，配置好后自动补投。闭环链路不阻塞业务：投递发生在流程之外的后台循环里。
 
-### PUT /api/v1/care-flow/webhooks
+### PUT /api/v1/work-flow/webhooks
 
 登记 / 更新本租户回调地址（**需 supervisor / admin 角色**）。
 
 ```json
-{ "url": "https://saas.example.com/hooks/care-agent", "secret": "hmac-key", "enabled": true }
+{ "url": "https://saas.example.com/hooks/本服务-agent", "secret": "hmac-key", "enabled": true }
 ```
 
 `url` 必须是 `http(s)://` 开头。只写配置、不做连通性校验（真正的投递由后台投递器异步完成）。
 
-### GET /api/v1/care-flow/webhooks
+### GET /api/v1/work-flow/webhooks
 
 查看本租户回调配置，密钥打码只回显前缀。未配置返回 `{"configured": false, "webhook": null}`。
 
-### GET /api/v1/care-flow/events?limit=50
+### GET /api/v1/work-flow/events?limit=50
 
 列出本租户出站事件（最近优先，`limit` 上限 200）。每条含 `status`（pending / sent / failed）、`attempts`、`last_error`、`next_retry_at`、`sent_at`，用于排障与对账。
 
-### POST /api/v1/care-flow/events/{event_id}/redeliver
+### POST /api/v1/work-flow/events/{event_id}/redeliver
 
 把失败 / 已发事件重置为 `pending` 交给投递器重发（人工兜底，**需 supervisor / admin 角色**）。事件不存在或跨租户 → `404`。
 
-### GET /api/v1/care-flow/{session_id}/report
+### GET /api/v1/work-flow/{session_id}/report
 
 查询服务评估报告（直读 `care_flow_reports`，租户隔离）。响应含 `report`（完整报告）、`stage_reached`、`total_turns` 等。
 
-### GET /api/v1/care-flow/{session_id}/report/export
+### GET /api/v1/work-flow/{session_id}/report/export
 
 把作业流程报告导出为 **Word（.docx）**：标题 → 基本信息表（会话编号/点位编号/到达阶段/总轮数）→ 报告正文 → 明细 → 免责声明。租户隔离同上。
 

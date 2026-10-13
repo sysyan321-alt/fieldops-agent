@@ -22,7 +22,7 @@ labels: bug
 | 操作系统 | |
 | Python 版本 | |
 | 是否使用本地模型权重（`backend/models/`） | 是 / 否 |
-| `CARE_PLAN_PROVIDER` | local / saas |
+| `SERVICE_PLAN_PROVIDER` | local / saas |
 | 复现方式 | `./scripts/start.sh` / 手动启动 |
 
 ## 日志或报错

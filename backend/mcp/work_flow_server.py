@@ -181,7 +181,7 @@ async def confirm_service_plan_item(
     tenant_id: str,
     status: str = "done",
     worker_name: str = "",
-    actual_care_time: str = "",
+    actual_work_time: str = "",
 ) -> dict:
     """护工确认某项服务任务执行完成（回写执行结果）。
 
@@ -189,7 +189,7 @@ async def confirm_service_plan_item(
     对齐业务系统侧的执行结果回写接口。
 
     这里回写的是**执行结果**这类事实数据（谁在什么时候做了/没做），
-    不是业务规则——服务项目与频次仍由业务侧决定，care 不改。
+    不是业务规则——服务项目与频次仍由业务侧决定，本服务 不改。
     漏做（status=missed）会进入服务历史的异常记录，供下一轮对话与复评参考。
 
     Args:
@@ -197,7 +197,7 @@ async def confirm_service_plan_item(
         tenant_id:        租户 ID，必填且必须在白名单内
         status:           done=已完成 / missed=该做没做
         worker_name:       执行人姓名（便于审计，可空）
-        actual_care_time: 实际执行时间，如 "08:05"
+        actual_work_time: 实际执行时间，如 "08:05"
 
     Returns:
         {confirmed, plan_item_id, status}；条目不存在或跨租户时 confirmed=False
@@ -212,7 +212,7 @@ async def confirm_service_plan_item(
 
     ok = await get_service_plan_provider().confirm_plan_item(
         plan_item_id, tenant_id, status=status, worker_id="mcp-client",
-        worker_name=worker_name or "mcp-client", actual_care_time=actual_care_time,
+        worker_name=worker_name or "mcp-client", actual_work_time=actual_work_time,
     )
     logger.info("mcp.work_flow.plan_item_confirmed", plan_item_id=plan_item_id,
                 tenant_id=tenant_id, status=status, confirmed=ok)

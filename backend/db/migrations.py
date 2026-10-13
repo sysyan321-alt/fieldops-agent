@@ -112,14 +112,14 @@ _MIGRATIONS: list[str] = [
     "ALTER TABLE alerts ADD COLUMN IF NOT EXISTS location VARCHAR(128) DEFAULT ''",
     "ALTER TABLE alerts ADD COLUMN IF NOT EXISTS handled_by VARCHAR(64) DEFAULT ''",
     "ALTER TABLE alerts ADD COLUMN IF NOT EXISTS handled_at TIMESTAMP",
-    # 同一租户下一条 SaaS 报警只生成一条 care 告警（下行重放安全）
+    # 同一租户下一条 SaaS 报警只生成一条本服务告警（下行重放安全）
     "CREATE UNIQUE INDEX IF NOT EXISTS uniq_alert_external ON alerts(tenant_id, external_alert_id) "
     "WHERE external_alert_id IS NOT NULL",
     # v7：服务计划对齐业务系统 的业务模型
     #   site_service_items —— 点位的服务项（对齐业务系统的服务内容 /
     #                          addSiteServiceContent：项目 + 频次 + 作业时间段 + 必选）
     #   daily_work_plans    —— 每日服务计划（对齐业务系统：服务项目/点位/作业时间/
-    #                          服务人员/实际作业时间/状态）。care 侧**只读**：
+    #                          服务人员/实际作业时间/状态）。本服务 侧**只读**：
     #                          生成规则属于业务侧（每日计划由业务系统生成）
     """
     CREATE TABLE IF NOT EXISTS site_service_items (
@@ -153,7 +153,7 @@ _MIGRATIONS: list[str] = [
         nurse_time      VARCHAR(64) DEFAULT '',
         worker_id        VARCHAR(64) DEFAULT '',
         worker_name      VARCHAR(64) DEFAULT '',
-        actual_care_time VARCHAR(64) DEFAULT '',
+        actual_work_time VARCHAR(64) DEFAULT '',
         status          VARCHAR(16) NOT NULL DEFAULT 'planned',
         tenant_id       VARCHAR(64) NOT NULL DEFAULT 'tenant_default',
         updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -162,9 +162,9 @@ _MIGRATIONS: list[str] = [
     """,
     "CREATE INDEX IF NOT EXISTS idx_dcp_site_date ON daily_work_plans(site_id, plan_date DESC)",
     "CREATE INDEX IF NOT EXISTS idx_dcp_tenant ON daily_work_plans(tenant_id)",
-    # v8：风险等级 → 服务项目模板（对齐业务系统 的 /care/config 服务模板配置）
+    # v8：风险等级 → 服务项目模板（对齐业务系统 的 服务模板配置 服务模板配置）
     # 说明：在生产形态下这份配置由 SaaS 维护（按 nurseLevelName 组织），
-    # care 只在 CARE_PLAN_PROVIDER=local（本地/演示）时用它兜住"该等级该做哪些服务"。
+    # 本服务 只在 SERVICE_PLAN_PROVIDER=local（本地/演示）时用它兜住"该等级该做哪些服务"。
     """
     CREATE TABLE IF NOT EXISTS service_tier_configs (
         config_id       VARCHAR(64) PRIMARY KEY,
@@ -214,7 +214,7 @@ async def run_migrations():
     from backend.db.repositories import ensure_device_types
     await ensure_device_types()
 
-    # 幂等播种风险等级服务模板（本地 Provider 的演示配置；生产由 SaaS /care/config 提供）
+    # 幂等播种风险等级服务模板（本地 Provider 的演示配置；生产由 SaaS 服务模板配置 提供）
     from backend.db.repositories import ensure_service_tier_configs
     await ensure_service_tier_configs()
 

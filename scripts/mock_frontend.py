@@ -29,7 +29,7 @@ CHAT_PATH = "/api/v1/chat"
 HEALTH_PATH = "/health"
 
 # 测试账号（来自 backend/dependencies.py MOCK_USERS）
-CAREGIVER = {"username": "worker", "password": "Worker@123"}
+WORKER = {"username": "worker", "password": "Worker@123"}
 
 # 启动超时（秒）
 SERVER_BOOT_TIMEOUT = 30.0
@@ -94,7 +94,7 @@ class FrontendMock:
         self.user: Optional[dict] = None
 
     # ── 登录 ──
-    def login(self, credentials: dict = CAREGIVER) -> dict:
+    def login(self, credentials: dict = WORKER) -> dict:
         """登录获取 JWT。"""
         with httpx.Client(trust_env=False, timeout=10.0) as client:
             resp = client.post(
@@ -422,7 +422,7 @@ def scenario_e_direct_alert(client: FrontendMock) -> bool:
 def main():
     print_section("前端联调 mock：JWT 登录 → SSE 对话 → clarify → 多轮")
     print(f"  Base URL: {BASE_URL}")
-    print(f"  测试账号: {CAREGIVER['username']}")
+    print(f"  测试账号: {WORKER['username']}")
 
     # ── 1. 启动服务器 ──
     print_section("步骤 1：启动 uvicorn 子进程")

@@ -89,7 +89,7 @@ class AlertState(TypedDict):
     device_id:         str         # 触发告警的设备 ID
     alert_type:        str         # heart_rate_abnormal / off_bed_timeout / fall_detected / room_temp_abnormal
     alert_timestamp:   str         # 告警触发时间
-    source:            str         # 来源：care=care 自触发 / saas=业务系统 下发报警记录
+    source:            str         # 来源：local=本服务自触发 / saas=业务系统下发报警记录
     external_alert_id:         str         # SaaS 侧报警记录 ID（回写处置结果时用）
     alert_location:    str         # 报警位置（对齐 SaaS 报警记录 的"报警位置"）
     device_type_declared: str      # 报警自带的设备类型声明（SaaS 报警记录 的"设备类型"）

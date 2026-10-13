@@ -137,7 +137,7 @@ class Orchestrator:
             state["alert_type"] = request.context.get("alert_type", "heart_rate_abnormal")
             state["alert_timestamp"] = request.context.get("alert_timestamp", "")
             # 下行来源：业务系统 下发的报警（报警记录）带 external_alert_id 与报警位置，
-            # 处置完成后按 external_alert_id 回写 Handle报警记录；care 自触发时为 care/空
+            # 处置完成后按 external_alert_id 回写 回写处置结果；本服务自触发时为空
             state["source"] = request.context.get("source", "local")
             state["external_alert_id"] = request.context.get("external_alert_id", "")
             state["alert_location"] = request.context.get("alert_location", "")

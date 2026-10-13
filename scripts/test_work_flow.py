@@ -16,7 +16,7 @@ from backend.core.logger import configure_logging, get_logger
 configure_logging()
 logger = get_logger(__name__)
 
-ELDER_ID = "s001"
+SITE_ID = "s001"
 
 
 def _build_initial_state(session_id: str, stage: str = None, max_turns: int = 40,
@@ -24,7 +24,7 @@ def _build_initial_state(session_id: str, stage: str = None, max_turns: int = 40
     """构造初始 State。"""
     return {
         "messages":              [HumanMessage(content="")],  # 占位，调用方覆盖
-        "site_id":               ELDER_ID,
+        "site_id":               SITE_ID,
         "tenant_id":              "tenant_default",
         "session_id":             session_id,
         "service_plan_id":           f"plan-{session_id}",
@@ -58,14 +58,14 @@ def _last_ai_content(result: dict) -> str:
 # 用例①：单轮日常巡检（建档评估阶段）
 # ──────────────────────────────────────────────────────────────
 
-async def run_single_turn_care():
+async def run_single_turn_work():
     print("\n" + "=" * 60)
     print("  作业流程 Agent - 用例①：单轮日常巡检（建档评估阶段）")
     print("=" * 60)
 
     graph = await build_work_flow_graph()
     session_id = "work-single"
-    config = build_config(ELDER_ID, session_id, agent_type="work_flow")
+    config = build_config(SITE_ID, session_id, agent_type="work_flow")
 
     state = _build_initial_state(session_id)
     state["messages"] = [HumanMessage(content="点位今天精神状态不错，早班巡检已完成，进食量正常。")]
@@ -102,7 +102,7 @@ async def run_stage_transition():
 
     graph = await build_work_flow_graph()
     session_id = "work-transition"
-    config = build_config(ELDER_ID, session_id, agent_type="work_flow")
+    config = build_config(SITE_ID, session_id, agent_type="work_flow")
 
     # 用极小 max_turns=2 触发流转
     base = _build_initial_state(session_id, max_turns=2)
@@ -152,7 +152,7 @@ async def run_report_generation():
 
     graph = await build_work_flow_graph()
     session_id = "work-report"
-    config = build_config(ELDER_ID, session_id, agent_type="work_flow")
+    config = build_config(SITE_ID, session_id, agent_type="work_flow")
 
     state = _build_initial_state(
         session_id,
@@ -194,6 +194,6 @@ async def run_report_generation():
 
 
 if __name__ == "__main__":
-    asyncio.run(run_single_turn_care())
+    asyncio.run(run_single_turn_work())
     asyncio.run(run_stage_transition())
     asyncio.run(run_report_generation())

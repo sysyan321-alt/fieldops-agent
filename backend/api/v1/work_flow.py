@@ -240,7 +240,7 @@ async def get_today_plan(
     """查该会话对应点位**当天**的服务计划与执行进度。
 
     用途：作业人员的手持机/前端进日常巡检时先拉一次，知道"今天还剩哪几项没做"；
-    care 侧对计划只读（生成规则在业务侧），只有 confirm 才回写。
+    本服务对计划只读（生成规则在业务侧），只有 confirm 才回写。
     """
     from backend.db.repositories import daily_plan_progress, get_work_flow_session
     from backend.core.service_plan_provider import get_service_plan_provider
@@ -263,7 +263,7 @@ class PlanItemConfirmRequest(BaseModel):
     """护工执行回写（对应业务系统侧的执行结果回写接口）。"""
     status:           str = "done"   # done=完成 / missed=该做没做
     worker_name:       str = ""
-    actual_care_time: str = ""
+    actual_work_time: str = ""
 
 
 @router.post("/plan-items/{plan_item_id}/confirm")
@@ -274,9 +274,9 @@ async def confirm_plan_item(
 ):
     """护工确认某项服务任务执行完成 → 回写状态与执行人。
 
-    两种 Provider 的落点不同：本地实现写 care 自己的 daily_work_plans；
+    两种 Provider 的落点不同：本地实现写本服务自己的 daily_work_plans；
     SaaS 实现调主系统的「执行结果回写」接口。写的是"执行结果"这类事实数据，
-    不涉及业务规则，所以不违背"care 不重复实现计划生成"的分工。
+    不涉及业务规则，所以不违背"本服务不重复实现计划生成"的分工。
     """
     from backend.core.service_plan_provider import get_service_plan_provider
 
@@ -287,7 +287,7 @@ async def confirm_plan_item(
         status=req.status,
         worker_id=current_user["user_id"],
         worker_name=req.worker_name or current_user["user_id"],
-        actual_care_time=req.actual_care_time,
+        actual_work_time=req.actual_work_time,
     )
     if not ok:
         raise HTTPException(status_code=404, detail=f"计划条目不存在: {plan_item_id}")
