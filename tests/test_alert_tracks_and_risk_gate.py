@@ -11,23 +11,25 @@ from backend.core.quick_index import HIGH_RISK_KEYWORDS, get_quick_index, is_hig
 # ── ① 高危门控 ────────────────────────────────────────────────
 
 def test_is_high_risk_detects_emergencies():
-    for q in ["老人突然窒息怎么办", "噎住了怎么急救", "老人意识不清叫不醒",
-              "心跳骤停怎么做心肺复苏", "伤口大出血止不住"]:
+    for q in ["有人触电了怎么处理", "配电间煤气中毒怎么办", "电缆沟可燃气泄漏",
+              "仓库着火了先做什么", "气瓶爆炸了怎么处置",
+              "有人在屋面坠落", "被埋住出不来怎么办"]:
         assert is_high_risk(q), f"「{q}」应判为高危"
 
 
 def test_is_high_risk_ignores_routine_questions():
     """常规护理提问不能被误拦（否则快通道直接失效）。"""
-    for q in ["压疮分几期", "多久给老人翻一次身", "喂鼻饲前要回抽吗", "防压疮用什么评估表"]:
+    for q in ["灭火器多久检查一次", "配电间巡检项目有哪些", "轴承润滑周期是多久",
+              "电缆沟作业要戴什么防护"]:
         assert not is_high_risk(q), f"「{q}」不该判为高危"
 
 
 async def test_high_risk_query_is_forced_to_slow_path():
     """高危问法即使能命中本地索引，也必须回落慢链路。"""
     index = get_quick_index()
-    # 特意选一条"本来会命中索引"的高危问法：没门控时它会拿到一节 SOP 原文，
+    # 特意选一条"本来会命中索引"的高危问法：没门控时它会拿到一个章节的原文，
     # 有门控则必须回落慢链路（这条能让门控真的被验证，而不是碰巧没命中）。
-    query = "口腔护理时出血不止怎么办"
+    query = "屋面作业人员坠落怎么办"
     normal_hit = index.search(query).get("hit")
 
     state = {"original_query": query, "tenant_id": "tenant_default"}
@@ -41,7 +43,7 @@ async def test_high_risk_query_is_forced_to_slow_path():
 
 async def test_routine_query_still_uses_fast_channel():
     """门控不能把正常问法也拦掉。"""
-    result = await quick_route_node({"original_query": "压疮分几期", "tenant_id": "tenant_default"})
+    result = await quick_route_node({"original_query": "灭火器压力表在哪个区间正常", "tenant_id": "tenant_default"})
     assert result["answer_mode"] == "quick"
     assert result.get("quick_hit")
 
@@ -49,6 +51,33 @@ async def test_routine_query_still_uses_fast_channel():
 def test_keyword_list_is_not_oversized():
     """关键词表要克制：越宽越容易把常规提问误判成应急。"""
     assert len(HIGH_RISK_KEYWORDS) <= 30
+
+
+# ── ①b 诊断/归因类门控 ────────────────────────────────────────
+
+def test_diagnostic_queries_are_detected():
+    """求解释（是不是/为什么/又…了）的问句要能被识别。"""
+    from backend.core.quick_index import is_diagnostic
+
+    for q in ["最近总是跳闸，是不是线路老化", "上次进水的地方又漏了",
+              "水泵为什么响声大", "这个味道严重吗"]:
+        assert is_diagnostic(q), f"「{q}」应判为诊断类"
+
+
+def test_diagnostic_gate_blocks_literal_hit():
+    """字面命中也要拦住：快通道给的是"怎么做"，而这类问句问的是"为什么"。
+
+    回归集里两条误命中就是这么来的——「是不是线路老化」命中了「跳闸」那节、
+    「又漏了」命中了「进水与受潮」那节，但那两节讲的都是处置步骤，属答非所问。
+    """
+    index = get_quick_index()
+    literal_match = "跳闸"
+    # 先确认这个主题词本身是能命中的（否则这条用例就没有验证意义）
+    assert index.search("跳闸后怎么处理").get("hit") is not None
+    # 换成归因问法后必须回落
+    res = index.search(f"最近总是{literal_match}，是不是线路老化")
+    assert res.get("hit") is None
+    assert res.get("reason") == "diagnostic_query"
 
 
 # ── ② 四轨采集 ────────────────────────────────────────────────

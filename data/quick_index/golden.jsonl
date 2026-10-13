@@ -1,24 +1,24 @@
-{"query": "多久给老人翻一次身", "expect_mode": "quick", "expect_category": "positioning"}
-{"query": "卫生间要不要装扶手", "expect_mode": "quick", "expect_category": "fall_prevention"}
-{"query": "入院多久要做跌倒评估", "expect_mode": "quick", "expect_category": "fall_prevention"}
-{"query": "防压疮用什么评估表", "expect_mode": "quick", "expect_category": "pressure_ulcer"}
-{"query": "喂鼻饲前要回抽吗", "expect_mode": "quick", "expect_category": "feeding_tube"}
-{"query": "口服药发药前要核对什么", "expect_mode": "quick", "expect_category": "medication"}
-{"query": "老人刷牙要注意什么", "expect_mode": "quick", "expect_category": "oral_care"}
-{"query": "压疮分几期", "expect_mode": "quick", "expect_category": "pressure_ulcer"}
-{"query": "翻身时怎么摆体位", "expect_mode": "quick", "expect_category": "positioning"}
-{"query": "哪些老人不能插胃管", "expect_mode": "quick", "expect_category": "feeding_tube"}
-{"query": "跌倒后先做什么", "expect_mode": "quick", "expect_category": "fall_prevention"}
-{"query": "鼻饲管堵了怎么处理", "expect_mode": "quick", "expect_category": "feeding_tube"}
-{"query": "老人最近吃饭越来越少怎么办", "expect_mode": "rag"}
-{"query": "他晚上老是喊疼，要不要叫医生", "expect_mode": "rag"}
-{"query": "怎么判断他有没有抑郁", "expect_mode": "rag"}
-{"query": "家属来了要注意什么", "expect_mode": "rag"}
-{"query": "今天老人心情不好", "expect_mode": "rag"}
-{"query": "血糖高怎么办", "expect_mode": "rag"}
-{"query": "帮我把今天的护理记录整理成报告", "expect_mode": "rag"}
-{"query": "老人不肯吃药怎么劝", "expect_mode": "rag"}
-{"query": "要换导尿管吗", "expect_mode": "rag"}
-{"query": "怎么安排他一周的活动", "expect_mode": "rag"}
-{"query": "为什么他晚上总醒", "expect_mode": "rag"}
-{"query": "这个老人还能活多久", "expect_mode": "rag"}
+{"query": "几米以上算高处作业", "expect_mode": "quick", "expect_category": "work_at_height"}
+{"query": "安全带要系在哪里", "expect_mode": "quick", "expect_category": "work_at_height"}
+{"query": "配电间多久巡检一次", "expect_mode": "quick", "expect_category": "power_room_inspection"}
+{"query": "配电柜温度多少算高", "expect_mode": "quick", "expect_category": "power_room_inspection"}
+{"query": "灭火器压力表到红区了怎么办", "expect_mode": "quick", "expect_category": "fire_equipment_check"}
+{"query": "消火栓前面能不能堆东西", "expect_mode": "quick", "expect_category": "fire_equipment_check"}
+{"query": "轴承多久加一次油", "expect_mode": "quick", "expect_category": "equipment_maintenance"}
+{"query": "皮带松紧怎么判断", "expect_mode": "quick", "expect_category": "equipment_maintenance"}
+{"query": "进污水池前要检测什么", "expect_mode": "quick", "expect_category": "confined_space"}
+{"query": "受限空间多久复测一次", "expect_mode": "quick", "expect_category": "confined_space"}
+{"query": "地下室进水先断电还是先排水", "expect_mode": "quick", "expect_category": "water_ingress"}
+{"query": "地面积水怎么排水", "expect_mode": "quick", "expect_category": "water_ingress"}
+{"query": "这个配电间要不要整体改造", "expect_mode": "rag"}
+{"query": "最近总是跳闸，是不是线路老化", "expect_mode": "rag"}
+{"query": "怎么跟使用方解释我们要停电检修", "expect_mode": "rag"}
+{"query": "帮我排一下下周的巡检计划", "expect_mode": "rag"}
+{"query": "这栋楼的消防设施还合不合规", "expect_mode": "rag"}
+{"query": "水泵声音比之前大了", "expect_mode": "rag"}
+{"query": "设备要不要换新的", "expect_mode": "rag"}
+{"query": "今天巡检发现好几处问题，先处理哪个", "expect_mode": "rag"}
+{"query": "雨季前我们要准备什么", "expect_mode": "rag"}
+{"query": "上次进水的地方又漏了", "expect_mode": "rag"}
+{"query": "这个点位能评几级", "expect_mode": "rag"}
+{"query": "为什么这个月告警这么多", "expect_mode": "rag"}

@@ -25,7 +25,8 @@ DEFAULT_SETS = [
     ("调参集 golden.jsonl", ROOT_DIR / "data" / "quick_index" / "golden.jsonl"),
     ("留出集 golden_holdout.jsonl", ROOT_DIR / "data" / "quick_index" / "golden_holdout.jsonl"),
 ]
-ABSTAIN = {"no_candidate", "coverage_below_threshold", "ambiguous_top2"}
+ABSTAIN = {"no_candidate", "coverage_below_threshold", "ambiguous_top2",
+           "topic_not_in_title", "diagnostic_query"}
 
 
 def run_one(title: str, golden_path: Path, index) -> dict:

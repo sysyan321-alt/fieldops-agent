@@ -1,17 +1,31 @@
 {
-  "_comment": "人工补充问法/关键词。LLM 批量生成相似问法会有遗漏，回归用例（golden.jsonl）暴露的缺口按 id 补在这里；build_quick_index.py 重新生成时会自动合并，不会被覆盖。",
-  "fall_prevention-08": {
+  "_comment": "人工补充问法/关键词。回归用例（golden*.jsonl）暴露的缺口按条目 id 补在这里；build_quick_index.py 重新生成时会自动合并。",
+  "work_at_height-01": {
     "similar_questions": [
-      "跌倒后先做什么",
-      "老人摔倒后怎么处理"
+      "几米以上算高处作业",
+      "多高算高处作业",
+      "高处作业怎么分级"
     ]
   },
-  "medication-03": {
+  "power_room_inspection-06": {
     "similar_questions": [
-      "口服药发药前要核对什么"
-    ],
-    "keywords": [
-      "发药前核对"
+      "配电柜温度多少算高",
+      "柜内温度标准是多少",
+      "接点温升多少算异常"
+    ]
+  },
+  "equipment_maintenance-07": {
+    "similar_questions": [
+      "轴承多久加一次油",
+      "润滑周期多久",
+      "多久打一次黄油"
+    ]
+  },
+  "confined_space-09": {
+    "similar_questions": [
+      "进污水池前要检测什么",
+      "下井前检测哪些气体",
+      "受限空间检测项目"
     ]
   }
 }

@@ -1,1828 +1,1857 @@
 {
-  "built_at": "2026-09-29 09:55:31",
-  "generator": "llm",
-  "entry_count": 73,
+  "built_at": "2026-10-13 20:31:48",
+  "generator": "rule",
+  "entry_count": 94,
   "entries": [
     {
-      "id": "fall_prevention-00",
+      "id": "confined_space-00",
       "tenant_id": "tenant_default",
-      "category": "fall_prevention",
-      "doc_title": "跌倒预防与处理 SOP",
-      "section_title": "1.1 评估工具",
-      "canonical_question": "跌倒预防与处理 SOP中「1.1 评估工具」的要求是什么？",
+      "category": "confined_space",
+      "doc_title": "受限空间作业规范",
+      "section_title": "1.1 受限空间辨识",
+      "canonical_question": "受限空间作业规范中「1.1 受限空间辨识」的要求是什么？",
       "similar_questions": [
-        "Morse量表怎么评？",
-        "跌倒史要问哪些？",
-        "有啥病会影响评分？",
-        "输液和助行器算吗？",
-        "步态和认知咋看？"
+        "受限空间辨识怎么做？",
+        "受限空间辨识要注意什么？",
+        "受限空间辨识有哪些要求？",
+        "受限空间作业规范里受限空间辨识的步骤是什么？",
+        "受限空间辨识的标准流程"
       ],
       "keywords": [
-        "Morse跌倒风险评估量表",
-        "跌倒史",
-        "伴随疾病",
-        "辅助行走",
-        "静脉输液",
-        "步态与认知状态"
+        "受限空间"
       ],
-      "snippet": "Morse 跌倒风险评估量表（MFS），维度包括跌倒史、伴随疾病、辅助行走、静脉输液、步态、认知状态。",
-      "source": "fall_prevention > 跌倒预防与处理 SOP > 1.1 评估工具"
+      "snippet": "- 进出通道狭窄、人员不能自由进出\n- 自然通风不良，易造成有毒有害气体、蒸气积聚或氧含量不足\n- 内部存在转动部件、带电体、高温表面或物料掩埋风险",
+      "source": "confined_space > 受限空间作业规范 > 1.1 受限空间辨识"
     },
     {
-      "id": "fall_prevention-01",
+      "id": "confined_space-01",
       "tenant_id": "tenant_default",
-      "category": "fall_prevention",
-      "doc_title": "跌倒预防与处理 SOP",
-      "section_title": "1.3 评估时机",
-      "canonical_question": "跌倒预防与处理 SOP中「1.3 评估时机」的要求是什么？",
+      "category": "confined_space",
+      "doc_title": "受限空间作业规范",
+      "section_title": "1.2 风险分级",
+      "canonical_question": "受限空间作业规范中「1.2 风险分级」的要求是什么？",
       "similar_questions": [
-        "入院多久要评跌倒？",
-        "转科后还要再评吗？",
-        "用降压药后要评吗？",
-        "用利尿药也要评吗？",
-        "每周都要复评吗？"
+        "风险分级怎么做？",
+        "风险分级要注意什么？",
+        "风险分级有哪些要求？",
+        "受限空间作业规范里风险分级的步骤是什么？",
+        "风险分级的标准流程"
       ],
       "keywords": [
-        "跌倒风险评估时机",
-        "入院24小时内",
-        "转科/病情变化",
-        "镇静/降压/利尿药物",
-        "每周复评"
+        "受限空间"
       ],
-      "snippet": "- 入院 24 小时内\n- 转科/病情变化时\n- 使用镇静/降压/利尿药物后\n- 每周复评",
-      "source": "fall_prevention > 跌倒预防与处理 SOP > 1.3 评估时机"
+      "snippet": "- 低风险：已隔离、彻底通风、气体检测合格且作业简单\n- 中风险：需边作业边通风，或存在单一有害因素\n- 高风险：存在硫化氢、一氧化碳、可燃气或缺氧可能，或需动火作业",
+      "source": "confined_space > 受限空间作业规范 > 1.2 风险分级"
     },
     {
-      "id": "fall_prevention-02",
+      "id": "confined_space-02",
       "tenant_id": "tenant_default",
-      "category": "fall_prevention",
-      "doc_title": "跌倒预防与处理 SOP",
-      "section_title": "2.1 环境干预",
-      "canonical_question": "跌倒预防与处理 SOP中「2.1 环境干预」的要求是什么？",
+      "category": "confined_space",
+      "doc_title": "受限空间作业规范",
+      "section_title": "1.3 作业前辨识要求",
+      "canonical_question": "受限空间作业规范中「1.3 作业前辨识要求」的要求是什么？",
       "similar_questions": [
-        "卫生间扶手装哪？",
-        "防滑垫放哪里？",
-        "床要调多高？",
-        "夜里地灯怎么开？",
-        "地上有水咋办？"
+        "作业前辨识要求怎么做？",
+        "作业前辨识要求要注意什么？",
+        "作业前辨识要求有哪些要求？",
+        "受限空间作业规范里作业前辨识要求的步骤是什么？",
+        "作业前辨识要求的标准流程"
       ],
       "keywords": [
-        "环境干预",
-        "卫生间扶手",
-        "防滑垫",
-        "呼叫铃",
-        "床高",
-        "夜间地灯"
+        "受限空间"
       ],
-      "snippet": "- 卫生间安装扶手、防滑垫、呼叫铃\n- 床高调至膝下，离地 < 65cm\n- 夜间地灯 + 走道无障碍\n- 干燥地面，及时清理水渍",
-      "source": "fall_prevention > 跌倒预防与处理 SOP > 2.1 环境干预"
+      "snippet": "- 每次作业前重新辨识，不得套用历史结论\n- 辨识结果写入作业许可，含危害因素与对应措施",
+      "source": "confined_space > 受限空间作业规范 > 1.3 作业前辨识要求"
     },
     {
-      "id": "fall_prevention-03",
+      "id": "confined_space-03",
       "tenant_id": "tenant_default",
-      "category": "fall_prevention",
-      "doc_title": "跌倒预防与处理 SOP",
-      "section_title": "2.2 个人防护",
-      "canonical_question": "跌倒预防与处理 SOP中「2.2 个人防护」的要求是什么？",
+      "category": "confined_space",
+      "doc_title": "受限空间作业规范",
+      "section_title": "2.1 作业许可",
+      "canonical_question": "受限空间作业规范中「2.1 作业许可」的要求是什么？",
       "similar_questions": [
-        "防滑鞋买哪种？",
-        "裤子多长合适？",
-        "眼镜要一直戴吗？",
-        "多久查一次视力？",
-        "啥时用助行器？"
+        "作业许可怎么做？",
+        "作业许可要注意什么？",
+        "作业许可有哪些要求？",
+        "受限空间作业规范里作业许可的步骤是什么？",
+        "作业许可的标准流程"
       ],
       "keywords": [
-        "个人防护",
-        "防滑鞋",
-        "裤长适宜",
-        "眼镜",
-        "视力检查",
-        "助行器"
+        "受限空间"
       ],
-      "snippet": "- 高风险老人穿防滑鞋\n- 裤长适宜，不拖地\n- 眼镜常戴，定期检查视力\n- 必要时使用助行器",
-      "source": "fall_prevention > 跌倒预防与处理 SOP > 2.2 个人防护"
+      "snippet": "- 受限空间作业必须办理许可，经值班主管审批\n- 许可须注明作业内容、空间名称、危害因素、检测结果、监护人与应急措施\n- 作业条件变化（检测不合格、通风中断）时立即中止作业并重新办许可",
+      "source": "confined_space > 受限空间作业规范 > 2.1 作业许可"
     },
     {
-      "id": "fall_prevention-04",
+      "id": "confined_space-04",
       "tenant_id": "tenant_default",
-      "category": "fall_prevention",
-      "doc_title": "跌倒预防与处理 SOP",
-      "section_title": "2.3 行为干预",
-      "canonical_question": "跌倒预防与处理 SOP中「2.3 行为干预」的要求是什么？",
+      "category": "confined_space",
+      "doc_title": "受限空间作业规范",
+      "section_title": "2.2 人员配置",
+      "canonical_question": "受限空间作业规范中「2.2 人员配置」的要求是什么？",
       "similar_questions": [
-        "警示标识挂哪？",
-        "床栏啥时拉起来？",
-        "离床要人陪吗？",
-        "三个半分钟咋做？",
-        "起床太快会跌倒吗？"
+        "人员配置怎么做？",
+        "人员配置要注意什么？",
+        "人员配置有哪些要求？",
+        "受限空间作业规范里人员配置的步骤是什么？",
+        "人员配置的标准流程"
       ],
       "keywords": [
-        "行为干预",
-        "警示标识",
-        "床栏",
-        "离床陪护",
-        "三个半分钟"
+        "受限空间"
       ],
-      "snippet": "- 高风险床头悬挂警示标识\n- 床栏使用，离床活动需陪护\n- 教育老人\"三个半分钟\"：起床前躺半分钟、坐半分钟、站半分钟",
-      "source": "fall_prevention > 跌倒预防与处理 SOP > 2.3 行为干预"
+      "snippet": "- 作业人员、监护人、审批人三方职责分离，监护人不得进入空间作业\n- 作业人员须经专项培训，高风险作业须配备应急救援人员\n- 单人不得进入受限空间",
+      "source": "confined_space > 受限空间作业规范 > 2.2 人员配置"
     },
     {
-      "id": "fall_prevention-05",
+      "id": "confined_space-05",
       "tenant_id": "tenant_default",
-      "category": "fall_prevention",
-      "doc_title": "跌倒预防与处理 SOP",
-      "section_title": "2.4 药物管理",
-      "canonical_question": "跌倒预防与处理 SOP中「2.4 药物管理」的要求是什么？",
+      "category": "confined_space",
+      "doc_title": "受限空间作业规范",
+      "section_title": "2.3 个体防护",
+      "canonical_question": "受限空间作业规范中「2.3 个体防护」的要求是什么？",
       "similar_questions": [
-        "精神药有啥副作用？",
-        "降压药会让人晕吗？",
-        "利尿药啥时吃好？",
-        "夜里起夜多咋调药？",
-        "直立性低血压要监测吗？"
+        "个体防护怎么做？",
+        "个体防护要注意什么？",
+        "个体防护有哪些要求？",
+        "受限空间作业规范里个体防护的步骤是什么？",
+        "个体防护的标准流程"
       ],
       "keywords": [
-        "药物管理",
-        "精神药物",
-        "降压药",
-        "利尿药",
-        "直立性低血压",
-        "夜间起夜"
+        "受限空间"
       ],
-      "snippet": "- 评估精神药物、降压药、利尿药副作用\n- 调整用药时机，避免夜间起夜高峰\n- 监测直立性低血压",
-      "source": "fall_prevention > 跌倒预防与处理 SOP > 2.4 药物管理"
+      "snippet": "- 配便携式气体检测仪并全程佩戴，报警即撤\n- 缺氧或有毒环境配备正压式空气呼吸器或长管呼吸器\n- 配备安全绳、全身式安全带与三脚架等提升装置",
+      "source": "confined_space > 受限空间作业规范 > 2.3 个体防护"
     },
     {
-      "id": "fall_prevention-06",
+      "id": "confined_space-06",
       "tenant_id": "tenant_default",
-      "category": "fall_prevention",
-      "doc_title": "跌倒预防与处理 SOP",
-      "section_title": "3.1 现场处置",
-      "canonical_question": "跌倒预防与处理 SOP中「3.1 现场处置」的要求是什么？",
+      "category": "confined_space",
+      "doc_title": "受限空间作业规范",
+      "section_title": "3.1 隔离与清洗",
+      "canonical_question": "受限空间作业规范中「3.1 隔离与清洗」的要求是什么？",
       "similar_questions": [
-        "老人跌倒先看啥？",
-        "要问哪里疼吗？",
-        "能马上扶起来吗？",
-        "怀疑脊柱伤咋办？",
-        "啥时候叫医生？"
+        "隔离与清洗怎么做？",
+        "隔离与清洗要注意什么？",
+        "隔离与清洗有哪些要求？",
+        "受限空间作业规范里隔离与清洗的步骤是什么？",
+        "隔离与清洗的标准流程"
       ],
       "keywords": [
-        "现场处置",
-        "意识评估",
-        "呼吸脉搏",
-        "疼痛部位",
-        "禁止随意搬动",
-        "呼叫医生"
+        "受限空间"
       ],
-      "snippet": "1. 立即评估意识、呼吸、脉搏\n2. 询问老人疼痛部位，怀疑脊柱/颅脑损伤禁止随意搬动\n3. 不确定损伤程度时呼叫医生，等待评估\n4. 评估后无大碍再协助缓慢起身",
-      "source": "fall_prevention > 跌倒预防与处理 SOP > 3.1 现场处置"
+      "snippet": "- 切断并锁定相关电源、物料管线，加装盲板或双重切断\n- 与相邻系统连通的须可靠隔离并挂牌\n- 残留物料须清洗置换，避免挥发产生有害气体",
+      "source": "confined_space > 受限空间作业规范 > 3.1 隔离与清洗"
     },
     {
-      "id": "fall_prevention-07",
+      "id": "confined_space-07",
       "tenant_id": "tenant_default",
-      "category": "fall_prevention",
-      "doc_title": "跌倒预防与处理 SOP",
-      "section_title": "3.2 体格检查",
-      "canonical_question": "跌倒预防与处理 SOP中「3.2 体格检查」的要求是什么？",
+      "category": "confined_space",
+      "doc_title": "受限空间作业规范",
+      "section_title": "3.2 通风",
+      "canonical_question": "受限空间作业规范中「3.2 通风」的要求是什么？",
       "similar_questions": [
-        "头面部查哪些？",
-        "瞳孔要查啥？",
-        "耳鼻漏液要查吗？",
-        "脊柱怎么查？",
-        "四肢和胸腹查啥？"
+        "通风怎么做？",
+        "通风要注意什么？",
+        "通风有哪些要求？",
+        "受限空间作业规范里通风的步骤是什么？",
+        "通风的标准流程"
       ],
       "keywords": [
-        "体格检查",
-        "瞳孔",
-        "耳鼻漏液",
-        "脊柱压痛",
-        "四肢畸形",
-        "胸腹压痛"
+        "受限空间"
       ],
-      "snippet": "- 头面部：检查瞳孔、有无血肿、耳鼻漏液\n- 脊柱：压痛、活动受限\n- 四肢：畸形、肿胀、活动障碍\n- 胸腹部：压痛、皮下淤血",
-      "source": "fall_prevention > 跌倒预防与处理 SOP > 3.2 体格检查"
+      "snippet": "- 作业前强制通风不少于 30 分钟\n- 作业过程中持续通风，不得用纯氧通风\n- 通风设备故障立即撤离",
+      "source": "confined_space > 受限空间作业规范 > 3.2 通风"
     },
     {
-      "id": "fall_prevention-08",
+      "id": "confined_space-08",
       "tenant_id": "tenant_default",
-      "category": "fall_prevention",
-      "doc_title": "跌倒预防与处理 SOP",
-      "section_title": "3.3 紧急情况处理",
-      "canonical_question": "跌倒预防与处理 SOP中「3.3 紧急情况处理」的要求是什么？",
+      "category": "confined_space",
+      "doc_title": "受限空间作业规范",
+      "section_title": "3.3 气体检测",
+      "canonical_question": "受限空间作业规范中「3.3 气体检测」的要求是什么？",
       "similar_questions": [
-        "头外伤啥时做CT？",
-        "用抗凝药摔头咋办？",
-        "髋部骨折有啥表现？",
-        "脊柱骨折能动吗？",
-        "软组织伤RICE咋做？",
-        "跌倒后先做什么",
-        "老人摔倒后怎么处理"
+        "气体检测怎么做？",
+        "气体检测要注意什么？",
+        "气体检测有哪些要求？",
+        "受限空间作业规范里气体检测的步骤是什么？",
+        "气体检测的标准流程"
       ],
       "keywords": [
-        "头部外伤",
-        "急诊CT",
-        "硬膜下血肿",
-        "髋部骨折",
-        "脊柱骨折",
-        "RICE原则"
+        "气体检测",
+        "受限空间"
       ],
-      "snippet": "#### 3.3.1 头部外伤\n- 意识改变、呕吐、瞳孔不等 → 急诊 CT\n- 24 小时内密切观察，警惕硬膜下血肿\n- 老年人抗凝药使用者尤需关注\n\n#### 3.3.2 骨折\n- 髋部骨折：下肢短缩外旋、不能活动 → 急诊 X 线\n- 脊柱骨折：背痛 + 叩击痛 → 禁动 + 急诊评估\n- 长骨骨折：固定后转运\n\n#### 3.3.3 软组织损伤\n- RICE 原则：休息、冰敷、加压、抬高\n- 48 小时后改热敷",
-      "source": "fall_prevention > 跌倒预防与处理 SOP > 3.3 紧急情况处理"
+      "snippet": "- 检测顺序：氧气 → 可燃气体 → 有毒气体\n- 合格判据参考：氧含量 19.5%-23.5%，可燃气体低于爆炸下限 10%，\n  硫化氢低于 10ppm，一氧化碳低于 20ppm\n- 检测须在空间内不同深度进行，不得只在入口处检测\n- 作业期间每 2 小时复测一次，中断作业超 30 分钟须重新检测",
+      "source": "confined_space > 受限空间作业规范 > 3.3 气体检测"
     },
     {
-      "id": "fall_prevention-09",
+      "id": "confined_space-09",
       "tenant_id": "tenant_default",
-      "category": "fall_prevention",
-      "doc_title": "跌倒预防与处理 SOP",
-      "section_title": "4.1 上报内容",
-      "canonical_question": "跌倒预防与处理 SOP中「4.1 上报内容」的要求是什么？",
+      "category": "confined_space",
+      "doc_title": "受限空间作业规范",
+      "section_title": "3.4 监护与通讯",
+      "canonical_question": "受限空间作业规范中「3.4 监护与通讯」的要求是什么？",
       "similar_questions": [
-        "上报要写时间地点吗？",
-        "目击和非目击咋写？",
-        "老人当时吃药了吗？",
-        "现场环境要写啥？",
-        "处置经过咋记录？"
+        "监护与通讯怎么做？",
+        "监护与通讯要注意什么？",
+        "监护与通讯有哪些要求？",
+        "受限空间作业规范里监护与通讯的步骤是什么？",
+        "监护与通讯的标准流程",
+        "进污水池前要检测什么",
+        "下井前检测哪些气体",
+        "受限空间检测项目"
       ],
       "keywords": [
-        "上报内容",
-        "跌倒时间地点",
-        "目击情况",
-        "老人状态",
-        "现场环境",
-        "处置经过"
+        "受限空间"
       ],
-      "snippet": "- 跌倒时间、地点、目击/非目击\n- 老人状态（用药、生命体征、当时活动）\n- 现场环境（地面、照明、辅助用具）\n- 处置经过和结果",
-      "source": "fall_prevention > 跌倒预防与处理 SOP > 4.1 上报内容"
+      "snippet": "- 监护人全程在入口处监护，保持可视或持续通讯\n- 监护人不得离开岗位，不得兼做其他工作\n- 发现异常立即呼叫撤离并启动应急程序，不得盲目进入施救",
+      "source": "confined_space > 受限空间作业规范 > 3.4 监护与通讯"
     },
     {
-      "id": "fall_prevention-10",
+      "id": "confined_space-10",
       "tenant_id": "tenant_default",
-      "category": "fall_prevention",
-      "doc_title": "跌倒预防与处理 SOP",
-      "section_title": "4.2 追踪",
-      "canonical_question": "跌倒预防与处理 SOP中「4.2 追踪」的要求是什么？",
+      "category": "confined_space",
+      "doc_title": "受限空间作业规范",
+      "section_title": "4.1 人员昏迷或失去联络",
+      "canonical_question": "受限空间作业规范中「4.1 人员昏迷或失去联络」的要求是什么？",
       "similar_questions": [
-        "不良事件报告多久填？",
-        "24小时内必须报吗？",
-        "根因分析多久做？",
-        "一周内要干啥？",
-        "改进措施咋落实？"
+        "人员昏迷或失去联络怎么做？",
+        "人员昏迷或失去联络要注意什么？",
+        "人员昏迷或失去联络有哪些要求？",
+        "受限空间作业规范里人员昏迷或失去联络的步骤是什么？",
+        "人员昏迷或失去联络的标准流程"
       ],
       "keywords": [
-        "追踪",
-        "不良事件报告",
-        "24小时内",
-        "根因分析",
-        "1周内",
-        "改进措施"
+        "受限空间"
       ],
-      "snippet": "- 24 小时内填写不良事件报告\n- 1 周内组织根因分析\n- 制定改进措施并落实",
-      "source": "fall_prevention > 跌倒预防与处理 SOP > 4.2 追踪"
+      "snippet": "1. 立即呼叫增援并报警，禁止无防护进入施救\n2. 用安全绳与提升装置将人员移出空间\n3. 移出后置于通风处，检查呼吸脉搏，无呼吸立即心肺复苏\n4. 同时联系 120 并报告值班主管",
+      "source": "confined_space > 受限空间作业规范 > 4.1 人员昏迷或失去联络"
     },
     {
-      "id": "fall_prevention-11",
+      "id": "confined_space-11",
       "tenant_id": "tenant_default",
-      "category": "fall_prevention",
-      "doc_title": "跌倒预防与处理 SOP",
-      "section_title": "5.1 老人教育",
-      "canonical_question": "跌倒预防与处理 SOP中「5.1 老人教育」的要求是什么？",
+      "category": "confined_space",
+      "doc_title": "受限空间作业规范",
+      "section_title": "4.2 气体报警",
+      "canonical_question": "受限空间作业规范中「4.2 气体报警」的要求是什么？",
       "similar_questions": [
-        "老人逞强咋劝？",
-        "起床慢有啥口诀？",
-        "睡袍太长危险吗？",
-        "直立性低血压咋防？",
-        "老人不愿求助咋说？"
+        "气体报警怎么做？",
+        "气体报警要注意什么？",
+        "气体报警有哪些要求？",
+        "受限空间作业规范里气体报警的步骤是什么？",
+        "气体报警的标准流程"
       ],
       "keywords": [
-        "老人教育",
-        "主动求助",
-        "起床缓慢",
-        "直立性低血压",
-        "衣着合适",
-        "睡袍过长"
+        "受限空间"
       ],
-      "snippet": "- 强调\"不要逞强\"，主动求助\n- 起床缓慢，避免直立性低血压\n- 衣着合适，不穿过长的睡袍",
-      "source": "fall_prevention > 跌倒预防与处理 SOP > 5.1 老人教育"
+      "snippet": "- 检测仪报警时立即撤离，不得判断为误报后继续作业\n- 撤离至安全区后复测并查找泄漏或缺氧原因\n- 原因未查明不得重新进入",
+      "source": "confined_space > 受限空间作业规范 > 4.2 气体报警"
     },
     {
-      "id": "fall_prevention-12",
+      "id": "confined_space-12",
       "tenant_id": "tenant_default",
-      "category": "fall_prevention",
-      "doc_title": "跌倒预防与处理 SOP",
-      "section_title": "5.2 家属教育",
-      "canonical_question": "跌倒预防与处理 SOP中「5.2 家属教育」的要求是什么？",
+      "category": "confined_space",
+      "doc_title": "受限空间作业规范",
+      "section_title": "4.3 火情与可燃气体",
+      "canonical_question": "受限空间作业规范中「4.3 火情与可燃气体」的要求是什么？",
       "similar_questions": [
-        "探视别带啥东西？",
-        "床栏家属要配合吗？",
-        "约束具啥时能用？",
-        "老人能单独活动吗？",
-        "咋跟家属解释高风险？"
+        "火情与可燃气体怎么做？",
+        "火情与可燃气体要注意什么？",
+        "火情与可燃气体有哪些要求？",
+        "受限空间作业规范里火情与可燃气体的步骤是什么？",
+        "火情与可燃气体的标准流程"
       ],
       "keywords": [
-        "家属教育",
-        "危险物品",
-        "床栏",
-        "约束具",
-        "跌倒高风险状态",
-        "单独活动"
+        "受限空间"
       ],
-      "snippet": "- 探视时不留危险物品\n- 配合机构使用床栏、约束具（必要时）\n- 理解跌倒高风险状态，避免老人单独活动",
-      "source": "fall_prevention > 跌倒预防与处理 SOP > 5.2 家属教育"
+      "snippet": "- 空间内出现明火或可燃气体报警，立即撤离并断电\n- 按消防预案处置，严禁在受限空间内使用水扑救带电火灾",
+      "source": "confined_space > 受限空间作业规范 > 4.3 火情与可燃气体"
     },
     {
-      "id": "feeding_tube-00",
+      "id": "confined_space-13",
       "tenant_id": "tenant_default",
-      "category": "feeding_tube",
-      "doc_title": "鼻饲管护理操作规范（SOP）",
-      "section_title": "1. 目的与适应症",
-      "canonical_question": "鼻饲管护理操作规范（SOP）中「1. 目的与适应症」的要求是什么？",
+      "category": "confined_space",
+      "doc_title": "受限空间作业规范",
+      "section_title": "5.1 记录",
+      "canonical_question": "受限空间作业规范中「5.1 记录」的要求是什么？",
       "similar_questions": [
-        "鼻饲管是干啥用的？",
-        "胃管适合哪些老人？",
-        "不能吃饭就要下胃管吗？",
-        "啥情况要用鼻饲管？",
-        "鼻饲能给老人补营养吗？"
+        "记录怎么做？",
+        "记录要注意什么？",
+        "记录有哪些要求？",
+        "受限空间作业规范里记录的步骤是什么？",
+        "记录的标准流程"
       ],
       "keywords": [
-        "鼻饲管",
-        "肠内营养",
-        "适应症",
-        "吞咽功能障碍",
-        "重度营养不良",
-        "术后禁食期"
+        "受限空间"
       ],
-      "snippet": "鼻饲管（Nasogastric Tube, NG）用于无法经口进食或进食不足的老人进行肠内营养支持，常见适应症包括吞咽功能障碍、重度营养不良、术后禁食期辅助喂养等。",
-      "source": "feeding_tube > 鼻饲管护理操作规范（SOP） > 1. 目的与适应症"
+      "snippet": "- 作业许可、气体检测记录、监护记录一并归档，至少保存 1 年\n- 检测记录须含时间、位置、数值、检测人与仪器编号\n- 不得用事后补录替代现场记录",
+      "source": "confined_space > 受限空间作业规范 > 5.1 记录"
     },
     {
-      "id": "feeding_tube-01",
+      "id": "confined_space-14",
       "tenant_id": "tenant_default",
-      "category": "feeding_tube",
-      "doc_title": "鼻饲管护理操作规范（SOP）",
-      "section_title": "1.1 适应症",
-      "canonical_question": "鼻饲管护理操作规范（SOP）中「1.1 适应症」的要求是什么？",
+      "category": "confined_space",
+      "doc_title": "受限空间作业规范",
+      "section_title": "5.2 上报",
+      "canonical_question": "受限空间作业规范中「5.2 上报」的要求是什么？",
       "similar_questions": [
-        "脑卒中吞咽不好要下胃管吗？",
-        "洼田饮水试验III级能鼻饲吗？",
-        "痴呆晚期不吃饭能鼻饲吗？",
-        "口腔手术后能插鼻饲管吗？",
-        "食管手术后短期喂养用胃管吗？"
+        "上报怎么做？",
+        "上报要注意什么？",
+        "上报有哪些要求？",
+        "受限空间作业规范里上报的步骤是什么？",
+        "上报的标准流程"
       ],
       "keywords": [
-        "适应症",
-        "脑卒中后吞咽障碍",
-        "洼田饮水试验",
-        "认知障碍晚期",
-        "食管口腔手术",
-        "短期喂养"
+        "受限空间"
       ],
-      "snippet": "- 脑卒中后吞咽障碍（洼田饮水试验 III 级及以上）\n- 认知障碍晚期不能配合进食\n- 食管/口腔手术后短期喂养",
-      "source": "feeding_tube > 鼻饲管护理操作规范（SOP） > 1.1 适应症"
+      "snippet": "- 险兆事件（报警撤离、短暂失去联络）须当班上报\n- 发生人员伤害立即上报并保护现场",
+      "source": "confined_space > 受限空间作业规范 > 5.2 上报"
     },
     {
-      "id": "feeding_tube-02",
+      "id": "confined_space-15",
       "tenant_id": "tenant_default",
-      "category": "feeding_tube",
-      "doc_title": "鼻饲管护理操作规范（SOP）",
-      "section_title": "2.1 物品准备",
-      "canonical_question": "鼻饲管护理操作规范（SOP）中「2.1 物品准备」的要求是什么？",
+      "category": "confined_space",
+      "doc_title": "受限空间作业规范",
+      "section_title": "5.3 培训与演练",
+      "canonical_question": "受限空间作业规范中「5.3 培训与演练」的要求是什么？",
       "similar_questions": [
-        "鼻饲管用多大号的？",
-        "润滑剂能用食用油吗？",
-        "插胃管要准备哪些东西？",
-        "PH试纸是干嘛用的？",
-        "鼻饲管固定贴怎么准备？"
+        "培训与演练怎么做？",
+        "培训与演练要注意什么？",
+        "培训与演练有哪些要求？",
+        "受限空间作业规范里培训与演练的步骤是什么？",
+        "培训与演练的标准流程"
       ],
       "keywords": [
-        "鼻饲管",
-        "水溶性润滑剂",
-        "误吸性肺炎",
-        "PH试纸",
-        "鼻翼固定胶布",
-        "物品准备"
+        "受限空间"
       ],
-      "snippet": "- 一次性鼻饲管（成人 12-14 Fr）\n- 水溶性润滑剂（禁用油剂，避免误吸性肺炎）\n- 听诊器、50ml 注射器、PH 试纸\n- 固定贴、鼻翼固定胶布",
-      "source": "feeding_tube > 鼻饲管护理操作规范（SOP） > 2.1 物品准备"
+      "snippet": "- 作业与监护人员每年至少一次专项复训\n- 每年至少组织一次受限空间救援演练，重点练\"不盲目施救\"\n- 新入场人员须经交底与实操后方可参与",
+      "source": "confined_space > 受限空间作业规范 > 5.3 培训与演练"
     },
     {
-      "id": "feeding_tube-03",
+      "id": "equipment_maintenance-00",
       "tenant_id": "tenant_default",
-      "category": "feeding_tube",
-      "doc_title": "鼻饲管护理操作规范（SOP）",
-      "section_title": "2.2 老人准备",
-      "canonical_question": "鼻饲管护理操作规范（SOP）中「2.2 老人准备」的要求是什么？",
+      "category": "equipment_maintenance",
+      "doc_title": "设备保养与润滑规范",
+      "section_title": "1.1 保养分级",
+      "canonical_question": "设备保养与润滑规范中「1.1 保养分级」的要求是什么？",
       "similar_questions": [
-        "插胃管前要跟老人说吗？",
-        "鼻饲前老人要躺成啥姿势？",
-        "半卧位要抬多高？",
-        "插管前要清洁鼻子吗？",
-        "插管前要看鼻中隔偏曲吗？"
+        "保养分级怎么做？",
+        "保养分级要注意什么？",
+        "保养分级有哪些要求？",
+        "设备保养与润滑规范里保养分级的步骤是什么？",
+        "保养分级的标准流程"
       ],
       "keywords": [
-        "老人准备",
-        "知情告知",
-        "半卧位",
-        "颈部前屈",
-        "鼻腔清洁",
-        "鼻中隔偏曲"
+        "润滑"
       ],
-      "snippet": "- 向老人解释操作目的（即使认知障碍也要执行，尊重知情）\n- 半卧位 30-45 度，颈部前屈\n- 清洁鼻腔，检查鼻中隔偏曲情况",
-      "source": "feeding_tube > 鼻饲管护理操作规范（SOP） > 2.2 老人准备"
+      "snippet": "- 日常保养：清洁、紧固、听音、看漏，由运行人员每班执行\n- 一级保养：加注润滑、调整皮带、检查密封，每月或按运行小时数执行\n- 二级保养：解体检查、更换易损件，每半年至一年执行\n- 大修：按设备说明书规定的运行小时数或状态评估结果安排",
+      "source": "equipment_maintenance > 设备保养与润滑规范 > 1.1 保养分级"
     },
     {
-      "id": "feeding_tube-04",
+      "id": "equipment_maintenance-01",
       "tenant_id": "tenant_default",
-      "category": "feeding_tube",
-      "doc_title": "鼻饲管护理操作规范（SOP）",
-      "section_title": "3. 置管操作步骤",
-      "canonical_question": "鼻饲管护理操作规范（SOP）中「3. 置管操作步骤」的要求是什么？",
+      "category": "equipment_maintenance",
+      "doc_title": "设备保养与润滑规范",
+      "section_title": "1.2 周期依据",
+      "canonical_question": "设备保养与润滑规范中「1.2 周期依据」的要求是什么？",
       "similar_questions": [
-        "胃管要插多长怎么量？",
-        "插鼻饲管前润滑多少？",
-        "插管遇到阻力怎么办？",
-        "怎么知道胃管在胃里？",
-        "第一次插胃管要做X线吗？"
+        "周期依据怎么做？",
+        "周期依据要注意什么？",
+        "周期依据有哪些要求？",
+        "设备保养与润滑规范里周期依据的步骤是什么？",
+        "周期依据的标准流程"
       ],
       "keywords": [
-        "置管长度",
+        "润滑"
+      ],
+      "snippet": "- 以设备说明书规定周期为基线，结合运行强度调整\n- 连续运行、粉尘环境、高温环境应缩短周期\n- 周期调整须由设备主管审批并记录",
+      "source": "equipment_maintenance > 设备保养与润滑规范 > 1.2 周期依据"
+    },
+    {
+      "id": "equipment_maintenance-02",
+      "tenant_id": "tenant_default",
+      "category": "equipment_maintenance",
+      "doc_title": "设备保养与润滑规范",
+      "section_title": "1.3 保养前准备",
+      "canonical_question": "设备保养与润滑规范中「1.3 保养前准备」的要求是什么？",
+      "similar_questions": [
+        "保养前准备怎么做？",
+        "保养前准备要注意什么？",
+        "保养前准备有哪些要求？",
+        "设备保养与润滑规范里保养前准备的步骤是什么？",
+        "保养前准备的标准流程"
+      ],
+      "keywords": [
+        "润滑"
+      ],
+      "snippet": "- 确认设备停电挂牌，转动部件完全停止\n- 准备对应规格的润滑剂、密封件与工具\n- 对高温、带压设备先泄压降温",
+      "source": "equipment_maintenance > 设备保养与润滑规范 > 1.3 保养前准备"
+    },
+    {
+      "id": "equipment_maintenance-03",
+      "tenant_id": "tenant_default",
+      "category": "equipment_maintenance",
+      "doc_title": "设备保养与润滑规范",
+      "section_title": "2.1 润滑剂选用",
+      "canonical_question": "设备保养与润滑规范中「2.1 润滑剂选用」的要求是什么？",
+      "similar_questions": [
+        "润滑剂选用怎么做？",
+        "润滑剂选用要注意什么？",
+        "润滑剂选用有哪些要求？",
+        "设备保养与润滑规范里润滑剂选用的步骤是什么？",
+        "润滑剂选用的标准流程"
+      ],
+      "keywords": [
+        "润滑"
+      ],
+      "snippet": "- 严格按说明书牌号选用，不同牌号不得混用\n- 高温部位选用耐高温脂，低温环境选用低温流动性好的油脂\n- 更换牌号须经设备主管确认并记录",
+      "source": "equipment_maintenance > 设备保养与润滑规范 > 2.1 润滑剂选用"
+    },
+    {
+      "id": "equipment_maintenance-04",
+      "tenant_id": "tenant_default",
+      "category": "equipment_maintenance",
+      "doc_title": "设备保养与润滑规范",
+      "section_title": "2.2 加注量",
+      "canonical_question": "设备保养与润滑规范中「2.2 加注量」的要求是什么？",
+      "similar_questions": [
+        "加注量怎么做？",
+        "加注量要注意什么？",
+        "加注量有哪些要求？",
+        "设备保养与润滑规范里加注量的步骤是什么？",
+        "加注量的标准流程"
+      ],
+      "keywords": [
+        "润滑"
+      ],
+      "snippet": "- 轴承润滑脂填充量为轴承腔容积的 1/3 至 1/2，过多会发热\n- 油润滑设备油位保持在油标中线上下\n- 加注前清洁注油口，防止杂质进入",
+      "source": "equipment_maintenance > 设备保养与润滑规范 > 2.2 加注量"
+    },
+    {
+      "id": "equipment_maintenance-05",
+      "tenant_id": "tenant_default",
+      "category": "equipment_maintenance",
+      "doc_title": "设备保养与润滑规范",
+      "section_title": "2.3 更换与清理",
+      "canonical_question": "设备保养与润滑规范中「2.3 更换与清理」的要求是什么？",
+      "similar_questions": [
+        "更换与清理怎么做？",
+        "更换与清理要注意什么？",
+        "更换与清理有哪些要求？",
+        "设备保养与润滑规范里更换与清理的步骤是什么？",
+        "更换与清理的标准流程"
+      ],
+      "keywords": [
+        "润滑"
+      ],
+      "snippet": "- 换油时先排净旧油，必要时用同牌号新油冲洗腔体\n- 废油须分类收集交有资质单位处理，不得随意倾倒\n- 更换后记录油品牌号、加注量与操作人",
+      "source": "equipment_maintenance > 设备保养与润滑规范 > 2.3 更换与清理"
+    },
+    {
+      "id": "equipment_maintenance-06",
+      "tenant_id": "tenant_default",
+      "category": "equipment_maintenance",
+      "doc_title": "设备保养与润滑规范",
+      "section_title": "3.1 温升异常",
+      "canonical_question": "设备保养与润滑规范中「3.1 温升异常」的要求是什么？",
+      "similar_questions": [
+        "温升异常怎么做？",
+        "温升异常要注意什么？",
+        "温升异常有哪些要求？",
+        "设备保养与润滑规范里温升异常的步骤是什么？",
+        "温升异常的标准流程"
+      ],
+      "keywords": [
+        "润滑"
+      ],
+      "snippet": "- 轴承温度超过 75℃ 或比环境温度高 40K 以上，须停机检查\n- 先查润滑是否不足或过量，再查对中与皮带松紧\n- 温度趋势持续上升不得仅靠加脂应付",
+      "source": "equipment_maintenance > 设备保养与润滑规范 > 3.1 温升异常"
+    },
+    {
+      "id": "equipment_maintenance-07",
+      "tenant_id": "tenant_default",
+      "category": "equipment_maintenance",
+      "doc_title": "设备保养与润滑规范",
+      "section_title": "3.2 异响与振动",
+      "canonical_question": "设备保养与润滑规范中「3.2 异响与振动」的要求是什么？",
+      "similar_questions": [
+        "异响与振动怎么做？",
+        "异响与振动要注意什么？",
+        "异响与振动有哪些要求？",
+        "设备保养与润滑规范里异响与振动的步骤是什么？",
+        "异响与振动的标准流程",
+        "轴承多久加一次油",
+        "润滑周期多久",
+        "多久打一次黄油"
+      ],
+      "keywords": [
+        "润滑"
+      ],
+      "snippet": "- 出现周期性冲击声多为轴承损坏或联轴器松动\n- 振动明显增大时用测振仪记录数值并与基线对比\n- 判断为轴承损坏时安排计划停机更换，不得带病长跑",
+      "source": "equipment_maintenance > 设备保养与润滑规范 > 3.2 异响与振动"
+    },
+    {
+      "id": "equipment_maintenance-08",
+      "tenant_id": "tenant_default",
+      "category": "equipment_maintenance",
+      "doc_title": "设备保养与润滑规范",
+      "section_title": "3.3 泄漏",
+      "canonical_question": "设备保养与润滑规范中「3.3 泄漏」的要求是什么？",
+      "similar_questions": [
+        "泄漏怎么做？",
+        "泄漏要注意什么？",
+        "泄漏有哪些要求？",
+        "设备保养与润滑规范里泄漏的步骤是什么？",
+        "泄漏的标准流程"
+      ],
+      "keywords": [
+        "润滑"
+      ],
+      "snippet": "- 油封渗漏轻微时加强监视并记录渗漏量\n- 出现成滴渗漏须停机更换密封件\n- 水泵机械密封泄漏应结合运行小时数判断是否到期更换",
+      "source": "equipment_maintenance > 设备保养与润滑规范 > 3.3 泄漏"
+    },
+    {
+      "id": "equipment_maintenance-09",
+      "tenant_id": "tenant_default",
+      "category": "equipment_maintenance",
+      "doc_title": "设备保养与润滑规范",
+      "section_title": "3.4 皮带与联轴器",
+      "canonical_question": "设备保养与润滑规范中「3.4 皮带与联轴器」的要求是什么？",
+      "similar_questions": [
+        "皮带与联轴器怎么做？",
+        "皮带与联轴器要注意什么？",
+        "皮带与联轴器有哪些要求？",
+        "设备保养与润滑规范里皮带与联轴器的步骤是什么？",
+        "皮带与联轴器的标准流程"
+      ],
+      "keywords": [
         "润滑",
-        "气过水声",
-        "胃液PH",
-        "X线确认",
-        "双重固定"
+        "联轴器"
       ],
-      "snippet": "1. 测量置入长度：鼻尖 → 耳垂 → 剑突，标记刻度\n2. 润滑管端 10-15cm\n3. 轻柔插入，遇阻力可让老人做吞咽动作（饮少量水）\n4. 插至标记刻度后，三种方法验证位置：\n   - 听诊器听胃部气过水声\n   - 回抽胃液测 PH（应 ≤ 5.5）\n   - X 线确认（金标准，首次置管必做）\n5. 鼻翼 + 面颊双重固定，避免脱管",
-      "source": "feeding_tube > 鼻饲管护理操作规范（SOP） > 3. 置管操作步骤"
+      "snippet": "- 皮带打滑、伸长、开裂须更换，成套更换不得新旧混用\n- 皮带松紧以按压中点下垂 10-15 毫米为宜\n- 联轴器弹性块老化变形须更换，对中偏差按说明书要求校正",
+      "source": "equipment_maintenance > 设备保养与润滑规范 > 3.4 皮带与联轴器"
     },
     {
-      "id": "feeding_tube-05",
+      "id": "equipment_maintenance-10",
       "tenant_id": "tenant_default",
-      "category": "feeding_tube",
-      "doc_title": "鼻饲管护理操作规范（SOP）",
-      "section_title": "4.1 喂养前评估（每次喂养前必做）",
-      "canonical_question": "鼻饲管护理操作规范（SOP）中「4.1 喂养前评估（每次喂养前必做）」的要求是什么？",
+      "category": "equipment_maintenance",
+      "doc_title": "设备保养与润滑规范",
+      "section_title": "4.1 停机与标识",
+      "canonical_question": "设备保养与润滑规范中「4.1 停机与标识」的要求是什么？",
       "similar_questions": [
-        "鼻饲前为啥要抽胃液？",
-        "胃残留多少要暂停喂养？",
-        "老人腹胀恶心还能鼻饲吗？",
-        "喂之前床头要抬高多少？",
-        "怎么判断胃管还在胃里？"
+        "停机与标识怎么做？",
+        "停机与标识要注意什么？",
+        "停机与标识有哪些要求？",
+        "设备保养与润滑规范里停机与标识的步骤是什么？",
+        "停机与标识的标准流程"
       ],
       "keywords": [
-        "喂养前评估",
-        "胃残余量",
-        "胃排空延迟",
-        "误吸风险",
-        "半卧位"
+        "润滑"
       ],
-      "snippet": "1. 检查管路位置：回抽胃液确认在胃内，记录残留量\n2. 胃残留量 > 200ml 时暂停喂养，警惕胃排空延迟\n3. 评估老人状态：腹胀、恶心、误吸风险\n4. 体位准备：抬高床头 30-45 度，维持半卧位",
-      "source": "feeding_tube > 鼻饲管护理操作规范（SOP） > 4.1 喂养前评估（每次喂养前必做）"
+      "snippet": "- 保养必须停机断电并挂\"禁止合闸\"标识，钥匙由保养人保管\n- 作业完毕由保养人本人摘牌，禁止他人代摘\n- 多台设备并联或存在反送电可能的，须额外断开并验电",
+      "source": "equipment_maintenance > 设备保养与润滑规范 > 4.1 停机与标识"
     },
     {
-      "id": "feeding_tube-06",
+      "id": "equipment_maintenance-11",
       "tenant_id": "tenant_default",
-      "category": "feeding_tube",
-      "doc_title": "鼻饲管护理操作规范（SOP）",
-      "section_title": "4.2 喂养流程",
-      "canonical_question": "鼻饲管护理操作规范（SOP）中「4.2 喂养流程」的要求是什么？",
+      "category": "equipment_maintenance",
+      "doc_title": "设备保养与润滑规范",
+      "section_title": "4.2 作业环境",
+      "canonical_question": "设备保养与润滑规范中「4.2 作业环境」的要求是什么？",
       "similar_questions": [
-        "鼻饲一次喂多少毫升？",
-        "鼻饲每次要喂多久？",
-        "营养液多少度合适？",
-        "鼻饲管要挂多高？",
-        "喂完要冲管和半卧吗？"
+        "作业环境怎么做？",
+        "作业环境要注意什么？",
+        "作业环境有哪些要求？",
+        "设备保养与润滑规范里作业环境的步骤是什么？",
+        "作业环境的标准流程"
       ],
       "keywords": [
-        "喂养量",
-        "喂养速度",
-        "营养液温度",
-        "悬挂高度",
-        "冲管",
-        "反流误吸"
+        "润滑"
       ],
-      "snippet": "1. 每次喂养量 200-300ml，速度 30 分钟/次\n2. 温度 38-40℃，手腕内侧试温不烫为宜\n3. 营养液悬挂高度：胃部上方 30-45cm\n4. 喂养前后用 20-30ml 温开水冲管\n5. 喂养后保持半卧位 30 分钟，避免反流误吸",
-      "source": "feeding_tube > 鼻饲管护理操作规范（SOP） > 4.2 喂养流程"
+      "snippet": "- 高处、受限空间内的保养作业按对应专项规范执行\n- 动火作业须办理许可并配备灭火器材\n- 现场工具与备件摆放整齐，作业完毕清理油污",
+      "source": "equipment_maintenance > 设备保养与润滑规范 > 4.2 作业环境"
     },
     {
-      "id": "feeding_tube-07",
+      "id": "equipment_maintenance-12",
       "tenant_id": "tenant_default",
-      "category": "feeding_tube",
-      "doc_title": "鼻饲管护理操作规范（SOP）",
-      "section_title": "4.3 每日维护",
-      "canonical_question": "鼻饲管护理操作规范（SOP）中「4.3 每日维护」的要求是什么？",
+      "category": "equipment_maintenance",
+      "doc_title": "设备保养与润滑规范",
+      "section_title": "4.3 废弃物处理",
+      "canonical_question": "设备保养与润滑规范中「4.3 废弃物处理」的要求是什么？",
       "similar_questions": [
-        "鼻饲老人口腔怎么护理？",
-        "鼻部每天要清洁几次？",
-        "鼻翼压疮怎么检查？",
-        "胃管固定位置要换吗？",
-        "给药前后也要冲管吗？",
-        "鼻饲管堵了怎么处理",
-        "胃管堵住怎么办"
+        "废弃物处理怎么做？",
+        "废弃物处理要注意什么？",
+        "废弃物处理有哪些要求？",
+        "设备保养与润滑规范里废弃物处理的步骤是什么？",
+        "废弃物处理的标准流程"
       ],
       "keywords": [
-        "口腔护理",
-        "鼻部清洁",
-        "压力性损伤",
-        "管路固定",
-        "管路冲洗",
-        "每班次检查"
+        "润滑"
       ],
-      "snippet": "- 口腔护理：每 6 小时一次，预防口腔细菌下行感染\n- 鼻部清洁：每日 2 次，检查鼻翼压疮\n- 管路固定：每班次检查，每日轮换固定位置\n- 管路冲洗：每次喂养前后 + 给药前后均需冲管",
-      "source": "feeding_tube > 鼻饲管护理操作规范（SOP） > 4.3 每日维护"
+      "snippet": "- 废油、废滤芯、含油抹布分类收集，交由有资质单位处理\n- 严禁将废油倒入雨水井或生活垃圾桶",
+      "source": "equipment_maintenance > 设备保养与润滑规范 > 4.3 废弃物处理"
     },
     {
-      "id": "feeding_tube-08",
+      "id": "equipment_maintenance-13",
       "tenant_id": "tenant_default",
-      "category": "feeding_tube",
-      "doc_title": "鼻饲管护理操作规范（SOP）",
-      "section_title": "4.4 置管后第一天的重点观察",
-      "canonical_question": "鼻饲管护理操作规范（SOP）中「4.4 置管后第一天的重点观察」的要求是什么？",
+      "category": "equipment_maintenance",
+      "doc_title": "设备保养与润滑规范",
+      "section_title": "5.1 记录",
+      "canonical_question": "设备保养与润滑规范中「5.1 记录」的要求是什么？",
       "similar_questions": [
-        "置管第一天看啥肚子？",
-        "呛咳是不是误吸了？",
-        "血氧下降要警惕什么？",
-        "第一天要记尿量吗？",
-        "鼻翼红肿算压疮吗？"
+        "记录怎么做？",
+        "记录要注意什么？",
+        "记录有哪些要求？",
+        "设备保养与润滑规范里记录的步骤是什么？",
+        "记录的标准流程"
       ],
       "keywords": [
-        "置管后观察",
-        "腹部体征",
-        "肠鸣音",
-        "误吸",
-        "出入量",
-        "压力性损伤"
+        "润滑"
       ],
-      "snippet": "- 监测腹部体征：腹胀、肠鸣音、胃残留量\n- 警惕误吸表现：呛咳、呼吸频率改变、SpO2 下降\n- 记录出入量：摄入量、尿量、胃残留量\n- 观察鼻腔：有无压迫性溃疡、鼻翼红肿",
-      "source": "feeding_tube > 鼻饲管护理操作规范（SOP） > 4.4 置管后第一天的重点观察"
+      "snippet": "- 每次保养记录设备编号、项目、更换件、润滑剂牌号、操作人与时间\n- 保养记录与设备台账关联，作为寿命评估与备件计划的依据\n- 记录不得事后凭印象补写",
+      "source": "equipment_maintenance > 设备保养与润滑规范 > 5.1 记录"
     },
     {
-      "id": "feeding_tube-09",
+      "id": "equipment_maintenance-14",
       "tenant_id": "tenant_default",
-      "category": "feeding_tube",
-      "doc_title": "鼻饲管护理操作规范（SOP）",
-      "section_title": "6. 定期更换",
-      "canonical_question": "鼻饲管护理操作规范（SOP）中「6. 定期更换」的要求是什么？",
+      "category": "equipment_maintenance",
+      "doc_title": "设备保养与润滑规范",
+      "section_title": "5.2 上报",
+      "canonical_question": "设备保养与润滑规范中「5.2 上报」的要求是什么？",
       "similar_questions": [
-        "普通胃管多久换一次？",
-        "聚氨酯鼻饲管能用多久？",
-        "换胃管要记录哪些？",
-        "换管要记置管深度吗？",
-        "更换原因要记录吗？"
+        "上报怎么做？",
+        "上报要注意什么？",
+        "上报有哪些要求？",
+        "设备保养与润滑规范里上报的步骤是什么？",
+        "上报的标准流程"
       ],
       "keywords": [
-        "定期更换",
-        "硅胶管",
-        "聚氨酯管",
-        "留置时间",
-        "置管深度",
-        "更换记录"
+        "润滑"
       ],
-      "snippet": "- 普通硅胶管 30 天更换一次\n- 聚氨酯管可留置 60-90 天\n- 每次更换需记录置管深度、型号、更换原因",
-      "source": "feeding_tube > 鼻饲管护理操作规范（SOP） > 6. 定期更换"
+      "snippet": "- 保养中发现严重缺陷须当班上报，并评估对运行的影响\n- 影响关键功能的设备须同步制定临时保障措施",
+      "source": "equipment_maintenance > 设备保养与润滑规范 > 5.2 上报"
     },
     {
-      "id": "medication-00",
+      "id": "equipment_maintenance-15",
       "tenant_id": "tenant_default",
-      "category": "medication",
-      "doc_title": "用药管理与给药操作 SOP",
-      "section_title": "1.1 老人评估",
-      "canonical_question": "用药管理与给药操作 SOP中「1.1 老人评估」的要求是什么？",
+      "category": "equipment_maintenance",
+      "doc_title": "设备保养与润滑规范",
+      "section_title": "5.3 培训与考核",
+      "canonical_question": "设备保养与润滑规范中「5.3 培训与考核」的要求是什么？",
       "similar_questions": [
-        "老人吃药过敏史咋问？",
-        "老人以前用药史问啥？",
-        "肝肾功能不好注意啥？",
-        "吞咽能力要做洼田试验吗？",
-        "老人能自己管药吗？"
+        "培训与考核怎么做？",
+        "培训与考核要注意什么？",
+        "培训与考核有哪些要求？",
+        "设备保养与润滑规范里培训与考核的步骤是什么？",
+        "培训与考核的标准流程"
       ],
       "keywords": [
-        "过敏史",
-        "用药史",
-        "肝肾功能",
-        "洼田饮水试验",
-        "认知状态",
-        "用药依从性"
+        "润滑"
       ],
-      "snippet": "- 过敏史、用药史、肝肾功能\n- 吞咽能力（洼田饮水试验）\n- 认知状态（能否自行管理药物）\n- 用药依从性",
-      "source": "medication > 用药管理与给药操作 SOP > 1.1 老人评估"
+      "snippet": "- 保养人员须经设备结构、润滑与安全培训后上岗\n- 每年至少一次专项复训，含典型故障案例复盘\n- 关键设备的保养作业须由持证或经授权人员执行",
+      "source": "equipment_maintenance > 设备保养与润滑规范 > 5.3 培训与考核"
     },
     {
-      "id": "medication-01",
+      "id": "fire_equipment_check-00",
       "tenant_id": "tenant_default",
-      "category": "medication",
-      "doc_title": "用药管理与给药操作 SOP",
-      "section_title": "1.2 药品评估",
-      "canonical_question": "用药管理与给药操作 SOP中「1.2 药品评估」的要求是什么？",
+      "category": "fire_equipment_check",
+      "doc_title": "消防设施检查规范",
+      "section_title": "1.1 检查频次",
+      "canonical_question": "消防设施检查规范中「1.1 检查频次」的要求是什么？",
       "similar_questions": [
-        "华法林算高风险药吗？",
-        "胰岛素要冷藏保存吗？",
-        "餐前餐后药咋区分？",
-        "药品避光防潮咋做？",
-        "精神药服药时间注意啥？"
+        "检查频次怎么做？",
+        "检查频次要注意什么？",
+        "检查频次有哪些要求？",
+        "消防设施检查规范里检查频次的步骤是什么？",
+        "检查频次的标准流程"
       ],
-      "keywords": [
-        "高风险药品",
-        "服药时间",
-        "储存条件",
-        "避光",
-        "冷藏",
-        "防潮"
-      ],
-      "snippet": "- 高风险药品：华法林、地高辛、胰岛素、精神药物、降压药\n- 服药时间要求：餐前/餐中/餐后/睡前/特定时间\n- 储存条件：避光、冷藏、防潮",
-      "source": "medication > 用药管理与给药操作 SOP > 1.2 药品评估"
+      "keywords": [],
+      "snippet": "- 灭火器、消火栓：每月一次外观与压力检查\n- 火灾自动报警与联动：每季度一次功能测试\n- 应急照明与疏散指示：每季度一次放电测试\n- 防火门、防火卷帘：每季度一次动作检查\n- 年度检测：委托有资质机构进行，取得检测报告",
+      "source": "fire_equipment_check > 消防设施检查规范 > 1.1 检查频次"
     },
     {
-      "id": "medication-02",
+      "id": "fire_equipment_check-01",
       "tenant_id": "tenant_default",
-      "category": "medication",
-      "doc_title": "用药管理与给药操作 SOP",
-      "section_title": "2. 给药原则（五准确）",
-      "canonical_question": "用药管理与给药操作 SOP中「2. 给药原则（五准确）」的要求是什么？",
+      "category": "fire_equipment_check",
+      "doc_title": "消防设施检查规范",
+      "section_title": "1.2 分工与责任",
+      "canonical_question": "消防设施检查规范中「1.2 分工与责任」的要求是什么？",
       "similar_questions": [
-        "五准确都是哪五个？",
-        "核对老人用腕带够吗？",
-        "只喊名字能核对吗？",
-        "高危药要双人核对吗？",
-        "餐前餐后能一起发吗？"
+        "分工与责任怎么做？",
+        "分工与责任要注意什么？",
+        "分工与责任有哪些要求？",
+        "消防设施检查规范里分工与责任的步骤是什么？",
+        "分工与责任的标准流程"
       ],
-      "keywords": [
-        "五准确",
-        "腕带",
-        "双人核对",
-        "高危药品",
-        "准确时间",
-        "给药途径"
-      ],
-      "snippet": "1. 准确老人：核对腕带/照片，至少两种识别方式\n2. 准确药物：核对药品名称、剂量、剂型\n3. 准确剂量：双人核对高危药品剂量\n4. 准确时间：按时给药，餐前/餐后严格区分\n5. 准确途径：口服/皮下/肌肉/静脉/直肠/吸入",
-      "source": "medication > 用药管理与给药操作 SOP > 2. 给药原则（五准确）"
+      "keywords": [],
+      "snippet": "- 日常检查由值班巡检人员执行，结果记入检查表\n- 功能测试与维修由消防设施维保单位执行，本单位派人陪同\n- 值班主管对检查真实性负责，不得代签、补签",
+      "source": "fire_equipment_check > 消防设施检查规范 > 1.2 分工与责任"
     },
     {
-      "id": "medication-03",
+      "id": "fire_equipment_check-02",
       "tenant_id": "tenant_default",
-      "category": "medication",
-      "doc_title": "用药管理与给药操作 SOP",
-      "section_title": "3.1 准备",
-      "canonical_question": "用药管理与给药操作 SOP中「3.1 准备」的要求是什么？",
+      "category": "fire_equipment_check",
+      "doc_title": "消防设施检查规范",
+      "section_title": "1.3 检查前准备",
+      "canonical_question": "消防设施检查规范中「1.3 检查前准备」的要求是什么？",
       "similar_questions": [
-        "发药前要先洗手吗？",
-        "三查七对都查哪些？",
-        "腕带和医嘱单咋核对？",
-        "老人意识不清能喂药吗？",
-        "吃药前要看吞咽吗？",
-        "口服药发药前要核对什么"
+        "检查前准备怎么做？",
+        "检查前准备要注意什么？",
+        "检查前准备有哪些要求？",
+        "消防设施检查规范里检查前准备的步骤是什么？",
+        "检查前准备的标准流程"
       ],
-      "keywords": [
-        "洗手",
-        "口罩",
-        "三查七对",
-        "医嘱单",
-        "腕带",
-        "吞咽评估",
-        "发药前核对"
-      ],
-      "snippet": "1. 洗手、戴口罩\n2. 核对医嘱单、药品标签、老人腕带（三查七对）\n3. 评估老人状态：意识、吞咽、体位",
-      "source": "medication > 用药管理与给药操作 SOP > 3.1 准备"
+      "keywords": [],
+      "snippet": "- 提前告知使用方，避免测试触发误报引起恐慌\n- 消防联动测试期间应暂停相关区域作业，必要时临时安排监护",
+      "source": "fire_equipment_check > 消防设施检查规范 > 1.3 检查前准备"
     },
     {
-      "id": "medication-04",
+      "id": "fire_equipment_check-03",
       "tenant_id": "tenant_default",
-      "category": "medication",
-      "doc_title": "用药管理与给药操作 SOP",
-      "section_title": "3.2 给药",
-      "canonical_question": "用药管理与给药操作 SOP中「3.2 给药」的要求是什么？",
+      "category": "fire_equipment_check",
+      "doc_title": "消防设施检查规范",
+      "section_title": "2.1 灭火器",
+      "canonical_question": "消防设施检查规范中「2.1 灭火器」的要求是什么？",
       "similar_questions": [
-        "喂药要坐起来吗？",
-        "能用牛奶送药吗？",
-        "茶水果汁能送药吗？",
-        "鼻饲喂药要研碎吗？",
-        "胃管注药后要冲管吗？"
+        "灭火器怎么做？",
+        "灭火器要注意什么？",
+        "灭火器有哪些要求？",
+        "消防设施检查规范里灭火器的步骤是什么？",
+        "灭火器的标准流程"
       ],
       "keywords": [
-        "半卧位",
-        "温水送服",
-        "鼻饲",
-        "研碎药物",
-        "冲管",
-        "口服给药"
+        "灭火器"
       ],
-      "snippet": "1. 协助老人坐位或半卧位\n2. 温水送服，避免茶水、果汁、牛奶（除非医嘱）\n3. 看着老人服下，确认未残留口中\n4. 鼻饲老人：研碎药物 → 溶于温水 → 注入 → 冲管",
-      "source": "medication > 用药管理与给药操作 SOP > 3.2 给药"
+      "snippet": "- 压力表指针在绿区；指针进入红区须立即更换或充装\n- 瓶体无锈蚀变形，喷管无老化开裂，铅封完好\n- 放置在明显易取位置，无遮挡、无挪作他用\n- 检查标签与检验日期，超期须送检",
+      "source": "fire_equipment_check > 消防设施检查规范 > 2.1 灭火器"
     },
     {
-      "id": "medication-05",
+      "id": "fire_equipment_check-04",
       "tenant_id": "tenant_default",
-      "category": "medication",
-      "doc_title": "用药管理与给药操作 SOP",
-      "section_title": "3.3 给药后",
-      "canonical_question": "用药管理与给药操作 SOP中「3.3 给药后」的要求是什么？",
+      "category": "fire_equipment_check",
+      "doc_title": "消防设施检查规范",
+      "section_title": "2.2 消火栓",
+      "canonical_question": "消防设施检查规范中「2.2 消火栓」的要求是什么？",
       "similar_questions": [
-        "吃完药要记录啥？",
-        "给药后观察多久？",
-        "过敏反应咋观察？",
-        "血压血糖要追踪吗？",
-        "老人吃药后难受咋办？"
+        "消火栓怎么做？",
+        "消火栓要注意什么？",
+        "消火栓有哪些要求？",
+        "消防设施检查规范里消火栓的步骤是什么？",
+        "消火栓的标准流程"
       ],
       "keywords": [
-        "服药记录",
-        "不良反应",
-        "过敏反应",
-        "生命体征",
-        "药效追踪"
+        "消火栓"
       ],
-      "snippet": "- 记录服药时间、剂量、老人反应\n- 观察 30 分钟，警惕过敏/不良反应\n- 服药效果追踪（血压、血糖、心率）",
-      "source": "medication > 用药管理与给药操作 SOP > 3.3 给药后"
+      "snippet": "- 箱门开启灵活，箱内水带、水枪齐全，无霉变破损\n- 阀门开关正常，无渗漏，接口垫圈完好\n- 稳压设备压力在正常区间\n- 栓前 1.5 米范围内不得堆放物品",
+      "source": "fire_equipment_check > 消防设施检查规范 > 2.2 消火栓"
     },
     {
-      "id": "medication-06",
+      "id": "fire_equipment_check-05",
       "tenant_id": "tenant_default",
-      "category": "medication",
-      "doc_title": "用药管理与给药操作 SOP",
-      "section_title": "4.1 华法林",
-      "canonical_question": "用药管理与给药操作 SOP中「4.1 华法林」的要求是什么？",
+      "category": "fire_equipment_check",
+      "doc_title": "消防设施检查规范",
+      "section_title": "2.3 火灾自动报警与联动",
+      "canonical_question": "消防设施检查规范中「2.3 火灾自动报警与联动」的要求是什么？",
       "similar_questions": [
-        "华法林几点吃最好？",
-        "华法林要查INR吗？",
-        "INR目标是多少？",
-        "吃华法林能吃菠菜吗？",
-        "牙龈出血要紧吗？"
+        "火灾自动报警与联动怎么做？",
+        "火灾自动报警与联动要注意什么？",
+        "火灾自动报警与联动有哪些要求？",
+        "消防设施检查规范里火灾自动报警与联动的步骤是什么？",
+        "火灾自动报警与联动的标准流程"
       ],
-      "keywords": [
-        "华法林",
-        "INR",
-        "维生素K",
-        "出血",
-        "固定时间给药"
-      ],
-      "snippet": "- 每日固定时间给药（晚 6 点最佳）\n- 每周监测 INR（目标 2.0-3.0）\n- 饮食指导：稳定维生素 K 摄入（菠菜、西兰花）\n- 警惕出血：牙龈、皮下、便血、头痛",
-      "source": "medication > 用药管理与给药操作 SOP > 4.1 华法林"
+      "keywords": [],
+      "snippet": "- 探测器外观清洁，无遮挡、无油漆覆盖\n- 手动报警按钮玻璃完好，标识清晰\n- 测试时确认报警信号能传至消防控制室，并记录响应时间\n- 联动测试须验证排烟、喷淋、防火卷帘动作与信号反馈",
+      "source": "fire_equipment_check > 消防设施检查规范 > 2.3 火灾自动报警与联动"
     },
     {
-      "id": "medication-07",
+      "id": "fire_equipment_check-06",
       "tenant_id": "tenant_default",
-      "category": "medication",
-      "doc_title": "用药管理与给药操作 SOP",
-      "section_title": "4.2 胰岛素",
-      "canonical_question": "用药管理与给药操作 SOP中「4.2 胰岛素」的要求是什么？",
+      "category": "fire_equipment_check",
+      "doc_title": "消防设施检查规范",
+      "section_title": "2.4 应急照明与疏散指示",
+      "canonical_question": "消防设施检查规范中「2.4 应急照明与疏散指示」的要求是什么？",
       "similar_questions": [
-        "胰岛素打哪个部位？",
-        "打胰岛素要换地方吗？",
-        "胰岛素饭前多久打？",
-        "血糖空腹餐后都要测吗？",
-        "低血糖急救包放啥？"
+        "应急照明与疏散指示怎么做？",
+        "应急照明与疏散指示要注意什么？",
+        "应急照明与疏散指示有哪些要求？",
+        "消防设施检查规范里应急照明与疏散指示的步骤是什么？",
+        "应急照明与疏散指示的标准流程"
       ],
       "keywords": [
-        "胰岛素",
-        "皮下注射",
-        "注射部位轮换",
-        "餐前注射",
-        "血糖监测",
-        "低血糖急救"
+        "应急照明",
+        "疏散指示"
       ],
-      "snippet": "- 皮下注射，注射部位轮换（腹部、大腿、上臂）\n- 餐前 15-30 分钟注射（速效）/餐时（短效）\n- 监测血糖：空腹、餐后 2 小时\n- 备低血糖急救包（葡萄糖、果汁）",
-      "source": "medication > 用药管理与给药操作 SOP > 4.2 胰岛素"
+      "snippet": "- 断电后能自动点亮，持续时间不少于 30 分钟\n- 疏散指示方向与实际逃生路线一致，不得有反向指示\n- 灯罩无破损、无积尘遮挡",
+      "source": "fire_equipment_check > 消防设施检查规范 > 2.4 应急照明与疏散指示"
     },
     {
-      "id": "medication-08",
+      "id": "fire_equipment_check-07",
       "tenant_id": "tenant_default",
-      "category": "medication",
-      "doc_title": "用药管理与给药操作 SOP",
-      "section_title": "4.3 精神药物",
-      "canonical_question": "用药管理与给药操作 SOP中「4.3 精神药物」的要求是什么？",
+      "category": "fire_equipment_check",
+      "doc_title": "消防设施检查规范",
+      "section_title": "2.5 防火门与防火卷帘",
+      "canonical_question": "消防设施检查规范中「2.5 防火门与防火卷帘」的要求是什么？",
       "similar_questions": [
-        "精神药能自己加量吗？",
-        "吃精神药会跌倒吗？",
-        "锥体外系反应是啥？",
-        "夜间要加强巡视吗？",
-        "精神药记录要谁签字？"
+        "防火门与防火卷帘怎么做？",
+        "防火门与防火卷帘要注意什么？",
+        "防火门与防火卷帘有哪些要求？",
+        "消防设施检查规范里防火门与防火卷帘的步骤是什么？",
+        "防火门与防火卷帘的标准流程"
       ],
       "keywords": [
-        "精神药物",
-        "医嘱剂量",
-        "跌倒风险",
-        "锥体外系反应",
-        "夜间巡视",
-        "双人签字"
+        "防火卷帘"
       ],
-      "snippet": "- 严格按医嘱，禁止自行调整剂量\n- 监测意识、跌倒风险、锥体外系反应\n- 镇静类药物夜间加强巡视\n- 用药记录双人签字",
-      "source": "medication > 用药管理与给药操作 SOP > 4.3 精神药物"
+      "snippet": "- 防火门保持常闭（或常开时具备联动关闭功能），闭门器有效\n- 门缝密封条完好，不得用物品顶住门扇\n- 卷帘下方 0.5 米范围内不得堆放物品，下降无卡阻",
+      "source": "fire_equipment_check > 消防设施检查规范 > 2.5 防火门与防火卷帘"
     },
     {
-      "id": "medication-09",
+      "id": "fire_equipment_check-08",
       "tenant_id": "tenant_default",
-      "category": "medication",
-      "doc_title": "用药管理与给药操作 SOP",
-      "section_title": "5.1 漏服",
-      "canonical_question": "用药管理与给药操作 SOP中「5.1 漏服」的要求是什么？",
+      "category": "fire_equipment_check",
+      "doc_title": "消防设施检查规范",
+      "section_title": "3.1 一般缺陷",
+      "canonical_question": "消防设施检查规范中「3.1 一般缺陷」的要求是什么？",
       "similar_questions": [
-        "老人漏服药咋办？",
-        "快到下次吃药还补吗？",
-        "漏服要记原因吗？",
-        "老漏服药咋查原因？",
-        "发现漏服先评估啥？"
+        "一般缺陷怎么做？",
+        "一般缺陷要注意什么？",
+        "一般缺陷有哪些要求？",
+        "消防设施检查规范里一般缺陷的步骤是什么？",
+        "一般缺陷的标准流程"
       ],
-      "keywords": [
-        "漏服",
-        "补服",
-        "下次用药时间",
-        "漏服记录",
-        "给药流程"
-      ],
-      "snippet": "- 发现后立即评估，未到下次用药时间可补服\n- 接近下次用药时间不补服，记录漏服原因\n- 频繁漏服需评估给药流程问题",
-      "source": "medication > 用药管理与给药操作 SOP > 5.1 漏服"
+      "keywords": [],
+      "snippet": "- 轻微锈蚀、标识模糊、堆放遮挡等，当场整改并记录\n- 一处缺陷整改后须复检确认",
+      "source": "fire_equipment_check > 消防设施检查规范 > 3.1 一般缺陷"
     },
     {
-      "id": "medication-10",
+      "id": "fire_equipment_check-09",
       "tenant_id": "tenant_default",
-      "category": "medication",
-      "doc_title": "用药管理与给药操作 SOP",
-      "section_title": "5.2 多服/错服",
-      "canonical_question": "用药管理与给药操作 SOP中「5.2 多服/错服」的要求是什么？",
+      "category": "fire_equipment_check",
+      "doc_title": "消防设施检查规范",
+      "section_title": "3.2 严重缺陷",
+      "canonical_question": "消防设施检查规范中「3.2 严重缺陷」的要求是什么？",
       "similar_questions": [
-        "老人吃多药咋办？",
-        "吃错药要先停药吗？",
-        "错服药品要保留吗？",
-        "多服要通知医生吗？",
-        "错服多久要上报？"
+        "严重缺陷怎么做？",
+        "严重缺陷要注意什么？",
+        "严重缺陷有哪些要求？",
+        "消防设施检查规范里严重缺陷的步骤是什么？",
+        "严重缺陷的标准流程"
       ],
-      "keywords": [
-        "多服",
-        "错服",
-        "停止给药",
-        "药品证据",
-        "生命体征",
-        "不良事件上报"
-      ],
-      "snippet": "1. 立即停止给药，保留药品证据\n2. 通知医生，监测生命体征\n3. 必要时催吐、洗胃、用药拮抗\n4. 24 小时内上报不良事件",
-      "source": "medication > 用药管理与给药操作 SOP > 5.2 多服/错服"
+      "keywords": [],
+      "snippet": "- 灭火器失压、消火栓无水、报警系统故障、防火门无法关闭等\n- 立即挂\"停用\"标识并上报值班主管，明确整改责任人与期限\n- 停用期间须采取临时替代措施（增设移动灭火器、加强巡查）",
+      "source": "fire_equipment_check > 消防设施检查规范 > 3.2 严重缺陷"
     },
     {
-      "id": "medication-11",
+      "id": "fire_equipment_check-10",
       "tenant_id": "tenant_default",
-      "category": "medication",
-      "doc_title": "用药管理与给药操作 SOP",
-      "section_title": "5.3 不良反应",
-      "canonical_question": "用药管理与给药操作 SOP中「5.3 不良反应」的要求是什么？",
+      "category": "fire_equipment_check",
+      "doc_title": "消防设施检查规范",
+      "section_title": "3.3 系统故障处置",
+      "canonical_question": "消防设施检查规范中「3.3 系统故障处置」的要求是什么？",
       "similar_questions": [
-        "吃药起皮疹咋办？",
-        "恶心要通知医生吗？",
-        "过敏性休克咋处理？",
-        "肾上腺素啥时用？",
-        "严重不良反应上报吗？"
+        "系统故障处置怎么做？",
+        "系统故障处置要注意什么？",
+        "系统故障处置有哪些要求？",
+        "消防设施检查规范里系统故障处置的步骤是什么？",
+        "系统故障处置的标准流程"
       ],
-      "keywords": [
-        "皮疹",
-        "恶心",
-        "过敏性休克",
-        "肾上腺素",
-        "药监部门",
-        "不良反应上报"
-      ],
-      "snippet": "- 轻度：皮疹、恶心 → 通知医生调整\n- 重度：过敏性休克 → 立即停药 + 肾上腺素 + 急诊\n- 严重不良反应 24 小时内上报药监部门",
-      "source": "medication > 用药管理与给药操作 SOP > 5.3 不良反应"
+      "keywords": [],
+      "snippet": "- 报警系统故障超过 24 小时未修复须上报，并加强人工巡查频次\n- 屏蔽的探测器须登记，故障排除后立即解除屏蔽\n- 禁止长期屏蔽探测器以图省事",
+      "source": "fire_equipment_check > 消防设施检查规范 > 3.3 系统故障处置"
     },
     {
-      "id": "medication-12",
+      "id": "fire_equipment_check-11",
       "tenant_id": "tenant_default",
-      "category": "medication",
-      "doc_title": "用药管理与给药操作 SOP",
-      "section_title": "6.1 储存条件",
-      "canonical_question": "用药管理与给药操作 SOP中「6.1 储存条件」的要求是什么？",
+      "category": "fire_equipment_check",
+      "doc_title": "消防设施检查规范",
+      "section_title": "4.1 报警核实",
+      "canonical_question": "消防设施检查规范中「4.1 报警核实」的要求是什么？",
       "similar_questions": [
-        "常温药放多少度？",
-        "胰岛素冷藏几度？",
-        "哪些药需要避光？",
-        "泡腾片要防潮吗？",
-        "药放阴凉干燥处吗？"
+        "报警核实怎么做？",
+        "报警核实要注意什么？",
+        "报警核实有哪些要求？",
+        "消防设施检查规范里报警核实的步骤是什么？",
+        "报警核实的标准流程"
       ],
-      "keywords": [
-        "常温",
-        "冷藏",
-        "避光",
-        "防潮",
-        "储存条件"
-      ],
-      "snippet": "- 阴凉干燥处：常温药（15-25℃）\n- 冷藏：胰岛素、部分抗生素（2-8℃）\n- 避光：硝酸盐、肾上腺素\n- 防潮：泡腾片、散剂",
-      "source": "medication > 用药管理与给药操作 SOP > 6.1 储存条件"
+      "keywords": [],
+      "snippet": "- 接到报警后 1 分钟内派人现场核实，确认真实火情立即拨打 119\n- 误报也要记录原因（油烟、蒸汽、施工扬尘等）并采取防误报措施",
+      "source": "fire_equipment_check > 消防设施检查规范 > 4.1 报警核实"
     },
     {
-      "id": "medication-13",
+      "id": "fire_equipment_check-12",
       "tenant_id": "tenant_default",
-      "category": "medication",
-      "doc_title": "用药管理与给药操作 SOP",
-      "section_title": "7. 健康教育",
-      "canonical_question": "用药管理与给药操作 SOP中「7. 健康教育」的要求是什么？",
+      "category": "fire_equipment_check",
+      "doc_title": "消防设施检查规范",
+      "section_title": "4.2 初期火灾处置",
+      "canonical_question": "消防设施检查规范中「4.2 初期火灾处置」的要求是什么？",
       "similar_questions": [
-        "咋跟家属讲药作用？",
-        "老人能自己停药吗？",
-        "慢病药咋长期坚持？",
-        "出院带药咋交代？",
-        "家属要了解副作用吗？"
+        "初期火灾处置怎么做？",
+        "初期火灾处置要注意什么？",
+        "初期火灾处置有哪些要求？",
+        "消防设施检查规范里初期火灾处置的步骤是什么？",
+        "初期火灾处置的标准流程"
       ],
-      "keywords": [
-        "健康教育",
-        "药品名称",
-        "药物作用",
-        "副作用",
-        "用药依从性",
-        "出院带药"
-      ],
-      "snippet": "- 让老人/家属了解药品名称、作用、副作用\n- 强调不可自行停药/调量\n- 慢病用药建立长期依从性\n- 出院带药详细说明用法",
-      "source": "medication > 用药管理与给药操作 SOP > 7. 健康教育"
+      "keywords": [],
+      "snippet": "- 火势初期且无带电风险时使用就近灭火器扑救\n- 电气火灾使用二氧化碳或干粉，严禁用水\n- 无法控制时立即撤离并关闭防火门，等待消防队到场",
+      "source": "fire_equipment_check > 消防设施检查规范 > 4.2 初期火灾处置"
     },
     {
-      "id": "oral_care-00",
+      "id": "fire_equipment_check-13",
       "tenant_id": "tenant_default",
-      "category": "oral_care",
-      "doc_title": "口腔护理 SOP",
-      "section_title": "1.1 评估内容",
-      "canonical_question": "口腔护理 SOP中「1.1 评估内容」的要求是什么？",
+      "category": "fire_equipment_check",
+      "doc_title": "消防设施检查规范",
+      "section_title": "4.3 疏散配合",
+      "canonical_question": "消防设施检查规范中「4.3 疏散配合」的要求是什么？",
       "similar_questions": [
-        "口腔黏膜都看啥呀？",
-        "假牙松动缺损看吗？",
-        "牙龈出血怎么评估？",
-        "舌苔厚薄怎么看？",
-        "嘴里有味算异常吗？"
+        "疏散配合怎么做？",
+        "疏散配合要注意什么？",
+        "疏散配合有哪些要求？",
+        "消防设施检查规范里疏散配合的步骤是什么？",
+        "疏散配合的标准流程"
       ],
-      "keywords": [
-        "口腔黏膜",
-        "义齿",
-        "牙龈",
-        "舌苔",
-        "口气",
-        "唾液"
-      ],
-      "snippet": "- 口腔黏膜：颜色、完整性、有无溃疡\n- 牙齿/义齿：清洁度、松动、缺损\n- 牙龈：颜色、肿胀、出血\n- 舌苔：厚薄、颜色\n- 口气：有无异味\n- 唾液：分泌量、黏稠度",
-      "source": "oral_care > 口腔护理 SOP > 1.1 评估内容"
+      "keywords": [],
+      "snippet": "- 按预案引导人员经最近安全出口撤离，不得使用电梯\n- 疏散后在集合点清点人数，向消防队提供楼层布局与危险品位置",
+      "source": "fire_equipment_check > 消防设施检查规范 > 4.3 疏散配合"
     },
     {
-      "id": "oral_care-01",
+      "id": "fire_equipment_check-14",
       "tenant_id": "tenant_default",
-      "category": "oral_care",
-      "doc_title": "口腔护理 SOP",
-      "section_title": "1.3 高风险人群",
-      "canonical_question": "口腔护理 SOP中「1.3 高风险人群」的要求是什么？",
+      "category": "fire_equipment_check",
+      "doc_title": "消防设施检查规范",
+      "section_title": "5.1 记录与上报",
+      "canonical_question": "消防设施检查规范中「5.1 记录与上报」的要求是什么？",
       "similar_questions": [
-        "鼻饲胃管老人为啥口臭？",
-        "卧床老人唾液为啥少？",
-        "糖尿病老人易鹅口疮吗？",
-        "用抗生素口腔会咋样？",
-        "认知障碍不会说咋办？"
+        "记录与上报怎么做？",
+        "记录与上报要注意什么？",
+        "记录与上报有哪些要求？",
+        "消防设施检查规范里记录与上报的步骤是什么？",
+        "记录与上报的标准流程"
       ],
-      "keywords": [
-        "鼻饲",
-        "长期卧床",
-        "糖尿病",
-        "抗生素",
-        "认知障碍",
-        "口腔自洁"
-      ],
-      "snippet": "- 鼻饲老人：缺乏口腔运动，自洁作用差\n- 长期卧床：唾液分泌减少\n- 糖尿病：易并发真菌感染\n- 使用抗生素：菌群失调\n- 认知障碍：不能主诉不适",
-      "source": "oral_care > 口腔护理 SOP > 1.3 高风险人群"
+      "keywords": [],
+      "snippet": "- 检查记录、测试记录、维修记录分类归档，至少保存 3 年\n- 年度检测报告长期保存\n- 严重缺陷须 2 小时内上报，重大隐患按当地要求报备",
+      "source": "fire_equipment_check > 消防设施检查规范 > 5.1 记录与上报"
     },
     {
-      "id": "oral_care-02",
+      "id": "fire_equipment_check-15",
       "tenant_id": "tenant_default",
-      "category": "oral_care",
-      "doc_title": "口腔护理 SOP",
-      "section_title": "2. 用物准备",
-      "canonical_question": "口腔护理 SOP中「2. 用物准备」的要求是什么？",
+      "category": "fire_equipment_check",
+      "doc_title": "消防设施检查规范",
+      "section_title": "5.2 培训与演练",
+      "canonical_question": "消防设施检查规范中「5.2 培训与演练」的要求是什么？",
       "similar_questions": [
-        "口腔护理要备啥东西？",
-        "海绵棒和牙刷选哪个？",
-        "漱口水能用含酒精吗？",
-        "手电筒压舌板要备吗？",
-        "围兜手套要戴吗？"
+        "培训与演练怎么做？",
+        "培训与演练要注意什么？",
+        "培训与演练有哪些要求？",
+        "消防设施检查规范里培训与演练的步骤是什么？",
+        "培训与演练的标准流程"
       ],
-      "keywords": [
-        "棉签",
-        "海绵棒",
-        "软毛牙刷",
-        "生理盐水",
-        "漱口水",
-        "一次性手套"
-      ],
-      "snippet": "- 棉签/海绵棒（首选，避免损伤黏膜）\n- 软毛牙刷（有牙老人首选）\n- 生理盐水或漱口水（不含酒精）\n- 压舌板、手电筒\n- 润唇膏、甘油\n- 一次性手套、围兜",
-      "source": "oral_care > 口腔护理 SOP > 2. 用物准备"
+      "keywords": [],
+      "snippet": "- 全员每年至少一次消防常识与疏散演练\n- 值班人员须熟练使用灭火器与消火栓，每半年实操一次\n- 新员工入场教育含消防设施位置与逃生路线",
+      "source": "fire_equipment_check > 消防设施检查规范 > 5.2 培训与演练"
     },
     {
-      "id": "oral_care-03",
+      "id": "power_room_inspection-00",
       "tenant_id": "tenant_default",
-      "category": "oral_care",
-      "doc_title": "口腔护理 SOP",
-      "section_title": "3.1 准备",
-      "canonical_question": "口腔护理 SOP中「3.1 准备」的要求是什么？",
+      "category": "power_room_inspection",
+      "doc_title": "配电间巡检规范",
+      "section_title": "1.1 巡检分级",
+      "canonical_question": "配电间巡检规范中「1.1 巡检分级」的要求是什么？",
       "similar_questions": [
-        "做口腔护理前洗手吗？",
-        "戴手套是必须的吗？",
-        "老人头偏哪边安全？",
-        "围兜怎么给老人围？",
-        "先评估口腔再准备吗？"
+        "巡检分级怎么做？",
+        "巡检分级要注意什么？",
+        "巡检分级有哪些要求？",
+        "配电间巡检规范里巡检分级的步骤是什么？",
+        "巡检分级的标准流程"
       ],
       "keywords": [
-        "洗手",
-        "一次性手套",
-        "侧卧位",
-        "头偏一侧",
-        "围兜",
-        "口腔评估"
+        "配电间"
       ],
-      "snippet": "1. 洗手、戴手套\n2. 老人侧卧或头偏一侧，围兜保护\n3. 评估口腔状况，准备合适用物",
-      "source": "oral_care > 口腔护理 SOP > 3.1 准备"
+      "snippet": "- 日常巡检：每班一次，外观与仪表读数为主\n- 定期巡检：每周一次，含温升、接点、异响检查\n- 专项巡检：遇负荷高峰、恶劣天气、检修后增加",
+      "source": "power_room_inspection > 配电间巡检规范 > 1.1 巡检分级"
     },
     {
-      "id": "oral_care-04",
+      "id": "power_room_inspection-01",
       "tenant_id": "tenant_default",
-      "category": "oral_care",
-      "doc_title": "口腔护理 SOP",
-      "section_title": "3.2 清洁顺序",
-      "canonical_question": "口腔护理 SOP中「3.2 清洁顺序」的要求是什么？",
+      "category": "power_room_inspection",
+      "doc_title": "配电间巡检规范",
+      "section_title": "1.2 巡检项目",
+      "canonical_question": "配电间巡检规范中「1.2 巡检项目」的要求是什么？",
       "similar_questions": [
-        "牙齿内外侧怎么刷？",
-        "咬合面怎么刷呀？",
-        "牙龈黏膜用啥擦？",
-        "擦舌头咋防恶心？",
-        "口唇干裂涂啥？",
-        "老人刷牙要注意什么",
-        "口腔清洁顺序是什么"
+        "巡检项目怎么做？",
+        "巡检项目要注意什么？",
+        "巡检项目有哪些要求？",
+        "配电间巡检规范里巡检项目的步骤是什么？",
+        "巡检项目的标准流程"
       ],
       "keywords": [
-        "牙外侧面",
-        "牙内侧面",
-        "咬合面",
-        "牙龈",
-        "舌面",
-        "口唇"
+        "配电间"
       ],
-      "snippet": "1. 牙齿外侧面：从内向外，每个牙面 3-4 次\n2. 牙齿内侧面：同法清洁\n3. 咬合面：前后向刷动\n4. 牙龈、颊部黏膜：棉签轻擦\n5. 舌面：从内向外擦，避免引起恶心\n6. 口唇：涂润唇膏防干裂",
-      "source": "oral_care > 口腔护理 SOP > 3.2 清洁顺序"
+      "snippet": "- 电压、电流、功率因数等仪表读数是否在正常区间\n- 柜内温度、母排与接点温升是否异常\n- 有无异响、异味、放电痕迹、焦糊味\n- 指示灯、保护装置、信号灯状态是否正常\n- 柜门、防鼠板、封堵、通风与散热是否完好",
+      "source": "power_room_inspection > 配电间巡检规范 > 1.2 巡检项目"
     },
     {
-      "id": "oral_care-05",
+      "id": "power_room_inspection-02",
       "tenant_id": "tenant_default",
-      "category": "oral_care",
-      "doc_title": "口腔护理 SOP",
-      "section_title": "3.3 鼻饲老人特殊处理",
-      "canonical_question": "口腔护理 SOP中「3.3 鼻饲老人特殊处理」的要求是什么？",
+      "category": "power_room_inspection",
+      "doc_title": "配电间巡检规范",
+      "section_title": "1.3 巡检时机与环境要求",
+      "canonical_question": "配电间巡检规范中「1.3 巡检时机与环境要求」的要求是什么？",
       "similar_questions": [
-        "鼻饲老人擦口咋防呛？",
-        "胃管老人头偏哪边？",
-        "操作前要夹胃管吗？",
-        "鼻饲老人几小时擦一次？",
-        "擦口怎么防液体流气道？"
+        "巡检时机与环境要求怎么做？",
+        "巡检时机与环境要求要注意什么？",
+        "巡检时机与环境要求有哪些要求？",
+        "配电间巡检规范里巡检时机与环境要求的步骤是什么？",
+        "巡检时机与环境要求的标准流程"
       ],
       "keywords": [
-        "鼻饲",
-        "误吸",
-        "头偏一侧",
-        "鼻饲管夹闭",
-        "棉签",
-        "6小时"
+        "配电间"
       ],
-      "snippet": "- 头偏一侧防误吸\n- 棉签为主，避免液体流入气道\n- 操作前确认鼻饲管夹闭\n- 每 6 小时一次，预防口腔细菌下行感染",
-      "source": "oral_care > 口腔护理 SOP > 3.3 鼻饲老人特殊处理"
+      "snippet": "- 禁止单人进入高压配电间，须两人以上并保持通讯\n- 巡检时不得开启带电柜门；确需开门须两人在场并做好防护\n- 夜间巡检须携带照明并走规定路线",
+      "source": "power_room_inspection > 配电间巡检规范 > 1.3 巡检时机与环境要求"
     },
     {
-      "id": "oral_care-06",
+      "id": "power_room_inspection-03",
       "tenant_id": "tenant_default",
-      "category": "oral_care",
-      "doc_title": "口腔护理 SOP",
-      "section_title": "4.1 口腔溃疡",
-      "canonical_question": "口腔护理 SOP中「4.1 口腔溃疡」的要求是什么？",
+      "category": "power_room_inspection",
+      "doc_title": "配电间巡检规范",
+      "section_title": "2.1 正常范围参考",
+      "canonical_question": "配电间巡检规范中「2.1 正常范围参考」的要求是什么？",
       "similar_questions": [
-        "口腔溃疡用啥洗？",
-        "溃疡涂啥药膏好？",
-        "溃疡老人要忌口吗？",
-        "严重溃疡改流食吗？",
-        "刺激食物能吃吗？"
+        "正常范围参考怎么做？",
+        "正常范围参考要注意什么？",
+        "正常范围参考有哪些要求？",
+        "配电间巡检规范里正常范围参考的步骤是什么？",
+        "正常范围参考的标准流程"
       ],
       "keywords": [
-        "口腔溃疡",
-        "生理盐水",
-        "局部药物",
-        "重组人表皮生长因子凝胶",
-        "刺激性食物",
-        "流质饮食"
+        "配电间"
       ],
-      "snippet": "- 生理盐水清洗 + 局部药物（如重组人表皮生长因子凝胶）\n- 避免刺激性食物\n- 严重者改流质饮食",
-      "source": "oral_care > 口腔护理 SOP > 4.1 口腔溃疡"
+      "snippet": "- 电压波动：额定值 ±10% 以内\n- 电流：不超过额定电流的 85%\n- 柜内温度：不高于 55℃，接点温升不超过 60K\n- 环境湿度：不高于 75%，无凝露",
+      "source": "power_room_inspection > 配电间巡检规范 > 2.1 正常范围参考"
     },
     {
-      "id": "oral_care-07",
+      "id": "power_room_inspection-04",
       "tenant_id": "tenant_default",
-      "category": "oral_care",
-      "doc_title": "口腔护理 SOP",
-      "section_title": "4.2 口腔真菌感染",
-      "canonical_question": "口腔护理 SOP中「4.2 口腔真菌感染」的要求是什么？",
+      "category": "power_room_inspection",
+      "doc_title": "配电间巡检规范",
+      "section_title": "2.2 异常判据",
+      "canonical_question": "配电间巡检规范中「2.2 异常判据」的要求是什么？",
       "similar_questions": [
-        "舌背白斑是啥感染？",
-        "颊部乳酪样白斑咋办？",
-        "真菌感染用啥清洁？",
-        "制霉菌素甘油咋用？",
-        "老不好要查免疫吗？"
+        "异常判据怎么做？",
+        "异常判据要注意什么？",
+        "异常判据有哪些要求？",
+        "配电间巡检规范里异常判据的步骤是什么？",
+        "异常判据的标准流程"
       ],
       "keywords": [
-        "口腔真菌感染",
-        "白色斑片",
-        "乳酪样白斑",
-        "2%碳酸氢钠溶液",
-        "制霉菌素甘油",
-        "免疫状态"
+        "配电间"
       ],
-      "snippet": "- 表现：舌背白色斑片、颊部乳酪样白斑\n- 用 2% 碳酸氢钠溶液清洁\n- 局部用制霉菌素甘油涂布\n- 持续不愈需评估全身免疫状态",
-      "source": "oral_care > 口腔护理 SOP > 4.2 口腔真菌感染"
+      "snippet": "- 电流持续超过额定值 90%，或出现频繁跳闸\n- 接点温度超过 70℃，或与相邻相温差超过 15K\n- 出现放电声、臭氧味、绝缘表面炭化\n- 保护装置动作后无法复归，或信号与实际不符",
+      "source": "power_room_inspection > 配电间巡检规范 > 2.2 异常判据"
     },
     {
-      "id": "oral_care-08",
+      "id": "power_room_inspection-05",
       "tenant_id": "tenant_default",
-      "category": "oral_care",
-      "doc_title": "口腔护理 SOP",
-      "section_title": "4.3 口腔出血",
-      "canonical_question": "口腔护理 SOP中「4.3 口腔出血」的要求是什么？",
+      "category": "power_room_inspection",
+      "doc_title": "配电间巡检规范",
+      "section_title": "2.3 记录要求",
+      "canonical_question": "配电间巡检规范中「2.3 记录要求」的要求是什么？",
       "similar_questions": [
-        "牙龈出血怎么擦？",
-        "局部用云南白药行吗？",
-        "大量出血先通知谁？",
-        "吃抗凝药咋观察？",
-        "出血要查凝血吗？"
+        "记录要求怎么做？",
+        "记录要求要注意什么？",
+        "记录要求有哪些要求？",
+        "配电间巡检规范里记录要求的步骤是什么？",
+        "记录要求的标准流程"
       ],
       "keywords": [
-        "牙龈出血",
-        "云南白药",
-        "大量出血",
-        "通知医生",
-        "凝血功能",
-        "抗凝药"
+        "配电间"
       ],
-      "snippet": "- 牙龈出血：轻柔操作，局部用云南白药\n- 大量出血：止血 + 通知医生 + 评估凝血功能\n- 抗凝药使用者加强监测",
-      "source": "oral_care > 口腔护理 SOP > 4.3 口腔出血"
+      "snippet": "- 每次巡检须记录读数、时间、巡检人，不得提前或事后补记\n- 异常项须注明处置动作与是否已消除\n- 巡检记录至少保存 1 年，重大异常长期保存",
+      "source": "power_room_inspection > 配电间巡检规范 > 2.3 记录要求"
     },
     {
-      "id": "oral_care-09",
+      "id": "power_room_inspection-06",
       "tenant_id": "tenant_default",
-      "category": "oral_care",
-      "doc_title": "口腔护理 SOP",
-      "section_title": "4.4 口臭",
-      "canonical_question": "口腔护理 SOP中「4.4 口臭」的要求是什么？",
+      "category": "power_room_inspection",
+      "doc_title": "配电间巡检规范",
+      "section_title": "3.1 过载",
+      "canonical_question": "配电间巡检规范中「3.1 过载」的要求是什么？",
       "similar_questions": [
-        "口臭先评估啥原因？",
-        "消化道会引起口臭吗？",
-        "呼吸道也会口臭吗？",
-        "口臭咋加强清洁？",
-        "能用复方氯己定吗？"
+        "过载怎么做？",
+        "过载要注意什么？",
+        "过载有哪些要求？",
+        "配电间巡检规范里过载的步骤是什么？",
+        "过载的标准流程",
+        "配电柜温度多少算高",
+        "柜内温度标准是多少",
+        "接点温升多少算异常"
       ],
       "keywords": [
-        "口臭",
-        "口腔感染",
-        "消化道",
-        "呼吸道",
-        "复方氯己定",
-        "漱口液"
+        "配电间"
       ],
-      "snippet": "- 评估原因：口腔感染、消化道、呼吸道\n- 加强清洁\n- 必要时漱口液（如复方氯己定）",
-      "source": "oral_care > 口腔护理 SOP > 4.4 口臭"
+      "snippet": "1. 确认是否为短时冲击（大功率设备启动），观察 5 分钟\n2. 持续过载时按预案切除非重要负荷，降低电流\n3. 仍不下降则转移负荷并报值班主管，必要时联系供电部门\n4. 记录过载起始时间、峰值与处置过程",
+      "source": "power_room_inspection > 配电间巡检规范 > 3.1 过载"
     },
     {
-      "id": "oral_care-10",
+      "id": "power_room_inspection-07",
       "tenant_id": "tenant_default",
-      "category": "oral_care",
-      "doc_title": "口腔护理 SOP",
-      "section_title": "6.1 频率",
-      "canonical_question": "口腔护理 SOP中「6.1 频率」的要求是什么？",
+      "category": "power_room_inspection",
+      "doc_title": "配电间巡检规范",
+      "section_title": "3.2 温度异常",
+      "canonical_question": "配电间巡检规范中「3.2 温度异常」的要求是什么？",
       "similar_questions": [
-        "普通老人多久擦一次？",
-        "饭后睡前都要擦吗？",
-        "鼻饲卧床几小时一次？",
-        "糖尿病老人多久一次？",
-        "免疫低下也4小时吗？"
+        "温度异常怎么做？",
+        "温度异常要注意什么？",
+        "温度异常有哪些要求？",
+        "配电间巡检规范里温度异常的步骤是什么？",
+        "温度异常的标准流程"
       ],
       "keywords": [
-        "口腔护理频率",
-        "每餐后",
-        "睡前",
-        "每6小时",
-        "每4小时",
-        "高风险"
+        "配电间"
       ],
-      "snippet": "- 普通老人：每餐后 + 睡前\n- 鼻饲/卧床老人：每 6 小时\n- 高风险（糖尿病/免疫低下）：每 4 小时",
-      "source": "oral_care > 口腔护理 SOP > 6.1 频率"
+      "snippet": "- 接点温度超限时先用红外测温复核，排除测量误差\n- 紧固松动接点须停电后处理，禁止带电紧固\n- 无法立即停电时加强监视并安排计划停电窗口",
+      "source": "power_room_inspection > 配电间巡检规范 > 3.2 温度异常"
     },
     {
-      "id": "positioning-00",
+      "id": "power_room_inspection-08",
       "tenant_id": "tenant_default",
-      "category": "positioning",
-      "doc_title": "定时翻身与体位摆放 SOP",
-      "section_title": "1.1 频率",
-      "canonical_question": "定时翻身与体位摆放 SOP中「1.1 频率」的要求是什么？",
+      "category": "power_room_inspection",
+      "doc_title": "配电间巡检规范",
+      "section_title": "3.3 跳闸",
+      "canonical_question": "配电间巡检规范中「3.3 跳闸」的要求是什么？",
       "similar_questions": [
-        "普通老人多久翻一次身？",
-        "压疮高风险多久翻一次？",
-        "Braden 12分要每小时翻吗？",
-        "气垫床能三小时翻一次吗？",
-        "用减压床翻身时间能延长吗？",
-        "多久给老人翻一次身",
-        "翻身间隔是多久"
+        "跳闸怎么做？",
+        "跳闸要注意什么？",
+        "跳闸有哪些要求？",
+        "配电间巡检规范里跳闸的步骤是什么？",
+        "跳闸的标准流程"
       ],
       "keywords": [
-        "翻身频率",
-        "压力性损伤",
-        "Braden评分",
-        "动态减压气垫床"
+        "配电间",
+        "跳闸"
       ],
-      "snippet": "- 普通老人：每 2 小时翻身一次\n- 高风险压疮（Braden ≤ 12）：每 1 小时\n- 使用动态减压气垫床：可延长至每 3 小时",
-      "source": "positioning > 定时翻身与体位摆放 SOP > 1.1 频率"
+      "snippet": "- 先判明是保护正确动作还是误动，不做无依据的强行合闸\n- 检查有无短路、接地、过载痕迹后再决定是否试送\n- 试送一次不成功不得再次强行合闸，须查明原因",
+      "source": "power_room_inspection > 配电间巡检规范 > 3.3 跳闸"
     },
     {
-      "id": "positioning-01",
+      "id": "power_room_inspection-09",
       "tenant_id": "tenant_default",
-      "category": "positioning",
-      "doc_title": "定时翻身与体位摆放 SOP",
-      "section_title": "1.2 体位选择",
-      "canonical_question": "定时翻身与体位摆放 SOP中「1.2 体位选择」的要求是什么？",
+      "category": "power_room_inspection",
+      "doc_title": "配电间巡检规范",
+      "section_title": "3.4 进水与受潮",
+      "canonical_question": "配电间巡检规范中「3.4 进水与受潮」的要求是什么？",
       "similar_questions": [
-        "翻身可以选哪些体位？",
-        "为什么要30度侧卧？",
-        "能直接90度侧卧吗？",
-        "90度侧卧压哪里不好？",
-        "半坐位能久一点吗？",
-        "翻身时怎么摆体位",
-        "侧卧位怎么摆"
+        "进水与受潮怎么做？",
+        "进水与受潮要注意什么？",
+        "进水与受潮有哪些要求？",
+        "配电间巡检规范里进水与受潮的步骤是什么？",
+        "进水与受潮的标准流程"
       ],
       "keywords": [
-        "体位摆放",
-        "仰卧位",
-        "30度侧卧位",
-        "股骨大转子",
-        "剪切力",
-        "骶尾部压力性损伤"
+        "配电间"
       ],
-      "snippet": "- 仰卧位、左侧 30 度侧卧位、右侧 30 度侧卧位 轮换\n- 避免直接 90 度侧卧位（压迫股骨大转子）\n- 避免长时间半坐位（剪切力致骶尾部压疮）",
-      "source": "positioning > 定时翻身与体位摆放 SOP > 1.2 体位选择"
+      "snippet": "- 发现配电间进水立即停电并疏散人员，禁止涉水接近配电柜\n- 关闭上级电源并悬挂\"禁止合闸\"标识\n- 排水、除湿、绝缘测试合格后方可恢复送电",
+      "source": "power_room_inspection > 配电间巡检规范 > 3.4 进水与受潮"
     },
     {
-      "id": "positioning-02",
+      "id": "power_room_inspection-10",
       "tenant_id": "tenant_default",
-      "category": "positioning",
-      "doc_title": "定时翻身与体位摆放 SOP",
-      "section_title": "2.1 准备",
-      "canonical_question": "定时翻身与体位摆放 SOP中「2.1 准备」的要求是什么？",
+      "category": "power_room_inspection",
+      "doc_title": "配电间巡检规范",
+      "section_title": "4.1 停电作业",
+      "canonical_question": "配电间巡检规范中「4.1 停电作业」的要求是什么？",
       "similar_questions": [
-        "翻身前要先评估什么？",
-        "有胃管翻身要注意啥？",
-        "有尿管输液管怎么翻？",
-        "翻身前要跟老人解释吗？",
-        "颈椎不好要两人翻身吗？"
+        "停电作业怎么做？",
+        "停电作业要注意什么？",
+        "停电作业有哪些要求？",
+        "配电间巡检规范里停电作业的步骤是什么？",
+        "停电作业的标准流程"
       ],
       "keywords": [
-        "护理评估",
-        "管路保护",
-        "鼻饲管",
-        "尿管",
-        "输液管",
-        "颈椎保护"
+        "配电间"
       ],
-      "snippet": "1. 评估老人意识、配合度、管路（输液管/尿管/鼻饲管）\n2. 解释操作目的，取得配合\n3. 必要时二人协助，保护颈椎",
-      "source": "positioning > 定时翻身与体位摆放 SOP > 2.1 准备"
+      "snippet": "- 执行停电、验电、放电、装设接地线、悬挂标识五步\n- 验电须使用与电压等级匹配的验电器，先在有电处试验其完好\n- 作业完毕由作业人拆除接地线，任何人不得代为拆除",
+      "source": "power_room_inspection > 配电间巡检规范 > 4.1 停电作业"
     },
     {
-      "id": "positioning-03",
+      "id": "power_room_inspection-11",
       "tenant_id": "tenant_default",
-      "category": "positioning",
-      "doc_title": "定时翻身与体位摆放 SOP",
-      "section_title": "2.2 仰卧位 → 右侧 30 度侧卧位",
-      "canonical_question": "定时翻身与体位摆放 SOP中「2.2 仰卧位 → 右侧 30 度侧卧位」的要求是什么？",
+      "category": "power_room_inspection",
+      "doc_title": "配电间巡检规范",
+      "section_title": "4.2 防护用品",
+      "canonical_question": "配电间巡检规范中「4.2 防护用品」的要求是什么？",
       "similar_questions": [
-        "仰卧翻右侧30度咋翻？",
-        "翻右侧时手放哪里？",
-        "先翻上半身还是下半身？",
-        "背后三角枕和膝枕怎么垫？",
-        "枕头高度要调吗？"
+        "防护用品怎么做？",
+        "防护用品要注意什么？",
+        "防护用品有哪些要求？",
+        "配电间巡检规范里防护用品的步骤是什么？",
+        "防护用品的标准流程"
       ],
       "keywords": [
-        "分段翻身",
-        "右侧30度侧卧位",
-        "三角枕",
-        "膝间软枕",
-        "颈椎生理曲度"
+        "配电间"
       ],
-      "snippet": "1. 老人双手交叉放胸前，屈膝\n2. 操作者站右侧，扶住肩部和膝部\n3. 先移上半身，再移下半身（分段翻身）\n4. 用三角枕或软垫支撑背部 30 度\n5. 上腿屈曲，下腿伸直，两膝间放软枕\n6. 调整枕头高度，保持颈椎正常生理曲度",
-      "source": "positioning > 定时翻身与体位摆放 SOP > 2.2 仰卧位 → 右侧 30 度侧卧位"
+      "snippet": "- 绝缘手套、绝缘鞋使用前检查有无破损受潮，按周期做耐压试验\n- 灭火器须为二氧化碳或干粉型，严禁用水扑救带电火灾\n- 配电间入口配备绝缘垫、防护面罩与应急照明",
+      "source": "power_room_inspection > 配电间巡检规范 > 4.2 防护用品"
     },
     {
-      "id": "positioning-04",
+      "id": "power_room_inspection-12",
       "tenant_id": "tenant_default",
-      "category": "positioning",
-      "doc_title": "定时翻身与体位摆放 SOP",
-      "section_title": "2.3 侧卧位 → 仰卧位",
-      "canonical_question": "定时翻身与体位摆放 SOP中「2.3 侧卧位 → 仰卧位」的要求是什么？",
+      "category": "power_room_inspection",
+      "doc_title": "配电间巡检规范",
+      "section_title": "4.3 门禁与标识",
+      "canonical_question": "配电间巡检规范中「4.3 门禁与标识」的要求是什么？",
       "similar_questions": [
-        "侧卧翻回平躺怎么弄？",
-        "背后垫的枕头先撤吗？",
-        "扶肩和髋怎么翻？",
-        "翻回仰卧要快还是慢？",
-        "平躺后头手脚怎么放？"
+        "门禁与标识怎么做？",
+        "门禁与标识要注意什么？",
+        "门禁与标识有哪些要求？",
+        "配电间巡检规范里门禁与标识的步骤是什么？",
+        "门禁与标识的标准流程"
       ],
       "keywords": [
-        "侧卧位",
-        "仰卧位",
-        "平移复位",
-        "头部中立位",
-        "肢体摆放"
+        "配电间"
       ],
-      "snippet": "1. 撤除背部支撑枕\n2. 一手扶肩，一手扶髋\n3. 缓慢平移至仰卧位\n4. 头部居中，四肢伸直自然摆放",
-      "source": "positioning > 定时翻身与体位摆放 SOP > 2.3 侧卧位 → 仰卧位"
+      "snippet": "- 配电间保持常闭上锁，钥匙由值班人员统一管理\n- 柜前标线清晰，通道不得堆放物品\n- 带电区域、止步高压危险等标识完整清晰",
+      "source": "power_room_inspection > 配电间巡检规范 > 4.3 门禁与标识"
     },
     {
-      "id": "positioning-05",
+      "id": "power_room_inspection-13",
       "tenant_id": "tenant_default",
-      "category": "positioning",
-      "doc_title": "定时翻身与体位摆放 SOP",
-      "section_title": "3.1 偏瘫老人",
-      "canonical_question": "定时翻身与体位摆放 SOP中「3.1 偏瘫老人」的要求是什么？",
+      "category": "power_room_inspection",
+      "doc_title": "配电间巡检规范",
+      "section_title": "5.1 上报",
+      "canonical_question": "配电间巡检规范中「5.1 上报」的要求是什么？",
       "similar_questions": [
-        "偏瘫老人翻哪边好？",
-        "患侧卧位有啥好处？",
-        "健侧卧会压到患侧吗？",
-        "偏瘫能老平躺吗？",
-        "平躺久了会痉挛吗？"
+        "上报怎么做？",
+        "上报要注意什么？",
+        "上报有哪些要求？",
+        "配电间巡检规范里上报的步骤是什么？",
+        "上报的标准流程"
       ],
       "keywords": [
-        "偏瘫",
-        "患侧卧位",
-        "健侧卧位",
-        "本体感觉",
-        "痉挛",
-        "仰卧位"
+        "配电间"
       ],
-      "snippet": "- 患侧卧位：增加患侧本体感觉输入，促进康复\n- 健侧卧位：避免压迫患侧\n- 仰卧位应尽量短，易引发痉挛",
-      "source": "positioning > 定时翻身与体位摆放 SOP > 3.1 偏瘫老人"
+      "snippet": "- 跳闸、过载超限、进水等异常须当班上报值班主管\n- 涉及停电影响客户的，按预案同步通知使用方\n- 24 小时内提交异常分析报告，含原因、处置与防范措施",
+      "source": "power_room_inspection > 配电间巡检规范 > 5.1 上报"
     },
     {
-      "id": "positioning-06",
+      "id": "power_room_inspection-14",
       "tenant_id": "tenant_default",
-      "category": "positioning",
-      "doc_title": "定时翻身与体位摆放 SOP",
-      "section_title": "3.2 脊髓损伤",
-      "canonical_question": "定时翻身与体位摆放 SOP中「3.2 脊髓损伤」的要求是什么？",
+      "category": "power_room_inspection",
+      "doc_title": "配电间巡检规范",
+      "section_title": "5.2 培训与演练",
+      "canonical_question": "配电间巡检规范中「5.2 培训与演练」的要求是什么？",
       "similar_questions": [
-        "脊髓损伤能睡软床吗？",
-        "翻身为什么要圆木滚动？",
-        "轴线翻身是啥意思？",
-        "脊髓损伤要几个人翻？",
-        "三人轴线翻身是必须吗？"
+        "培训与演练怎么做？",
+        "培训与演练要注意什么？",
+        "培训与演练有哪些要求？",
+        "配电间巡检规范里培训与演练的步骤是什么？",
+        "培训与演练的标准流程"
       ],
       "keywords": [
-        "脊髓损伤",
-        "硬板床",
-        "轴线翻身",
-        "圆木滚动",
-        "脊柱畸形"
+        "配电间"
       ],
-      "snippet": "- 床板必须硬板，避免软床加重畸形\n- 翻身时保持脊柱轴线一致（圆木滚动）\n- 必要时三人轴线翻身",
-      "source": "positioning > 定时翻身与体位摆放 SOP > 3.2 脊髓损伤"
+      "snippet": "- 巡检人员须持电工证，每年至少一次专项培训\n- 每半年组织一次配电间火灾或进水应急处置演练\n- 新员工须在有经验人员带领下巡检不少于 10 次方可独立值班",
+      "source": "power_room_inspection > 配电间巡检规范 > 5.2 培训与演练"
     },
     {
-      "id": "positioning-07",
+      "id": "water_ingress-00",
       "tenant_id": "tenant_default",
-      "category": "positioning",
-      "doc_title": "定时翻身与体位摆放 SOP",
-      "section_title": "3.3 术后老人",
-      "canonical_question": "定时翻身与体位摆放 SOP中「3.3 术后老人」的要求是什么？",
+      "category": "water_ingress",
+      "doc_title": "水浸与渗漏应急处置",
+      "section_title": "1.1 分级标准",
+      "canonical_question": "水浸与渗漏应急处置中「1.1 分级标准」的要求是什么？",
       "similar_questions": [
-        "髋关节置换后能往患侧翻吗？",
-        "换髋后腿能蜷起来吗？",
-        "脊柱术后翻身能扭吗？",
-        "脊柱术后怎么翻身？",
-        "胸部术后能半坐吗？"
+        "分级标准怎么做？",
+        "分级标准要注意什么？",
+        "分级标准有哪些要求？",
+        "水浸与渗漏应急处置里分级标准的步骤是什么？",
+        "分级标准的标准流程"
       ],
       "keywords": [
-        "髋关节置换",
-        "过度屈曲内收",
-        "脊柱术后",
-        "轴线翻身",
-        "胸部术后",
-        "半坐位"
+        "渗漏"
       ],
-      "snippet": "- 髋关节置换术后：避免患侧卧位、过度屈曲内收\n- 脊柱术后：轴线翻身，禁止扭转\n- 胸部术后：半坐位利于呼吸",
-      "source": "positioning > 定时翻身与体位摆放 SOP > 3.3 术后老人"
+      "snippet": "- 三级（轻微）：局部渗水，无蔓延，不影响设备与通行\n- 二级（中度）：积水面积较大或持续渗漏，可能影响设备与人员通行\n- 一级（严重）：大量涌水、倒灌，已影响配电、电梯等关键设备或造成人员滞留",
+      "source": "water_ingress > 水浸与渗漏应急处置 > 1.1 分级标准"
     },
     {
-      "id": "positioning-08",
+      "id": "water_ingress-01",
       "tenant_id": "tenant_default",
-      "category": "positioning",
-      "doc_title": "定时翻身与体位摆放 SOP",
-      "section_title": "4.1 足跟",
-      "canonical_question": "定时翻身与体位摆放 SOP中「4.1 足跟」的要求是什么？",
+      "category": "water_ingress",
+      "doc_title": "水浸与渗漏应急处置",
+      "section_title": "1.2 常见成因识别",
+      "canonical_question": "水浸与渗漏应急处置中「1.2 常见成因识别」的要求是什么？",
       "similar_questions": [
-        "足跟怎么垫起来？",
-        "足跟悬空架怎么用？",
-        "腘窝能垫枕头吗？",
-        "足背动脉要定期查吗？",
-        "脚后跟要查脉搏吗？"
+        "常见成因识别怎么做？",
+        "常见成因识别要注意什么？",
+        "常见成因识别有哪些要求？",
+        "水浸与渗漏应急处置里常见成因识别的步骤是什么？",
+        "常见成因识别的标准流程"
       ],
       "keywords": [
-        "足跟减压",
-        "足跟悬空架",
-        "腘窝受压",
-        "足背动脉搏动",
-        "血液循环"
+        "渗漏"
       ],
-      "snippet": "- 用软枕或足跟悬空架抬起足跟\n- 避免腘窝直接受压影响循环\n- 定期检查足背动脉搏动",
-      "source": "positioning > 定时翻身与体位摆放 SOP > 4.1 足跟"
+      "snippet": "- 给水管爆裂、阀门填料老化、法兰垫片失效\n- 排水管堵塞导致返水、地漏倒灌\n- 屋面防水层老化、落水管堵塞导致顶棚渗漏\n- 水泵机械密封失效、集水井液位控制失灵\n- 雨季地下室倒灌、沉降缝渗漏",
+      "source": "water_ingress > 水浸与渗漏应急处置 > 1.2 常见成因识别"
     },
     {
-      "id": "positioning-09",
+      "id": "water_ingress-02",
       "tenant_id": "tenant_default",
-      "category": "positioning",
-      "doc_title": "定时翻身与体位摆放 SOP",
-      "section_title": "4.2 骶尾部",
-      "canonical_question": "定时翻身与体位摆放 SOP中「4.2 骶尾部」的要求是什么？",
+      "category": "water_ingress",
+      "doc_title": "水浸与渗漏应急处置",
+      "section_title": "1.3 发现途径",
+      "canonical_question": "水浸与渗漏应急处置中「1.3 发现途径」的要求是什么？",
       "similar_questions": [
-        "骶尾部怎么减压？",
-        "半坐位要垫什么垫？",
-        "床头能抬高超过30度吗？",
-        "床头抬高多久算久？",
-        "翻身要检查骶尾皮肤吗？"
+        "发现途径怎么做？",
+        "发现途径要注意什么？",
+        "发现途径有哪些要求？",
+        "水浸与渗漏应急处置里发现途径的步骤是什么？",
+        "发现途径的标准流程"
       ],
       "keywords": [
-        "骶尾部",
-        "减压垫",
-        "床头抬高",
-        "剪切力",
-        "皮肤检查"
+        "渗漏"
       ],
-      "snippet": "- 半坐位时使用骶尾减压垫\n- 避免床头抬高 > 30 度过久\n- 每次翻身检查骶尾皮肤",
-      "source": "positioning > 定时翻身与体位摆放 SOP > 4.2 骶尾部"
+      "snippet": "- 水位监测告警、巡检目视发现、使用方报修\n- 发现后须立即核实位置与水量，不得仅记录不处置",
+      "source": "water_ingress > 水浸与渗漏应急处置 > 1.3 发现途径"
     },
     {
-      "id": "positioning-10",
+      "id": "water_ingress-03",
       "tenant_id": "tenant_default",
-      "category": "positioning",
-      "doc_title": "定时翻身与体位摆放 SOP",
-      "section_title": "5.1 关节挛缩",
-      "canonical_question": "定时翻身与体位摆放 SOP中「5.1 关节挛缩」的要求是什么？",
+      "category": "water_ingress",
+      "doc_title": "水浸与渗漏应急处置",
+      "section_title": "2.1 先控电后控水",
+      "canonical_question": "水浸与渗漏应急处置中「2.1 先控电后控水」的要求是什么？",
       "similar_questions": [
-        "关节挛缩每天活动几次？",
-        "踝关节要摆多少度？",
-        "膝盖要弯多少度？",
-        "什么时候用足托？",
-        "手部防挛缩支具要戴吗？"
+        "先控电后控水怎么做？",
+        "先控电后控水要注意什么？",
+        "先控电后控水有哪些要求？",
+        "水浸与渗漏应急处置里先控电后控水的步骤是什么？",
+        "先控电后控水的标准流程"
       ],
       "keywords": [
-        "关节挛缩",
-        "被动活动",
-        "功能位",
-        "踝关节90度",
-        "膝关节屈曲",
-        "防挛缩支具"
+        "渗漏"
       ],
-      "snippet": "- 每日 2 次全关节被动活动\n- 保持功能位摆放：踝关节 90 度、膝关节 5-10 度屈曲\n- 必要时使用足托、手部防挛缩支具",
-      "source": "positioning > 定时翻身与体位摆放 SOP > 5.1 关节挛缩"
+      "snippet": "- 积水邻近配电间、配电柜、电梯井、电缆沟时**先断电**再处置\n- 严禁涉水接近带电设备，不得用手试探水位\n- 断电后悬挂\"禁止合闸\"标识，恢复送电须经绝缘测试与主管确认",
+      "source": "water_ingress > 水浸与渗漏应急处置 > 2.1 先控电后控水"
     },
     {
-      "id": "positioning-11",
+      "id": "water_ingress-04",
       "tenant_id": "tenant_default",
-      "category": "positioning",
-      "doc_title": "定时翻身与体位摆放 SOP",
-      "section_title": "5.2 坠积性肺炎",
-      "canonical_question": "定时翻身与体位摆放 SOP中「5.2 坠积性肺炎」的要求是什么？",
+      "category": "water_ingress",
+      "doc_title": "水浸与渗漏应急处置",
+      "section_title": "2.2 止水措施",
+      "canonical_question": "水浸与渗漏应急处置中「2.2 止水措施」的要求是什么？",
       "similar_questions": [
-        "翻身要拍背排痰吗？",
-        "拍背怎么配合翻身？",
-        "怎么让老人有效咳嗽？",
-        "卧床老人多久换体位？",
-        "高龄卧床要做体位引流吗？"
+        "止水措施怎么做？",
+        "止水措施要注意什么？",
+        "止水措施有哪些要求？",
+        "水浸与渗漏应急处置里止水措施的步骤是什么？",
+        "止水措施的标准流程"
       ],
       "keywords": [
-        "坠积性肺炎",
-        "拍背排痰",
-        "深呼吸",
-        "有效咳嗽",
-        "体位引流",
-        "变换体位"
+        "渗漏"
       ],
-      "snippet": "- 翻身时配合拍背排痰\n- 鼓励老人深呼吸、有效咳嗽\n- 高龄 + 卧床者每 2 小时变换体位 + 体位引流",
-      "source": "positioning > 定时翻身与体位摆放 SOP > 5.2 坠积性肺炎"
+      "snippet": "- 关闭对应阀门或就近控制阀，必要时关闭区域总阀\n- 管道爆裂无法关阀时用抱箍、木楔临时封堵并设置导流\n- 屋面渗漏先疏通落水管与排水沟，清除堵塞物",
+      "source": "water_ingress > 水浸与渗漏应急处置 > 2.2 止水措施"
     },
     {
-      "id": "positioning-12",
+      "id": "water_ingress-05",
       "tenant_id": "tenant_default",
-      "category": "positioning",
-      "doc_title": "定时翻身与体位摆放 SOP",
-      "section_title": "5.3 体位性低血压",
-      "canonical_question": "定时翻身与体位摆放 SOP中「5.3 体位性低血压」的要求是什么？",
+      "category": "water_ingress",
+      "doc_title": "水浸与渗漏应急处置",
+      "section_title": "2.3 排水与围堵",
+      "canonical_question": "水浸与渗漏应急处置中「2.3 排水与围堵」的要求是什么？",
       "similar_questions": [
-        "卧床老人第一次坐起咋坐？",
-        "床头抬到30度等多久？",
-        "30度再到60度要多久？",
-        "坐起要量血压心率吗？",
-        "坐起后要监测啥？",
-        "翻身时怎么摆体位",
-        "侧卧位怎么摆"
+        "排水与围堵怎么做？",
+        "排水与围堵要注意什么？",
+        "排水与围堵有哪些要求？",
+        "水浸与渗漏应急处置里排水与围堵的步骤是什么？",
+        "排水与围堵的标准流程"
       ],
       "keywords": [
-        "体位性低血压",
-        "循序渐起",
-        "床头抬高",
-        "血压监测",
-        "心率监测",
-        "适应时间"
+        "排水",
+        "渗漏"
       ],
-      "snippet": "- 长期卧床者首次坐起需循序渐进\n- 抬高床头 30 度 → 60 度 → 90 度，每阶段适应 5-10 分钟\n- 监测血压、心率变化",
-      "source": "positioning > 定时翻身与体位摆放 SOP > 5.3 体位性低血压"
+      "snippet": "- 用沙袋、挡水板在门口与电梯厅围堵，阻止水流向关键区域\n- 用潜水泵或移动泵排水，排水点选择不回流的位置\n- 地下室排水期间保持通风，防止有害气体积聚",
+      "source": "water_ingress > 水浸与渗漏应急处置 > 2.3 排水与围堵"
     },
     {
-      "id": "positioning-13",
+      "id": "water_ingress-06",
       "tenant_id": "tenant_default",
-      "category": "positioning",
-      "doc_title": "定时翻身与体位摆放 SOP",
-      "section_title": "6. 记录",
-      "canonical_question": "定时翻身与体位摆放 SOP中「6. 记录」的要求是什么？",
+      "category": "water_ingress",
+      "doc_title": "水浸与渗漏应急处置",
+      "section_title": "2.4 重要物品保护",
+      "canonical_question": "水浸与渗漏应急处置中「2.4 重要物品保护」的要求是什么？",
       "similar_questions": [
-        "翻身记录要写什么？",
-        "每班都要记皮肤吗？",
-        "皮肤发红要上报吗？",
-        "关节活动度变了咋办？",
-        "多久评价体位计划？"
+        "重要物品保护怎么做？",
+        "重要物品保护要注意什么？",
+        "重要物品保护有哪些要求？",
+        "水浸与渗漏应急处置里重要物品保护的步骤是什么？",
+        "重要物品保护的标准流程"
       ],
       "keywords": [
-        "翻身记录",
-        "皮肤状态",
-        "每班次",
-        "异常上报",
-        "计划评价"
+        "渗漏"
       ],
-      "snippet": "- 翻身时间、体位、皮肤状态每班次记录\n- 异常情况（皮肤红斑、关节活动度改变）及时上报\n- 每周评价体位摆放计划有效性",
-      "source": "positioning > 定时翻身与体位摆放 SOP > 6. 记录"
+      "snippet": "- 优先转移设备档案、备件、纸质记录\n- 电梯升至高位并停用，待积水排除与检查合格后恢复",
+      "source": "water_ingress > 水浸与渗漏应急处置 > 2.4 重要物品保护"
     },
     {
-      "id": "pressure_ulcer-00",
+      "id": "water_ingress-07",
       "tenant_id": "tenant_default",
-      "category": "pressure_ulcer",
-      "doc_title": "压疮预防与分期护理 SOP",
-      "section_title": "1.1 评估工具",
-      "canonical_question": "压疮预防与分期护理 SOP中「1.1 评估工具」的要求是什么？",
+      "category": "water_ingress",
+      "doc_title": "水浸与渗漏应急处置",
+      "section_title": "3.1 设备检查",
+      "canonical_question": "水浸与渗漏应急处置中「3.1 设备检查」的要求是什么？",
       "similar_questions": [
-        "Braden量表咋给老人打分？",
-        "压疮风险评估看哪几项？",
-        "感觉潮湿活动咋评估？",
-        "摩擦剪切力是啥意思？",
-        "营养不好算压疮风险吗？"
+        "设备检查怎么做？",
+        "设备检查要注意什么？",
+        "设备检查有哪些要求？",
+        "水浸与渗漏应急处置里设备检查的步骤是什么？",
+        "设备检查的标准流程"
       ],
       "keywords": [
-        "Braden量表",
-        "压力性损伤",
-        "风险评估",
-        "感觉",
-        "潮湿",
-        "摩擦剪切力"
+        "渗漏"
       ],
-      "snippet": "使用 Braden 量表评估压疮风险，维度包括：感觉、潮湿、活动、移动、营养、摩擦剪切力。",
-      "source": "pressure_ulcer > 压疮预防与分期护理 SOP > 1.1 评估工具"
+      "snippet": "- 受潮电气设备须干燥、测绝缘合格后方可送电\n- 水泵、风机等转动设备检查轴承与电机绝缘\n- 电梯由维保单位检查控制柜、限速器、底坑设备",
+      "source": "water_ingress > 水浸与渗漏应急处置 > 3.1 设备检查"
     },
     {
-      "id": "pressure_ulcer-01",
+      "id": "water_ingress-08",
       "tenant_id": "tenant_default",
-      "category": "pressure_ulcer",
-      "doc_title": "压疮预防与分期护理 SOP",
-      "section_title": "1.2 评估时机",
-      "canonical_question": "压疮预防与分期护理 SOP中「1.2 评估时机」的要求是什么？",
+      "category": "water_ingress",
+      "doc_title": "水浸与渗漏应急处置",
+      "section_title": "3.2 环境恢复",
+      "canonical_question": "水浸与渗漏应急处置中「3.2 环境恢复」的要求是什么？",
       "similar_questions": [
-        "入院多久要做压疮评估？",
-        "高风险老人每班都评吗？",
-        "病情变化要重新评估吗？",
-        "出院前还要评估压疮吗？",
-        "压疮评估啥时候必须做？"
+        "环境恢复怎么做？",
+        "环境恢复要注意什么？",
+        "环境恢复有哪些要求？",
+        "水浸与渗漏应急处置里环境恢复的步骤是什么？",
+        "环境恢复的标准流程"
       ],
       "keywords": [
-        "评估时机",
-        "入院24小时内",
-        "每班次复评",
-        "病情变化",
-        "出院前终末评估"
+        "渗漏"
       ],
-      "snippet": "- 入院 24 小时内首次评估\n- 每班次复评（高风险老人）\n- 病情变化时随时评估\n- 出院前终末评估",
-      "source": "pressure_ulcer > 压疮预防与分期护理 SOP > 1.2 评估时机"
+      "snippet": "- 积水排除后进行除湿、消毒与通风\n- 检查地面积水是否导致面层起鼓、变形\n- 恢复前确认地面干燥、无滑倒风险",
+      "source": "water_ingress > 水浸与渗漏应急处置 > 3.2 环境恢复"
     },
     {
-      "id": "pressure_ulcer-02",
+      "id": "water_ingress-09",
       "tenant_id": "tenant_default",
-      "category": "pressure_ulcer",
-      "doc_title": "压疮预防与分期护理 SOP",
-      "section_title": "1.3 风险分级",
-      "canonical_question": "压疮预防与分期护理 SOP中「1.3 风险分级」的要求是什么？",
+      "category": "water_ingress",
+      "doc_title": "水浸与渗漏应急处置",
+      "section_title": "3.3 原因排查",
+      "canonical_question": "水浸与渗漏应急处置中「3.3 原因排查」的要求是什么？",
       "similar_questions": [
-        "Braden多少分算高风险？",
-        "13到14分是啥风险？",
-        "15到18分要紧吗？",
-        "19分以上就没事吗？",
-        "压疮风险分几档？"
+        "原因排查怎么做？",
+        "原因排查要注意什么？",
+        "原因排查有哪些要求？",
+        "水浸与渗漏应急处置里原因排查的步骤是什么？",
+        "原因排查的标准流程"
       ],
       "keywords": [
-        "Braden评分",
-        "风险分级",
-        "高度风险",
-        "中度风险",
-        "低度风险",
-        "无风险"
+        "渗漏"
       ],
-      "snippet": "- ≤12 分：高度风险\n- 13-14 分：中度风险\n- 15-18 分：低度风险\n- ≥19 分：无风险",
-      "source": "pressure_ulcer > 压疮预防与分期护理 SOP > 1.3 风险分级"
+      "snippet": "- 查明渗漏点位与根本原因，不得只做表面封堵\n- 评估同类型点位是否存在同样隐患并排查\n- 老旧管道按评估结果列入更换计划",
+      "source": "water_ingress > 水浸与渗漏应急处置 > 3.3 原因排查"
     },
     {
-      "id": "pressure_ulcer-03",
+      "id": "water_ingress-10",
       "tenant_id": "tenant_default",
-      "category": "pressure_ulcer",
-      "doc_title": "压疮预防与分期护理 SOP",
-      "section_title": "3.1 I 期压疮的特征与识别",
-      "canonical_question": "压疮预防与分期护理 SOP中「3.1 I 期压疮的特征与识别」的要求是什么？",
+      "category": "water_ingress",
+      "doc_title": "水浸与渗漏应急处置",
+      "section_title": "4.1 巡检与监测",
+      "canonical_question": "水浸与渗漏应急处置中「4.1 巡检与监测」的要求是什么？",
       "similar_questions": [
-        "一期压疮长啥样？",
-        "皮肤红了按下去不褪咋回事？",
-        "红斑不退就是压疮吗？",
-        "深色皮肤咋看一期压疮？",
-        "一期压疮摸着会痛吗？"
+        "巡检与监测怎么做？",
+        "巡检与监测要注意什么？",
+        "巡检与监测有哪些要求？",
+        "水浸与渗漏应急处置里巡检与监测的步骤是什么？",
+        "巡检与监测的标准流程"
       ],
       "keywords": [
-        "I期压力性损伤",
-        "持续性红斑",
-        "指压不褪色",
-        "温度改变",
-        "硬度改变",
-        "触诊"
+        "渗漏"
       ],
-      "snippet": "I 期压疮是压疮的最早期表现，皮肤外观完整但有持续性的红斑。关键识别要点：\n- 用手指按压红斑区，颜色不褪（与正常红斑区别）\n- 与周围组织相比，有温度、硬度、疼痛的改变\n- 深色皮肤老人可能难以观察，需结合触诊",
-      "source": "pressure_ulcer > 压疮预防与分期护理 SOP > 3.1 I 期压疮的特征与识别"
+      "snippet": "- 地下室、设备间、屋面按周期巡检，雨季加密\n- 集水井、水位监测设备定期校验，液位控制装置每季度测试\n- 落水管、雨水口在雨季前清理一次",
+      "source": "water_ingress > 水浸与渗漏应急处置 > 4.1 巡检与监测"
     },
     {
-      "id": "pressure_ulcer-04",
+      "id": "water_ingress-11",
       "tenant_id": "tenant_default",
-      "category": "pressure_ulcer",
-      "doc_title": "压疮预防与分期护理 SOP",
-      "section_title": "3.2 II 期压疮的特征与识别",
-      "canonical_question": "压疮预防与分期护理 SOP中「3.2 II 期压疮的特征与识别」的要求是什么？",
+      "category": "water_ingress",
+      "doc_title": "水浸与渗漏应急处置",
+      "section_title": "4.2 设施维护",
+      "canonical_question": "水浸与渗漏应急处置中「4.2 设施维护」的要求是什么？",
       "similar_questions": [
-        "二期压疮是破皮了吗？",
-        "水疱破了算二期吗？",
-        "红粉色伤口没腐肉是几期？",
-        "会阴皮炎算二期压疮吗？",
-        "皮肤撕裂和二期咋区分？"
+        "设施维护怎么做？",
+        "设施维护要注意什么？",
+        "设施维护有哪些要求？",
+        "水浸与渗漏应急处置里设施维护的步骤是什么？",
+        "设施维护的标准流程"
       ],
       "keywords": [
-        "II期压力性损伤",
-        "表皮或真皮缺损",
-        "浆液性水疱",
-        "红粉色伤口床",
-        "鉴别诊断"
+        "渗漏"
       ],
-      "snippet": "II 期压疮表现为表皮或真皮的部分缺损，常见形式：\n- 表浅开放性溃疡，呈红粉色伤口床，无腐肉\n- 浆液性水疱（完整或破裂）\n- 鉴别诊断：皮肤撕裂、烧伤、会阴皮炎不属于 II 期压疮",
-      "source": "pressure_ulcer > 压疮预防与分期护理 SOP > 3.2 II 期压疮的特征与识别"
+      "snippet": "- 阀门、法兰垫片按周期检查更换\n- 屋面防水按规定年限评估翻修\n- 排水泵一用一备，定期轮换运行并测试自动启动",
+      "source": "water_ingress > 水浸与渗漏应急处置 > 4.2 设施维护"
     },
     {
-      "id": "pressure_ulcer-05",
+      "id": "water_ingress-12",
       "tenant_id": "tenant_default",
-      "category": "pressure_ulcer",
-      "doc_title": "压疮预防与分期护理 SOP",
-      "section_title": "3.3 III 期与 IV 期的鉴别",
-      "canonical_question": "压疮预防与分期护理 SOP中「3.3 III 期与 IV 期的鉴别」的要求是什么？",
+      "category": "water_ingress",
+      "doc_title": "水浸与渗漏应急处置",
+      "section_title": "4.3 物资准备",
+      "canonical_question": "水浸与渗漏应急处置中「4.3 物资准备」的要求是什么？",
       "similar_questions": [
-        "三期四期压疮咋区分？",
-        "看到骨头是几期压疮？",
-        "脂肪露出来算三期吗？",
-        "有焦痂看不清深度算几期？",
-        "不可分期要先清创吗？"
+        "物资准备怎么做？",
+        "物资准备要注意什么？",
+        "物资准备有哪些要求？",
+        "水浸与渗漏应急处置里物资准备的步骤是什么？",
+        "物资准备的标准流程"
       ],
       "keywords": [
-        "III期压力性损伤",
-        "IV期压力性损伤",
-        "组织损伤深度",
-        "骨暴露",
-        "不可分期",
-        "清创"
+        "渗漏"
       ],
-      "snippet": "III 期与 IV 期的核心区别在于组织损伤的深度：\n- III 期：脂肪可见，但肌肉、肌腱、骨未暴露\n- IV 期：可见肌肉、肌腱、骨暴露\n- 如创面被腐肉/焦痂覆盖无法判断深度，归类为\"不可分期\"，需先清创",
-      "source": "pressure_ulcer > 压疮预防与分期护理 SOP > 3.3 III 期与 IV 期的鉴别"
+      "snippet": "- 常备沙袋、挡水板、潜水泵、吸水机、防滑警示牌\n- 物资定点存放并挂牌，每季度检查可用性",
+      "source": "water_ingress > 水浸与渗漏应急处置 > 4.3 物资准备"
     },
     {
-      "id": "pressure_ulcer-06",
+      "id": "water_ingress-13",
       "tenant_id": "tenant_default",
-      "category": "pressure_ulcer",
-      "doc_title": "压疮预防与分期护理 SOP",
-      "section_title": "4.1 减压",
-      "canonical_question": "压疮预防与分期护理 SOP中「4.1 减压」的要求是什么？",
+      "category": "water_ingress",
+      "doc_title": "水浸与渗漏应急处置",
+      "section_title": "5.1 记录与上报",
+      "canonical_question": "水浸与渗漏应急处置中「5.1 记录与上报」的要求是什么？",
       "similar_questions": [
-        "压疮老人多久翻一次身？",
-        "高风险要一小时翻身吗？",
-        "气垫床能代替翻身吗？",
-        "足跟咋样才不受压？",
-        "坐位多久换下体位？"
+        "记录与上报怎么做？",
+        "记录与上报要注意什么？",
+        "记录与上报有哪些要求？",
+        "水浸与渗漏应急处置里记录与上报的步骤是什么？",
+        "记录与上报的标准流程"
       ],
       "keywords": [
-        "减压",
-        "翻身",
-        "动态减压气垫床",
-        "足跟悬空",
-        "坐位体位改变"
+        "渗漏"
       ],
-      "snippet": "- 每 2 小时翻身一次（高风险者每 1 小时）\n- 使用动态减压气垫床\n- 足跟悬空，避免直接受压\n- 坐位每 15 分钟改变体位",
-      "source": "pressure_ulcer > 压疮预防与分期护理 SOP > 4.1 减压"
+      "snippet": "- 记录发生时间、位置、分级、处置过程、受影响设备\n- 一级事件立即上报值班主管，并按影响范围通知使用方\n- 24 小时内提交处置报告与原因分析",
+      "source": "water_ingress > 水浸与渗漏应急处置 > 5.1 记录与上报"
     },
     {
-      "id": "pressure_ulcer-07",
+      "id": "water_ingress-14",
       "tenant_id": "tenant_default",
-      "category": "pressure_ulcer",
-      "doc_title": "压疮预防与分期护理 SOP",
-      "section_title": "4.2 皮肤护理",
-      "canonical_question": "压疮预防与分期护理 SOP中「4.2 皮肤护理」的要求是什么？",
+      "category": "water_ingress",
+      "doc_title": "水浸与渗漏应急处置",
+      "section_title": "5.2 保险与索赔配合",
+      "canonical_question": "水浸与渗漏应急处置中「5.2 保险与索赔配合」的要求是什么？",
       "similar_questions": [
-        "失禁老人皮肤咋保护？",
-        "氧化锌啥时候用？",
-        "骨突处发红能按摩吗？",
-        "每天要查哪些骨突处？",
-        "皮肤太湿会得压疮吗？"
+        "保险与索赔配合怎么做？",
+        "保险与索赔配合要注意什么？",
+        "保险与索赔配合有哪些要求？",
+        "水浸与渗漏应急处置里保险与索赔配合的步骤是什么？",
+        "保险与索赔配合的标准流程"
       ],
       "keywords": [
-        "皮肤护理",
-        "皮肤保护膜",
-        "氧化锌",
-        "骨突部位",
-        "失禁"
+        "渗漏"
       ],
-      "snippet": "- 保持皮肤清洁干燥，避免过度湿润\n- 失禁老人使用皮肤保护膜（如氧化锌）\n- 禁用用力按摩骨突处发红部位\n- 每日检查全身骨突部位",
-      "source": "pressure_ulcer > 压疮预防与分期护理 SOP > 4.2 皮肤护理"
+      "snippet": "- 涉及财产损失时保护现场、拍照留证并配合保险定损\n- 涉及第三方损失的按流程移交处理",
+      "source": "water_ingress > 水浸与渗漏应急处置 > 5.2 保险与索赔配合"
     },
     {
-      "id": "pressure_ulcer-08",
+      "id": "water_ingress-15",
       "tenant_id": "tenant_default",
-      "category": "pressure_ulcer",
-      "doc_title": "压疮预防与分期护理 SOP",
-      "section_title": "4.3 营养支持",
-      "canonical_question": "压疮预防与分期护理 SOP中「4.3 营养支持」的要求是什么？",
+      "category": "water_ingress",
+      "doc_title": "水浸与渗漏应急处置",
+      "section_title": "5.3 演练与培训",
+      "canonical_question": "水浸与渗漏应急处置中「5.3 演练与培训」的要求是什么？",
       "similar_questions": [
-        "压疮老人每天吃多少蛋白？",
-        "要补维生素和锌吗？",
-        "吞咽不好能鼻饲吗？",
-        "吃不下能上胃管吗？",
-        "吃不下要静脉营养吗？"
+        "演练与培训怎么做？",
+        "演练与培训要注意什么？",
+        "演练与培训有哪些要求？",
+        "水浸与渗漏应急处置里演练与培训的步骤是什么？",
+        "演练与培训的标准流程"
       ],
       "keywords": [
-        "营养支持",
-        "蛋白质",
-        "维生素A/C/E",
-        "锌",
-        "精氨酸",
-        "鼻饲"
+        "渗漏"
       ],
-      "snippet": "- 高风险老人每日蛋白质 1.25-1.5g/kg\n- 补充维生素 A/C/E、锌、精氨酸\n- 评估吞咽功能，必要时鼻饲或静脉营养",
-      "source": "pressure_ulcer > 压疮预防与分期护理 SOP > 4.3 营养支持"
+      "snippet": "- 每年雨季前组织一次水浸应急演练，重点练\"先控电后控水\"\n- 值班人员须熟悉阀门位置与排水泵启停操作\n- 新员工入场交底含积水区域风险与应急联络方式",
+      "source": "water_ingress > 水浸与渗漏应急处置 > 5.3 演练与培训"
     },
     {
-      "id": "pressure_ulcer-09",
+      "id": "work_at_height-00",
       "tenant_id": "tenant_default",
-      "category": "pressure_ulcer",
-      "doc_title": "压疮预防与分期护理 SOP",
-      "section_title": "5.2 III/IV 期",
-      "canonical_question": "压疮预防与分期护理 SOP中「5.2 III/IV 期」的要求是什么？",
+      "category": "work_at_height",
+      "doc_title": "高处作业安全规范",
+      "section_title": "1.1 分级标准",
+      "canonical_question": "高处作业安全规范中「1.1 分级标准」的要求是什么？",
       "similar_questions": [
-        "三期四期要清创吗？",
-        "负压引流是干啥的？",
-        "VAC能长肉芽吗？",
-        "严重压疮要皮瓣手术吗？",
-        "感染了咋抗感染？"
+        "分级标准怎么做？",
+        "分级标准要注意什么？",
+        "分级标准有哪些要求？",
+        "高处作业安全规范里分级标准的步骤是什么？",
+        "分级标准的标准流程"
       ],
-      "keywords": [
-        "外科清创",
-        "抗感染",
-        "负压封闭引流",
-        "VAC",
-        "肉芽生长",
-        "皮瓣转移手术"
-      ],
-      "snippet": "- 外科清创 + 抗感染\n- 负压封闭引流（VAC）促进肉芽生长\n- 必要时皮瓣转移手术",
-      "source": "pressure_ulcer > 压疮预防与分期护理 SOP > 5.2 III/IV 期"
+      "keywords": [],
+      "snippet": "- 一级高处作业：2 米 ≤ 高度 < 5 米\n- 二级高处作业：5 米 ≤ 高度 < 15 米\n- 三级高处作业：15 米 ≤ 高度 < 30 米\n- 特级高处作业：高度 ≥ 30 米，或存在特殊环境（强风、高温、易燃易爆区域）",
+      "source": "work_at_height > 高处作业安全规范 > 1.1 分级标准"
     },
     {
-      "id": "pressure_ulcer-10",
+      "id": "work_at_height-01",
       "tenant_id": "tenant_default",
-      "category": "pressure_ulcer",
-      "doc_title": "压疮预防与分期护理 SOP",
-      "section_title": "6. 记录与上报",
-      "canonical_question": "压疮预防与分期护理 SOP中「6. 记录与上报」的要求是什么？",
+      "category": "work_at_height",
+      "doc_title": "高处作业安全规范",
+      "section_title": "1.2 风险识别清单",
+      "canonical_question": "高处作业安全规范中「1.2 风险识别清单」的要求是什么？",
       "similar_questions": [
-        "换药要记创面大小吗？",
-        "压疮记录写哪些内容？",
-        "三期压疮多久要上报？",
-        "每周拍照有啥用？",
-        "渗液和周围皮肤咋记？"
+        "风险识别清单怎么做？",
+        "风险识别清单要注意什么？",
+        "风险识别清单有哪些要求？",
+        "高处作业安全规范里风险识别清单的步骤是什么？",
+        "风险识别清单的标准流程",
+        "几米以上算高处作业",
+        "多高算高处作业",
+        "高处作业怎么分级"
+      ],
+      "keywords": [],
+      "snippet": "- 坠落风险：临边无防护、踏板缺失、脚手架未验收\n- 落物风险：工具未系挂、材料堆放超出边缘、下方无警戒\n- 环境风险：6 级以上强风、雨雪霜冻、照明不足、夜间作业\n- 交叉风险：上下同时作业、下方有通行人员或车辆\n- 关联风险：临近带电体、临近高温管道、临边通行",
+      "source": "work_at_height > 高处作业安全规范 > 1.2 风险识别清单"
+    },
+    {
+      "id": "work_at_height-02",
+      "tenant_id": "tenant_default",
+      "category": "work_at_height",
+      "doc_title": "高处作业安全规范",
+      "section_title": "1.3 作业前评估时机",
+      "canonical_question": "高处作业安全规范中「1.3 作业前评估时机」的要求是什么？",
+      "similar_questions": [
+        "作业前评估时机怎么做？",
+        "作业前评估时机要注意什么？",
+        "作业前评估时机有哪些要求？",
+        "高处作业安全规范里作业前评估时机的步骤是什么？",
+        "作业前评估时机的标准流程"
+      ],
+      "keywords": [],
+      "snippet": "- 每次作业前（含连续作业的每班次）进行现场确认\n- 作业环境发生变化时（风力增大、开始降雨、照明中断）立即重新评估\n- 作业中断超过 4 小时再次作业前重新确认",
+      "source": "work_at_height > 高处作业安全规范 > 1.3 作业前评估时机"
+    },
+    {
+      "id": "work_at_height-03",
+      "tenant_id": "tenant_default",
+      "category": "work_at_height",
+      "doc_title": "高处作业安全规范",
+      "section_title": "2.1 作业许可",
+      "canonical_question": "高处作业安全规范中「2.1 作业许可」的要求是什么？",
+      "similar_questions": [
+        "作业许可怎么做？",
+        "作业许可要注意什么？",
+        "作业许可有哪些要求？",
+        "高处作业安全规范里作业许可的步骤是什么？",
+        "作业许可的标准流程"
+      ],
+      "keywords": [],
+      "snippet": "- 二级及以上高处作业须办理作业许可，经值班主管审批后方可实施\n- 许可内容应包含作业内容、位置、时间、防护措施、监护人、应急联络方式\n- 作业完成后由作业负责人与监护人共同确认现场恢复，方可关闭许可",
+      "source": "work_at_height > 高处作业安全规范 > 2.1 作业许可"
+    },
+    {
+      "id": "work_at_height-04",
+      "tenant_id": "tenant_default",
+      "category": "work_at_height",
+      "doc_title": "高处作业安全规范",
+      "section_title": "2.2 人员资质与健康",
+      "canonical_question": "高处作业安全规范中「2.2 人员资质与健康」的要求是什么？",
+      "similar_questions": [
+        "人员资质与健康怎么做？",
+        "人员资质与健康要注意什么？",
+        "人员资质与健康有哪些要求？",
+        "高处作业安全规范里人员资质与健康的步骤是什么？",
+        "人员资质与健康的标准流程"
+      ],
+      "keywords": [],
+      "snippet": "- 作业人员须经高处作业培训并考核合格，持证上岗\n- 有下列情形之一不得从事高处作业：高血压、心脏病、癫痫、眩晕症、饮酒后、过度疲劳\n- 单人不得独立从事高处作业，须设专职监护人；监护人不得兼任作业",
+      "source": "work_at_height > 高处作业安全规范 > 2.2 人员资质与健康"
+    },
+    {
+      "id": "work_at_height-05",
+      "tenant_id": "tenant_default",
+      "category": "work_at_height",
+      "doc_title": "高处作业安全规范",
+      "section_title": "2.3 安全带与防坠器",
+      "canonical_question": "高处作业安全规范中「2.3 安全带与防坠器」的要求是什么？",
+      "similar_questions": [
+        "安全带与防坠器怎么做？",
+        "安全带与防坠器要注意什么？",
+        "安全带与防坠器有哪些要求？",
+        "高处作业安全规范里安全带与防坠器的步骤是什么？",
+        "安全带与防坠器的标准流程"
       ],
       "keywords": [
-        "护理记录",
-        "创面大小",
-        "分期",
-        "渗液",
-        "上报护理质控",
-        "拍照对比"
+        "防坠器",
+        "安全带"
       ],
-      "snippet": "- 每次换药记录创面大小（长×宽×深）、分期、渗液、周围皮肤\n- III 期以上 24 小时内上报护理质控\n- 每周拍照对比，评价治疗有效性",
-      "source": "pressure_ulcer > 压疮预防与分期护理 SOP > 6. 记录与上报"
+      "snippet": "- 安全带须高挂低用，挂点应在腰部以上、且为独立承重点\n- 禁止将安全带系在移动构件、护栏横杆、管线上\n- 缓冲型安全带与速差防坠器每半年检查一次，出现磨损、变形、缝合线断裂立即报废\n- 安全带使用前做外观检查并登记",
+      "source": "work_at_height > 高处作业安全规范 > 2.3 安全带与防坠器"
+    },
+    {
+      "id": "work_at_height-06",
+      "tenant_id": "tenant_default",
+      "category": "work_at_height",
+      "doc_title": "高处作业安全规范",
+      "section_title": "3.1 作业平台与脚手架",
+      "canonical_question": "高处作业安全规范中「3.1 作业平台与脚手架」的要求是什么？",
+      "similar_questions": [
+        "作业平台与脚手架怎么做？",
+        "作业平台与脚手架要注意什么？",
+        "作业平台与脚手架有哪些要求？",
+        "高处作业安全规范里作业平台与脚手架的步骤是什么？",
+        "作业平台与脚手架的标准流程"
+      ],
+      "keywords": [
+        "作业平台"
+      ],
+      "snippet": "- 脚手架搭设后须验收挂牌，未验收不得使用\n- 移动式平台轮子必须锁定，作业时禁止移动\n- 梯子使用角度约 75 度，顶端超出落脚点 1 米以上，并有人扶持",
+      "source": "work_at_height > 高处作业安全规范 > 3.1 作业平台与脚手架"
+    },
+    {
+      "id": "work_at_height-07",
+      "tenant_id": "tenant_default",
+      "category": "work_at_height",
+      "doc_title": "高处作业安全规范",
+      "section_title": "3.2 临边与洞口防护",
+      "canonical_question": "高处作业安全规范中「3.2 临边与洞口防护」的要求是什么？",
+      "similar_questions": [
+        "临边与洞口防护怎么做？",
+        "临边与洞口防护要注意什么？",
+        "临边与洞口防护有哪些要求？",
+        "高处作业安全规范里临边与洞口防护的步骤是什么？",
+        "临边与洞口防护的标准流程"
+      ],
+      "keywords": [
+        "洞口防护"
+      ],
+      "snippet": "- 临边设 1.2 米高防护栏杆，下部设 18 厘米挡脚板\n- 洞口小于 0.5 米可用承重盖板覆盖并固定；大于 0.5 米须设围栏与警示\n- 屋面作业须设置生命线或水平安全绳",
+      "source": "work_at_height > 高处作业安全规范 > 3.2 临边与洞口防护"
+    },
+    {
+      "id": "work_at_height-08",
+      "tenant_id": "tenant_default",
+      "category": "work_at_height",
+      "doc_title": "高处作业安全规范",
+      "section_title": "3.3 警戒隔离与监护",
+      "canonical_question": "高处作业安全规范中「3.3 警戒隔离与监护」的要求是什么？",
+      "similar_questions": [
+        "警戒隔离与监护怎么做？",
+        "警戒隔离与监护要注意什么？",
+        "警戒隔离与监护有哪些要求？",
+        "高处作业安全规范里警戒隔离与监护的步骤是什么？",
+        "警戒隔离与监护的标准流程"
+      ],
+      "keywords": [],
+      "snippet": "- 作业半径下方设置警戒区与警示标识，禁止无关人员与车辆通行\n- 监护人须全程在场，不得离开或兼做其他工作\n- 夜间作业应有足够照明，并配备反光背心",
+      "source": "work_at_height > 高处作业安全规范 > 3.3 警戒隔离与监护"
+    },
+    {
+      "id": "work_at_height-09",
+      "tenant_id": "tenant_default",
+      "category": "work_at_height",
+      "doc_title": "高处作业安全规范",
+      "section_title": "4.1 人员坠落",
+      "canonical_question": "高处作业安全规范中「4.1 人员坠落」的要求是什么？",
+      "similar_questions": [
+        "人员坠落怎么做？",
+        "人员坠落要注意什么？",
+        "人员坠落有哪些要求？",
+        "高处作业安全规范里人员坠落的步骤是什么？",
+        "人员坠落的标准流程"
+      ],
+      "keywords": [],
+      "snippet": "1. 立即呼叫支援并拨打 120，同时报告值班主管\n2. 不得随意搬动伤者，尤其怀疑脊柱或颈部损伤时\n3. 检查意识、呼吸、脉搏；无呼吸心跳立即实施心肺复苏并取用 AED\n4. 有出血时加压止血，避免失血性休克\n5. 保护现场，等待专业救援与事故调查",
+      "source": "work_at_height > 高处作业安全规范 > 4.1 人员坠落"
+    },
+    {
+      "id": "work_at_height-10",
+      "tenant_id": "tenant_default",
+      "category": "work_at_height",
+      "doc_title": "高处作业安全规范",
+      "section_title": "4.2 工具材料坠落",
+      "canonical_question": "高处作业安全规范中「4.2 工具材料坠落」的要求是什么？",
+      "similar_questions": [
+        "工具材料坠落怎么做？",
+        "工具材料坠落要注意什么？",
+        "工具材料坠落有哪些要求？",
+        "高处作业安全规范里工具材料坠落的步骤是什么？",
+        "工具材料坠落的标准流程"
+      ],
+      "keywords": [],
+      "snippet": "- 立即疏散下方人员，确认无人受伤并记录\n- 检查下方设施是否损坏（管道、灯具、车辆）\n- 复盘落物原因（未系挂、堆放超边、防护缺失）并整改",
+      "source": "work_at_height > 高处作业安全规范 > 4.2 工具材料坠落"
+    },
+    {
+      "id": "work_at_height-11",
+      "tenant_id": "tenant_default",
+      "category": "work_at_height",
+      "doc_title": "高处作业安全规范",
+      "section_title": "4.3 恶劣天气",
+      "canonical_question": "高处作业安全规范中「4.3 恶劣天气」的要求是什么？",
+      "similar_questions": [
+        "恶劣天气怎么做？",
+        "恶劣天气要注意什么？",
+        "恶劣天气有哪些要求？",
+        "高处作业安全规范里恶劣天气的步骤是什么？",
+        "恶劣天气的标准流程"
+      ],
+      "keywords": [],
+      "snippet": "- 6 级以上强风、雷电、雨雪、能见度低于 50 米时立即停止高处作业\n- 已上作业面人员按预定路线撤至安全区域，不得冒险收工\n- 天气恢复后重新验收平台与防护设施再复工",
+      "source": "work_at_height > 高处作业安全规范 > 4.3 恶劣天气"
+    },
+    {
+      "id": "work_at_height-12",
+      "tenant_id": "tenant_default",
+      "category": "work_at_height",
+      "doc_title": "高处作业安全规范",
+      "section_title": "4.4 触电风险",
+      "canonical_question": "高处作业安全规范中「4.4 触电风险」的要求是什么？",
+      "similar_questions": [
+        "触电风险怎么做？",
+        "触电风险要注意什么？",
+        "触电风险有哪些要求？",
+        "高处作业安全规范里触电风险的步骤是什么？",
+        "触电风险的标准流程"
+      ],
+      "keywords": [],
+      "snippet": "- 临近带电体作业须保持规定安全距离，必要时申请停电作业\n- 低压带电体距离小于 0.7 米、高压带电体距离小于 3 米时须停电或采取绝缘遮蔽\n- 停电作业须验电、放电、装设接地线并挂\"禁止合闸\"标识",
+      "source": "work_at_height > 高处作业安全规范 > 4.4 触电风险"
+    },
+    {
+      "id": "work_at_height-13",
+      "tenant_id": "tenant_default",
+      "category": "work_at_height",
+      "doc_title": "高处作业安全规范",
+      "section_title": "5.1 记录与上报",
+      "canonical_question": "高处作业安全规范中「5.1 记录与上报」的要求是什么？",
+      "similar_questions": [
+        "记录与上报怎么做？",
+        "记录与上报要注意什么？",
+        "记录与上报有哪些要求？",
+        "高处作业安全规范里记录与上报的步骤是什么？",
+        "记录与上报的标准流程"
+      ],
+      "keywords": [],
+      "snippet": "- 作业许可、验收记录、监护记录随作业归档，至少保存 1 年\n- 发生坠落、落物、险兆事件须当班上报，24 小时内提交事件报告\n- 险兆事件（未造成伤害但具备致害条件）同样要上报，不得因无人受伤而省略",
+      "source": "work_at_height > 高处作业安全规范 > 5.1 记录与上报"
+    },
+    {
+      "id": "work_at_height-14",
+      "tenant_id": "tenant_default",
+      "category": "work_at_height",
+      "doc_title": "高处作业安全规范",
+      "section_title": "5.2 培训与复训",
+      "canonical_question": "高处作业安全规范中「5.2 培训与复训」的要求是什么？",
+      "similar_questions": [
+        "培训与复训怎么做？",
+        "培训与复训要注意什么？",
+        "培训与复训有哪些要求？",
+        "高处作业安全规范里培训与复训的步骤是什么？",
+        "培训与复训的标准流程"
+      ],
+      "keywords": [],
+      "snippet": "- 高处作业人员每年至少一次专项复训\n- 培训内容含防护用品使用、应急处置、典型事故案例\n- 新入场人员须经现场交底后方可参与作业",
+      "source": "work_at_height > 高处作业安全规范 > 5.2 培训与复训"
     }
-  ],
-  "overlay_applied": 2
+  ]
 }
