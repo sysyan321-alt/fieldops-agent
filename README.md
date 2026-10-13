@@ -1,7 +1,6 @@
 # FieldOps · 现场作业 AI 多智能体平台
 
-<!-- 发布前把 <owner>/<repo> 换成你的仓库路径，CI 徽章才会亮 -->
-[![CI](https://github.com/<owner>/<repo>/actions/workflows/ci.yml/badge.svg)](https://github.com/<owner>/<repo>/actions/workflows/ci.yml)
+[![CI](https://github.com/sysyan321-alt/fieldops-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/sysyan321-alt/fieldops-agent/actions/workflows/ci.yml)
 ![License](https://img.shields.io/badge/license-Apache--2.0-blue)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![Frontend](https://img.shields.io/badge/frontend-Vue3%20%2B%20TS-42b883)
