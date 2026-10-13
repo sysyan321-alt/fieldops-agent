@@ -1,0 +1,17 @@
+{
+  "_comment": "人工补充问法/关键词。LLM 批量生成相似问法会有遗漏，回归用例（golden.jsonl）暴露的缺口按 id 补在这里；build_quick_index.py 重新生成时会自动合并，不会被覆盖。",
+  "fall_prevention-08": {
+    "similar_questions": [
+      "跌倒后先做什么",
+      "老人摔倒后怎么处理"
+    ]
+  },
+  "medication-03": {
+    "similar_questions": [
+      "口服药发药前要核对什么"
+    ],
+    "keywords": [
+      "发药前核对"
+    ]
+  }
+}

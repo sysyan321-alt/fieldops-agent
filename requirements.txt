@@ -1,0 +1,53 @@
+# CareAgent 依赖清单：一条命令装齐全部运行/测试依赖
+#   python -m pip install -r requirements.txt
+# 前置：Python 3.11+（scipy>=1.16 不再提供 3.10 轮子；旧版 scipy 在 macOS 26+/27 上 _propack 无法加载）
+
+langchain==1.2.10
+langgraph==1.0.9
+# LangGraph 检查点落 PostgreSQL（AsyncPostgresSaver）：会话记忆 / interrupt 断点跨重启存活
+# 注意：这个包的版本号和 langgraph-checkpoint 不同线（3.x ↔ 4.x），3.1.2 要求 checkpoint>=4.1.0
+langgraph-checkpoint-postgres==3.1.2
+psycopg[binary]>=3.2
+psycopg-pool>=3.2
+langchain-openai>=0.2.0
+langchain-community==0.4.1
+langchain-text-splitters==1.1.1
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+pydantic>=2.0
+pydantic-settings>=2.0
+sqlalchemy[asyncio]>=2.0
+greenlet>=3.0
+asyncpg>=0.29
+python-multipart>=0.0.9
+redis>=5.0
+httpx>=0.27
+python-jose[cryptography]>=3.3
+pymupdf>=1.24
+python-docx>=1.1
+# sse-starlette 3.x 会把 starlette 顶到 1.x，与 FastAPI 0.115（要求 starlette<0.47）冲突
+sse-starlette>=2.0,<3
+starlette<0.47
+# ── 认证（bcrypt 密码哈希）──
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
+# ── 联网搜索（sop_qa Agent web_search 节点）──
+duckduckgo-search>=6.0.0
+# ── MCP 能力层（知识库 / 照护数据 MCP Server，见 docs/mcp.md）──
+mcp>=1.18,<2
+# ── 测试 ──
+pytest>=8.0
+pytest-asyncio>=0.24
+# ── RAG 检索组件（sop_qa Agent 真实 Milvus + BGE 嵌入/精排）──
+# scipy 是 transformers/FlagEmbedding 的隐式依赖：>=1.16 才有适配新版 macOS 的轮子
+scipy>=1.16
+# pymilvus 2.4.9 内部 import pkg_resources，而 setuptools>=81 已移除该模块，必须锁 <81
+setuptools<81
+# transformers 锁定 4.51.0：knowledge_base.py 的兼容性补丁针对此版本，
+# transformers>=5.0 移除 is_torch_fx_available 会导致 FlagEmbedding 报错
+pymilvus==2.4.9
+FlagEmbedding==1.4.2
+sentence-transformers==3.3.1
+transformers==4.51.0
+sentencepiece
+torch>=2.5.0

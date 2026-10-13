@@ -1,0 +1,24 @@
+{"query": "多久给老人翻一次身", "expect_mode": "quick", "expect_category": "positioning"}
+{"query": "卫生间要不要装扶手", "expect_mode": "quick", "expect_category": "fall_prevention"}
+{"query": "入院多久要做跌倒评估", "expect_mode": "quick", "expect_category": "fall_prevention"}
+{"query": "防压疮用什么评估表", "expect_mode": "quick", "expect_category": "pressure_ulcer"}
+{"query": "喂鼻饲前要回抽吗", "expect_mode": "quick", "expect_category": "feeding_tube"}
+{"query": "口服药发药前要核对什么", "expect_mode": "quick", "expect_category": "medication"}
+{"query": "老人刷牙要注意什么", "expect_mode": "quick", "expect_category": "oral_care"}
+{"query": "压疮分几期", "expect_mode": "quick", "expect_category": "pressure_ulcer"}
+{"query": "翻身时怎么摆体位", "expect_mode": "quick", "expect_category": "positioning"}
+{"query": "哪些老人不能插胃管", "expect_mode": "quick", "expect_category": "feeding_tube"}
+{"query": "跌倒后先做什么", "expect_mode": "quick", "expect_category": "fall_prevention"}
+{"query": "鼻饲管堵了怎么处理", "expect_mode": "quick", "expect_category": "feeding_tube"}
+{"query": "老人最近吃饭越来越少怎么办", "expect_mode": "rag"}
+{"query": "他晚上老是喊疼，要不要叫医生", "expect_mode": "rag"}
+{"query": "怎么判断他有没有抑郁", "expect_mode": "rag"}
+{"query": "家属来了要注意什么", "expect_mode": "rag"}
+{"query": "今天老人心情不好", "expect_mode": "rag"}
+{"query": "血糖高怎么办", "expect_mode": "rag"}
+{"query": "帮我把今天的护理记录整理成报告", "expect_mode": "rag"}
+{"query": "老人不肯吃药怎么劝", "expect_mode": "rag"}
+{"query": "要换导尿管吗", "expect_mode": "rag"}
+{"query": "怎么安排他一周的活动", "expect_mode": "rag"}
+{"query": "为什么他晚上总醒", "expect_mode": "rag"}
+{"query": "这个老人还能活多久", "expect_mode": "rag"}

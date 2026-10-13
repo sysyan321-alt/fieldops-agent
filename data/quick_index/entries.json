@@ -1,0 +1,1828 @@
+{
+  "built_at": "2026-09-29 09:55:31",
+  "generator": "llm",
+  "entry_count": 73,
+  "entries": [
+    {
+      "id": "fall_prevention-00",
+      "tenant_id": "tenant_default",
+      "category": "fall_prevention",
+      "doc_title": "跌倒预防与处理 SOP",
+      "section_title": "1.1 评估工具",
+      "canonical_question": "跌倒预防与处理 SOP中「1.1 评估工具」的要求是什么？",
+      "similar_questions": [
+        "Morse量表怎么评？",
+        "跌倒史要问哪些？",
+        "有啥病会影响评分？",
+        "输液和助行器算吗？",
+        "步态和认知咋看？"
+      ],
+      "keywords": [
+        "Morse跌倒风险评估量表",
+        "跌倒史",
+        "伴随疾病",
+        "辅助行走",
+        "静脉输液",
+        "步态与认知状态"
+      ],
+      "snippet": "Morse 跌倒风险评估量表（MFS），维度包括跌倒史、伴随疾病、辅助行走、静脉输液、步态、认知状态。",
+      "source": "fall_prevention > 跌倒预防与处理 SOP > 1.1 评估工具"
+    },
+    {
+      "id": "fall_prevention-01",
+      "tenant_id": "tenant_default",
+      "category": "fall_prevention",
+      "doc_title": "跌倒预防与处理 SOP",
+      "section_title": "1.3 评估时机",
+      "canonical_question": "跌倒预防与处理 SOP中「1.3 评估时机」的要求是什么？",
+      "similar_questions": [
+        "入院多久要评跌倒？",
+        "转科后还要再评吗？",
+        "用降压药后要评吗？",
+        "用利尿药也要评吗？",
+        "每周都要复评吗？"
+      ],
+      "keywords": [
+        "跌倒风险评估时机",
+        "入院24小时内",
+        "转科/病情变化",
+        "镇静/降压/利尿药物",
+        "每周复评"
+      ],
+      "snippet": "- 入院 24 小时内\n- 转科/病情变化时\n- 使用镇静/降压/利尿药物后\n- 每周复评",
+      "source": "fall_prevention > 跌倒预防与处理 SOP > 1.3 评估时机"
+    },
+    {
+      "id": "fall_prevention-02",
+      "tenant_id": "tenant_default",
+      "category": "fall_prevention",
+      "doc_title": "跌倒预防与处理 SOP",
+      "section_title": "2.1 环境干预",
+      "canonical_question": "跌倒预防与处理 SOP中「2.1 环境干预」的要求是什么？",
+      "similar_questions": [
+        "卫生间扶手装哪？",
+        "防滑垫放哪里？",
+        "床要调多高？",
+        "夜里地灯怎么开？",
+        "地上有水咋办？"
+      ],
+      "keywords": [
+        "环境干预",
+        "卫生间扶手",
+        "防滑垫",
+        "呼叫铃",
+        "床高",
+        "夜间地灯"
+      ],
+      "snippet": "- 卫生间安装扶手、防滑垫、呼叫铃\n- 床高调至膝下，离地 < 65cm\n- 夜间地灯 + 走道无障碍\n- 干燥地面，及时清理水渍",
+      "source": "fall_prevention > 跌倒预防与处理 SOP > 2.1 环境干预"
+    },
+    {
+      "id": "fall_prevention-03",
+      "tenant_id": "tenant_default",
+      "category": "fall_prevention",
+      "doc_title": "跌倒预防与处理 SOP",
+      "section_title": "2.2 个人防护",
+      "canonical_question": "跌倒预防与处理 SOP中「2.2 个人防护」的要求是什么？",
+      "similar_questions": [
+        "防滑鞋买哪种？",
+        "裤子多长合适？",
+        "眼镜要一直戴吗？",
+        "多久查一次视力？",
+        "啥时用助行器？"
+      ],
+      "keywords": [
+        "个人防护",
+        "防滑鞋",
+        "裤长适宜",
+        "眼镜",
+        "视力检查",
+        "助行器"
+      ],
+      "snippet": "- 高风险老人穿防滑鞋\n- 裤长适宜，不拖地\n- 眼镜常戴，定期检查视力\n- 必要时使用助行器",
+      "source": "fall_prevention > 跌倒预防与处理 SOP > 2.2 个人防护"
+    },
+    {
+      "id": "fall_prevention-04",
+      "tenant_id": "tenant_default",
+      "category": "fall_prevention",
+      "doc_title": "跌倒预防与处理 SOP",
+      "section_title": "2.3 行为干预",
+      "canonical_question": "跌倒预防与处理 SOP中「2.3 行为干预」的要求是什么？",
+      "similar_questions": [
+        "警示标识挂哪？",
+        "床栏啥时拉起来？",
+        "离床要人陪吗？",
+        "三个半分钟咋做？",
+        "起床太快会跌倒吗？"
+      ],
+      "keywords": [
+        "行为干预",
+        "警示标识",
+        "床栏",
+        "离床陪护",
+        "三个半分钟"
+      ],
+      "snippet": "- 高风险床头悬挂警示标识\n- 床栏使用，离床活动需陪护\n- 教育老人\"三个半分钟\"：起床前躺半分钟、坐半分钟、站半分钟",
+      "source": "fall_prevention > 跌倒预防与处理 SOP > 2.3 行为干预"
+    },
+    {
+      "id": "fall_prevention-05",
+      "tenant_id": "tenant_default",
+      "category": "fall_prevention",
+      "doc_title": "跌倒预防与处理 SOP",
+      "section_title": "2.4 药物管理",
+      "canonical_question": "跌倒预防与处理 SOP中「2.4 药物管理」的要求是什么？",
+      "similar_questions": [
+        "精神药有啥副作用？",
+        "降压药会让人晕吗？",
+        "利尿药啥时吃好？",
+        "夜里起夜多咋调药？",
+        "直立性低血压要监测吗？"
+      ],
+      "keywords": [
+        "药物管理",
+        "精神药物",
+        "降压药",
+        "利尿药",
+        "直立性低血压",
+        "夜间起夜"
+      ],
+      "snippet": "- 评估精神药物、降压药、利尿药副作用\n- 调整用药时机，避免夜间起夜高峰\n- 监测直立性低血压",
+      "source": "fall_prevention > 跌倒预防与处理 SOP > 2.4 药物管理"
+    },
+    {
+      "id": "fall_prevention-06",
+      "tenant_id": "tenant_default",
+      "category": "fall_prevention",
+      "doc_title": "跌倒预防与处理 SOP",
+      "section_title": "3.1 现场处置",
+      "canonical_question": "跌倒预防与处理 SOP中「3.1 现场处置」的要求是什么？",
+      "similar_questions": [
+        "老人跌倒先看啥？",
+        "要问哪里疼吗？",
+        "能马上扶起来吗？",
+        "怀疑脊柱伤咋办？",
+        "啥时候叫医生？"
+      ],
+      "keywords": [
+        "现场处置",
+        "意识评估",
+        "呼吸脉搏",
+        "疼痛部位",
+        "禁止随意搬动",
+        "呼叫医生"
+      ],
+      "snippet": "1. 立即评估意识、呼吸、脉搏\n2. 询问老人疼痛部位，怀疑脊柱/颅脑损伤禁止随意搬动\n3. 不确定损伤程度时呼叫医生，等待评估\n4. 评估后无大碍再协助缓慢起身",
+      "source": "fall_prevention > 跌倒预防与处理 SOP > 3.1 现场处置"
+    },
+    {
+      "id": "fall_prevention-07",
+      "tenant_id": "tenant_default",
+      "category": "fall_prevention",
+      "doc_title": "跌倒预防与处理 SOP",
+      "section_title": "3.2 体格检查",
+      "canonical_question": "跌倒预防与处理 SOP中「3.2 体格检查」的要求是什么？",
+      "similar_questions": [
+        "头面部查哪些？",
+        "瞳孔要查啥？",
+        "耳鼻漏液要查吗？",
+        "脊柱怎么查？",
+        "四肢和胸腹查啥？"
+      ],
+      "keywords": [
+        "体格检查",
+        "瞳孔",
+        "耳鼻漏液",
+        "脊柱压痛",
+        "四肢畸形",
+        "胸腹压痛"
+      ],
+      "snippet": "- 头面部：检查瞳孔、有无血肿、耳鼻漏液\n- 脊柱：压痛、活动受限\n- 四肢：畸形、肿胀、活动障碍\n- 胸腹部：压痛、皮下淤血",
+      "source": "fall_prevention > 跌倒预防与处理 SOP > 3.2 体格检查"
+    },
+    {
+      "id": "fall_prevention-08",
+      "tenant_id": "tenant_default",
+      "category": "fall_prevention",
+      "doc_title": "跌倒预防与处理 SOP",
+      "section_title": "3.3 紧急情况处理",
+      "canonical_question": "跌倒预防与处理 SOP中「3.3 紧急情况处理」的要求是什么？",
+      "similar_questions": [
+        "头外伤啥时做CT？",
+        "用抗凝药摔头咋办？",
+        "髋部骨折有啥表现？",
+        "脊柱骨折能动吗？",
+        "软组织伤RICE咋做？",
+        "跌倒后先做什么",
+        "老人摔倒后怎么处理"
+      ],
+      "keywords": [
+        "头部外伤",
+        "急诊CT",
+        "硬膜下血肿",
+        "髋部骨折",
+        "脊柱骨折",
+        "RICE原则"
+      ],
+      "snippet": "#### 3.3.1 头部外伤\n- 意识改变、呕吐、瞳孔不等 → 急诊 CT\n- 24 小时内密切观察，警惕硬膜下血肿\n- 老年人抗凝药使用者尤需关注\n\n#### 3.3.2 骨折\n- 髋部骨折：下肢短缩外旋、不能活动 → 急诊 X 线\n- 脊柱骨折：背痛 + 叩击痛 → 禁动 + 急诊评估\n- 长骨骨折：固定后转运\n\n#### 3.3.3 软组织损伤\n- RICE 原则：休息、冰敷、加压、抬高\n- 48 小时后改热敷",
+      "source": "fall_prevention > 跌倒预防与处理 SOP > 3.3 紧急情况处理"
+    },
+    {
+      "id": "fall_prevention-09",
+      "tenant_id": "tenant_default",
+      "category": "fall_prevention",
+      "doc_title": "跌倒预防与处理 SOP",
+      "section_title": "4.1 上报内容",
+      "canonical_question": "跌倒预防与处理 SOP中「4.1 上报内容」的要求是什么？",
+      "similar_questions": [
+        "上报要写时间地点吗？",
+        "目击和非目击咋写？",
+        "老人当时吃药了吗？",
+        "现场环境要写啥？",
+        "处置经过咋记录？"
+      ],
+      "keywords": [
+        "上报内容",
+        "跌倒时间地点",
+        "目击情况",
+        "老人状态",
+        "现场环境",
+        "处置经过"
+      ],
+      "snippet": "- 跌倒时间、地点、目击/非目击\n- 老人状态（用药、生命体征、当时活动）\n- 现场环境（地面、照明、辅助用具）\n- 处置经过和结果",
+      "source": "fall_prevention > 跌倒预防与处理 SOP > 4.1 上报内容"
+    },
+    {
+      "id": "fall_prevention-10",
+      "tenant_id": "tenant_default",
+      "category": "fall_prevention",
+      "doc_title": "跌倒预防与处理 SOP",
+      "section_title": "4.2 追踪",
+      "canonical_question": "跌倒预防与处理 SOP中「4.2 追踪」的要求是什么？",
+      "similar_questions": [
+        "不良事件报告多久填？",
+        "24小时内必须报吗？",
+        "根因分析多久做？",
+        "一周内要干啥？",
+        "改进措施咋落实？"
+      ],
+      "keywords": [
+        "追踪",
+        "不良事件报告",
+        "24小时内",
+        "根因分析",
+        "1周内",
+        "改进措施"
+      ],
+      "snippet": "- 24 小时内填写不良事件报告\n- 1 周内组织根因分析\n- 制定改进措施并落实",
+      "source": "fall_prevention > 跌倒预防与处理 SOP > 4.2 追踪"
+    },
+    {
+      "id": "fall_prevention-11",
+      "tenant_id": "tenant_default",
+      "category": "fall_prevention",
+      "doc_title": "跌倒预防与处理 SOP",
+      "section_title": "5.1 老人教育",
+      "canonical_question": "跌倒预防与处理 SOP中「5.1 老人教育」的要求是什么？",
+      "similar_questions": [
+        "老人逞强咋劝？",
+        "起床慢有啥口诀？",
+        "睡袍太长危险吗？",
+        "直立性低血压咋防？",
+        "老人不愿求助咋说？"
+      ],
+      "keywords": [
+        "老人教育",
+        "主动求助",
+        "起床缓慢",
+        "直立性低血压",
+        "衣着合适",
+        "睡袍过长"
+      ],
+      "snippet": "- 强调\"不要逞强\"，主动求助\n- 起床缓慢，避免直立性低血压\n- 衣着合适，不穿过长的睡袍",
+      "source": "fall_prevention > 跌倒预防与处理 SOP > 5.1 老人教育"
+    },
+    {
+      "id": "fall_prevention-12",
+      "tenant_id": "tenant_default",
+      "category": "fall_prevention",
+      "doc_title": "跌倒预防与处理 SOP",
+      "section_title": "5.2 家属教育",
+      "canonical_question": "跌倒预防与处理 SOP中「5.2 家属教育」的要求是什么？",
+      "similar_questions": [
+        "探视别带啥东西？",
+        "床栏家属要配合吗？",
+        "约束具啥时能用？",
+        "老人能单独活动吗？",
+        "咋跟家属解释高风险？"
+      ],
+      "keywords": [
+        "家属教育",
+        "危险物品",
+        "床栏",
+        "约束具",
+        "跌倒高风险状态",
+        "单独活动"
+      ],
+      "snippet": "- 探视时不留危险物品\n- 配合机构使用床栏、约束具（必要时）\n- 理解跌倒高风险状态，避免老人单独活动",
+      "source": "fall_prevention > 跌倒预防与处理 SOP > 5.2 家属教育"
+    },
+    {
+      "id": "feeding_tube-00",
+      "tenant_id": "tenant_default",
+      "category": "feeding_tube",
+      "doc_title": "鼻饲管护理操作规范（SOP）",
+      "section_title": "1. 目的与适应症",
+      "canonical_question": "鼻饲管护理操作规范（SOP）中「1. 目的与适应症」的要求是什么？",
+      "similar_questions": [
+        "鼻饲管是干啥用的？",
+        "胃管适合哪些老人？",
+        "不能吃饭就要下胃管吗？",
+        "啥情况要用鼻饲管？",
+        "鼻饲能给老人补营养吗？"
+      ],
+      "keywords": [
+        "鼻饲管",
+        "肠内营养",
+        "适应症",
+        "吞咽功能障碍",
+        "重度营养不良",
+        "术后禁食期"
+      ],
+      "snippet": "鼻饲管（Nasogastric Tube, NG）用于无法经口进食或进食不足的老人进行肠内营养支持，常见适应症包括吞咽功能障碍、重度营养不良、术后禁食期辅助喂养等。",
+      "source": "feeding_tube > 鼻饲管护理操作规范（SOP） > 1. 目的与适应症"
+    },
+    {
+      "id": "feeding_tube-01",
+      "tenant_id": "tenant_default",
+      "category": "feeding_tube",
+      "doc_title": "鼻饲管护理操作规范（SOP）",
+      "section_title": "1.1 适应症",
+      "canonical_question": "鼻饲管护理操作规范（SOP）中「1.1 适应症」的要求是什么？",
+      "similar_questions": [
+        "脑卒中吞咽不好要下胃管吗？",
+        "洼田饮水试验III级能鼻饲吗？",
+        "痴呆晚期不吃饭能鼻饲吗？",
+        "口腔手术后能插鼻饲管吗？",
+        "食管手术后短期喂养用胃管吗？"
+      ],
+      "keywords": [
+        "适应症",
+        "脑卒中后吞咽障碍",
+        "洼田饮水试验",
+        "认知障碍晚期",
+        "食管口腔手术",
+        "短期喂养"
+      ],
+      "snippet": "- 脑卒中后吞咽障碍（洼田饮水试验 III 级及以上）\n- 认知障碍晚期不能配合进食\n- 食管/口腔手术后短期喂养",
+      "source": "feeding_tube > 鼻饲管护理操作规范（SOP） > 1.1 适应症"
+    },
+    {
+      "id": "feeding_tube-02",
+      "tenant_id": "tenant_default",
+      "category": "feeding_tube",
+      "doc_title": "鼻饲管护理操作规范（SOP）",
+      "section_title": "2.1 物品准备",
+      "canonical_question": "鼻饲管护理操作规范（SOP）中「2.1 物品准备」的要求是什么？",
+      "similar_questions": [
+        "鼻饲管用多大号的？",
+        "润滑剂能用食用油吗？",
+        "插胃管要准备哪些东西？",
+        "PH试纸是干嘛用的？",
+        "鼻饲管固定贴怎么准备？"
+      ],
+      "keywords": [
+        "鼻饲管",
+        "水溶性润滑剂",
+        "误吸性肺炎",
+        "PH试纸",
+        "鼻翼固定胶布",
+        "物品准备"
+      ],
+      "snippet": "- 一次性鼻饲管（成人 12-14 Fr）\n- 水溶性润滑剂（禁用油剂，避免误吸性肺炎）\n- 听诊器、50ml 注射器、PH 试纸\n- 固定贴、鼻翼固定胶布",
+      "source": "feeding_tube > 鼻饲管护理操作规范（SOP） > 2.1 物品准备"
+    },
+    {
+      "id": "feeding_tube-03",
+      "tenant_id": "tenant_default",
+      "category": "feeding_tube",
+      "doc_title": "鼻饲管护理操作规范（SOP）",
+      "section_title": "2.2 老人准备",
+      "canonical_question": "鼻饲管护理操作规范（SOP）中「2.2 老人准备」的要求是什么？",
+      "similar_questions": [
+        "插胃管前要跟老人说吗？",
+        "鼻饲前老人要躺成啥姿势？",
+        "半卧位要抬多高？",
+        "插管前要清洁鼻子吗？",
+        "插管前要看鼻中隔偏曲吗？"
+      ],
+      "keywords": [
+        "老人准备",
+        "知情告知",
+        "半卧位",
+        "颈部前屈",
+        "鼻腔清洁",
+        "鼻中隔偏曲"
+      ],
+      "snippet": "- 向老人解释操作目的（即使认知障碍也要执行，尊重知情）\n- 半卧位 30-45 度，颈部前屈\n- 清洁鼻腔，检查鼻中隔偏曲情况",
+      "source": "feeding_tube > 鼻饲管护理操作规范（SOP） > 2.2 老人准备"
+    },
+    {
+      "id": "feeding_tube-04",
+      "tenant_id": "tenant_default",
+      "category": "feeding_tube",
+      "doc_title": "鼻饲管护理操作规范（SOP）",
+      "section_title": "3. 置管操作步骤",
+      "canonical_question": "鼻饲管护理操作规范（SOP）中「3. 置管操作步骤」的要求是什么？",
+      "similar_questions": [
+        "胃管要插多长怎么量？",
+        "插鼻饲管前润滑多少？",
+        "插管遇到阻力怎么办？",
+        "怎么知道胃管在胃里？",
+        "第一次插胃管要做X线吗？"
+      ],
+      "keywords": [
+        "置管长度",
+        "润滑",
+        "气过水声",
+        "胃液PH",
+        "X线确认",
+        "双重固定"
+      ],
+      "snippet": "1. 测量置入长度：鼻尖 → 耳垂 → 剑突，标记刻度\n2. 润滑管端 10-15cm\n3. 轻柔插入，遇阻力可让老人做吞咽动作（饮少量水）\n4. 插至标记刻度后，三种方法验证位置：\n   - 听诊器听胃部气过水声\n   - 回抽胃液测 PH（应 ≤ 5.5）\n   - X 线确认（金标准，首次置管必做）\n5. 鼻翼 + 面颊双重固定，避免脱管",
+      "source": "feeding_tube > 鼻饲管护理操作规范（SOP） > 3. 置管操作步骤"
+    },
+    {
+      "id": "feeding_tube-05",
+      "tenant_id": "tenant_default",
+      "category": "feeding_tube",
+      "doc_title": "鼻饲管护理操作规范（SOP）",
+      "section_title": "4.1 喂养前评估（每次喂养前必做）",
+      "canonical_question": "鼻饲管护理操作规范（SOP）中「4.1 喂养前评估（每次喂养前必做）」的要求是什么？",
+      "similar_questions": [
+        "鼻饲前为啥要抽胃液？",
+        "胃残留多少要暂停喂养？",
+        "老人腹胀恶心还能鼻饲吗？",
+        "喂之前床头要抬高多少？",
+        "怎么判断胃管还在胃里？"
+      ],
+      "keywords": [
+        "喂养前评估",
+        "胃残余量",
+        "胃排空延迟",
+        "误吸风险",
+        "半卧位"
+      ],
+      "snippet": "1. 检查管路位置：回抽胃液确认在胃内，记录残留量\n2. 胃残留量 > 200ml 时暂停喂养，警惕胃排空延迟\n3. 评估老人状态：腹胀、恶心、误吸风险\n4. 体位准备：抬高床头 30-45 度，维持半卧位",
+      "source": "feeding_tube > 鼻饲管护理操作规范（SOP） > 4.1 喂养前评估（每次喂养前必做）"
+    },
+    {
+      "id": "feeding_tube-06",
+      "tenant_id": "tenant_default",
+      "category": "feeding_tube",
+      "doc_title": "鼻饲管护理操作规范（SOP）",
+      "section_title": "4.2 喂养流程",
+      "canonical_question": "鼻饲管护理操作规范（SOP）中「4.2 喂养流程」的要求是什么？",
+      "similar_questions": [
+        "鼻饲一次喂多少毫升？",
+        "鼻饲每次要喂多久？",
+        "营养液多少度合适？",
+        "鼻饲管要挂多高？",
+        "喂完要冲管和半卧吗？"
+      ],
+      "keywords": [
+        "喂养量",
+        "喂养速度",
+        "营养液温度",
+        "悬挂高度",
+        "冲管",
+        "反流误吸"
+      ],
+      "snippet": "1. 每次喂养量 200-300ml，速度 30 分钟/次\n2. 温度 38-40℃，手腕内侧试温不烫为宜\n3. 营养液悬挂高度：胃部上方 30-45cm\n4. 喂养前后用 20-30ml 温开水冲管\n5. 喂养后保持半卧位 30 分钟，避免反流误吸",
+      "source": "feeding_tube > 鼻饲管护理操作规范（SOP） > 4.2 喂养流程"
+    },
+    {
+      "id": "feeding_tube-07",
+      "tenant_id": "tenant_default",
+      "category": "feeding_tube",
+      "doc_title": "鼻饲管护理操作规范（SOP）",
+      "section_title": "4.3 每日维护",
+      "canonical_question": "鼻饲管护理操作规范（SOP）中「4.3 每日维护」的要求是什么？",
+      "similar_questions": [
+        "鼻饲老人口腔怎么护理？",
+        "鼻部每天要清洁几次？",
+        "鼻翼压疮怎么检查？",
+        "胃管固定位置要换吗？",
+        "给药前后也要冲管吗？",
+        "鼻饲管堵了怎么处理",
+        "胃管堵住怎么办"
+      ],
+      "keywords": [
+        "口腔护理",
+        "鼻部清洁",
+        "压力性损伤",
+        "管路固定",
+        "管路冲洗",
+        "每班次检查"
+      ],
+      "snippet": "- 口腔护理：每 6 小时一次，预防口腔细菌下行感染\n- 鼻部清洁：每日 2 次，检查鼻翼压疮\n- 管路固定：每班次检查，每日轮换固定位置\n- 管路冲洗：每次喂养前后 + 给药前后均需冲管",
+      "source": "feeding_tube > 鼻饲管护理操作规范（SOP） > 4.3 每日维护"
+    },
+    {
+      "id": "feeding_tube-08",
+      "tenant_id": "tenant_default",
+      "category": "feeding_tube",
+      "doc_title": "鼻饲管护理操作规范（SOP）",
+      "section_title": "4.4 置管后第一天的重点观察",
+      "canonical_question": "鼻饲管护理操作规范（SOP）中「4.4 置管后第一天的重点观察」的要求是什么？",
+      "similar_questions": [
+        "置管第一天看啥肚子？",
+        "呛咳是不是误吸了？",
+        "血氧下降要警惕什么？",
+        "第一天要记尿量吗？",
+        "鼻翼红肿算压疮吗？"
+      ],
+      "keywords": [
+        "置管后观察",
+        "腹部体征",
+        "肠鸣音",
+        "误吸",
+        "出入量",
+        "压力性损伤"
+      ],
+      "snippet": "- 监测腹部体征：腹胀、肠鸣音、胃残留量\n- 警惕误吸表现：呛咳、呼吸频率改变、SpO2 下降\n- 记录出入量：摄入量、尿量、胃残留量\n- 观察鼻腔：有无压迫性溃疡、鼻翼红肿",
+      "source": "feeding_tube > 鼻饲管护理操作规范（SOP） > 4.4 置管后第一天的重点观察"
+    },
+    {
+      "id": "feeding_tube-09",
+      "tenant_id": "tenant_default",
+      "category": "feeding_tube",
+      "doc_title": "鼻饲管护理操作规范（SOP）",
+      "section_title": "6. 定期更换",
+      "canonical_question": "鼻饲管护理操作规范（SOP）中「6. 定期更换」的要求是什么？",
+      "similar_questions": [
+        "普通胃管多久换一次？",
+        "聚氨酯鼻饲管能用多久？",
+        "换胃管要记录哪些？",
+        "换管要记置管深度吗？",
+        "更换原因要记录吗？"
+      ],
+      "keywords": [
+        "定期更换",
+        "硅胶管",
+        "聚氨酯管",
+        "留置时间",
+        "置管深度",
+        "更换记录"
+      ],
+      "snippet": "- 普通硅胶管 30 天更换一次\n- 聚氨酯管可留置 60-90 天\n- 每次更换需记录置管深度、型号、更换原因",
+      "source": "feeding_tube > 鼻饲管护理操作规范（SOP） > 6. 定期更换"
+    },
+    {
+      "id": "medication-00",
+      "tenant_id": "tenant_default",
+      "category": "medication",
+      "doc_title": "用药管理与给药操作 SOP",
+      "section_title": "1.1 老人评估",
+      "canonical_question": "用药管理与给药操作 SOP中「1.1 老人评估」的要求是什么？",
+      "similar_questions": [
+        "老人吃药过敏史咋问？",
+        "老人以前用药史问啥？",
+        "肝肾功能不好注意啥？",
+        "吞咽能力要做洼田试验吗？",
+        "老人能自己管药吗？"
+      ],
+      "keywords": [
+        "过敏史",
+        "用药史",
+        "肝肾功能",
+        "洼田饮水试验",
+        "认知状态",
+        "用药依从性"
+      ],
+      "snippet": "- 过敏史、用药史、肝肾功能\n- 吞咽能力（洼田饮水试验）\n- 认知状态（能否自行管理药物）\n- 用药依从性",
+      "source": "medication > 用药管理与给药操作 SOP > 1.1 老人评估"
+    },
+    {
+      "id": "medication-01",
+      "tenant_id": "tenant_default",
+      "category": "medication",
+      "doc_title": "用药管理与给药操作 SOP",
+      "section_title": "1.2 药品评估",
+      "canonical_question": "用药管理与给药操作 SOP中「1.2 药品评估」的要求是什么？",
+      "similar_questions": [
+        "华法林算高风险药吗？",
+        "胰岛素要冷藏保存吗？",
+        "餐前餐后药咋区分？",
+        "药品避光防潮咋做？",
+        "精神药服药时间注意啥？"
+      ],
+      "keywords": [
+        "高风险药品",
+        "服药时间",
+        "储存条件",
+        "避光",
+        "冷藏",
+        "防潮"
+      ],
+      "snippet": "- 高风险药品：华法林、地高辛、胰岛素、精神药物、降压药\n- 服药时间要求：餐前/餐中/餐后/睡前/特定时间\n- 储存条件：避光、冷藏、防潮",
+      "source": "medication > 用药管理与给药操作 SOP > 1.2 药品评估"
+    },
+    {
+      "id": "medication-02",
+      "tenant_id": "tenant_default",
+      "category": "medication",
+      "doc_title": "用药管理与给药操作 SOP",
+      "section_title": "2. 给药原则（五准确）",
+      "canonical_question": "用药管理与给药操作 SOP中「2. 给药原则（五准确）」的要求是什么？",
+      "similar_questions": [
+        "五准确都是哪五个？",
+        "核对老人用腕带够吗？",
+        "只喊名字能核对吗？",
+        "高危药要双人核对吗？",
+        "餐前餐后能一起发吗？"
+      ],
+      "keywords": [
+        "五准确",
+        "腕带",
+        "双人核对",
+        "高危药品",
+        "准确时间",
+        "给药途径"
+      ],
+      "snippet": "1. 准确老人：核对腕带/照片，至少两种识别方式\n2. 准确药物：核对药品名称、剂量、剂型\n3. 准确剂量：双人核对高危药品剂量\n4. 准确时间：按时给药，餐前/餐后严格区分\n5. 准确途径：口服/皮下/肌肉/静脉/直肠/吸入",
+      "source": "medication > 用药管理与给药操作 SOP > 2. 给药原则（五准确）"
+    },
+    {
+      "id": "medication-03",
+      "tenant_id": "tenant_default",
+      "category": "medication",
+      "doc_title": "用药管理与给药操作 SOP",
+      "section_title": "3.1 准备",
+      "canonical_question": "用药管理与给药操作 SOP中「3.1 准备」的要求是什么？",
+      "similar_questions": [
+        "发药前要先洗手吗？",
+        "三查七对都查哪些？",
+        "腕带和医嘱单咋核对？",
+        "老人意识不清能喂药吗？",
+        "吃药前要看吞咽吗？",
+        "口服药发药前要核对什么"
+      ],
+      "keywords": [
+        "洗手",
+        "口罩",
+        "三查七对",
+        "医嘱单",
+        "腕带",
+        "吞咽评估",
+        "发药前核对"
+      ],
+      "snippet": "1. 洗手、戴口罩\n2. 核对医嘱单、药品标签、老人腕带（三查七对）\n3. 评估老人状态：意识、吞咽、体位",
+      "source": "medication > 用药管理与给药操作 SOP > 3.1 准备"
+    },
+    {
+      "id": "medication-04",
+      "tenant_id": "tenant_default",
+      "category": "medication",
+      "doc_title": "用药管理与给药操作 SOP",
+      "section_title": "3.2 给药",
+      "canonical_question": "用药管理与给药操作 SOP中「3.2 给药」的要求是什么？",
+      "similar_questions": [
+        "喂药要坐起来吗？",
+        "能用牛奶送药吗？",
+        "茶水果汁能送药吗？",
+        "鼻饲喂药要研碎吗？",
+        "胃管注药后要冲管吗？"
+      ],
+      "keywords": [
+        "半卧位",
+        "温水送服",
+        "鼻饲",
+        "研碎药物",
+        "冲管",
+        "口服给药"
+      ],
+      "snippet": "1. 协助老人坐位或半卧位\n2. 温水送服，避免茶水、果汁、牛奶（除非医嘱）\n3. 看着老人服下，确认未残留口中\n4. 鼻饲老人：研碎药物 → 溶于温水 → 注入 → 冲管",
+      "source": "medication > 用药管理与给药操作 SOP > 3.2 给药"
+    },
+    {
+      "id": "medication-05",
+      "tenant_id": "tenant_default",
+      "category": "medication",
+      "doc_title": "用药管理与给药操作 SOP",
+      "section_title": "3.3 给药后",
+      "canonical_question": "用药管理与给药操作 SOP中「3.3 给药后」的要求是什么？",
+      "similar_questions": [
+        "吃完药要记录啥？",
+        "给药后观察多久？",
+        "过敏反应咋观察？",
+        "血压血糖要追踪吗？",
+        "老人吃药后难受咋办？"
+      ],
+      "keywords": [
+        "服药记录",
+        "不良反应",
+        "过敏反应",
+        "生命体征",
+        "药效追踪"
+      ],
+      "snippet": "- 记录服药时间、剂量、老人反应\n- 观察 30 分钟，警惕过敏/不良反应\n- 服药效果追踪（血压、血糖、心率）",
+      "source": "medication > 用药管理与给药操作 SOP > 3.3 给药后"
+    },
+    {
+      "id": "medication-06",
+      "tenant_id": "tenant_default",
+      "category": "medication",
+      "doc_title": "用药管理与给药操作 SOP",
+      "section_title": "4.1 华法林",
+      "canonical_question": "用药管理与给药操作 SOP中「4.1 华法林」的要求是什么？",
+      "similar_questions": [
+        "华法林几点吃最好？",
+        "华法林要查INR吗？",
+        "INR目标是多少？",
+        "吃华法林能吃菠菜吗？",
+        "牙龈出血要紧吗？"
+      ],
+      "keywords": [
+        "华法林",
+        "INR",
+        "维生素K",
+        "出血",
+        "固定时间给药"
+      ],
+      "snippet": "- 每日固定时间给药（晚 6 点最佳）\n- 每周监测 INR（目标 2.0-3.0）\n- 饮食指导：稳定维生素 K 摄入（菠菜、西兰花）\n- 警惕出血：牙龈、皮下、便血、头痛",
+      "source": "medication > 用药管理与给药操作 SOP > 4.1 华法林"
+    },
+    {
+      "id": "medication-07",
+      "tenant_id": "tenant_default",
+      "category": "medication",
+      "doc_title": "用药管理与给药操作 SOP",
+      "section_title": "4.2 胰岛素",
+      "canonical_question": "用药管理与给药操作 SOP中「4.2 胰岛素」的要求是什么？",
+      "similar_questions": [
+        "胰岛素打哪个部位？",
+        "打胰岛素要换地方吗？",
+        "胰岛素饭前多久打？",
+        "血糖空腹餐后都要测吗？",
+        "低血糖急救包放啥？"
+      ],
+      "keywords": [
+        "胰岛素",
+        "皮下注射",
+        "注射部位轮换",
+        "餐前注射",
+        "血糖监测",
+        "低血糖急救"
+      ],
+      "snippet": "- 皮下注射，注射部位轮换（腹部、大腿、上臂）\n- 餐前 15-30 分钟注射（速效）/餐时（短效）\n- 监测血糖：空腹、餐后 2 小时\n- 备低血糖急救包（葡萄糖、果汁）",
+      "source": "medication > 用药管理与给药操作 SOP > 4.2 胰岛素"
+    },
+    {
+      "id": "medication-08",
+      "tenant_id": "tenant_default",
+      "category": "medication",
+      "doc_title": "用药管理与给药操作 SOP",
+      "section_title": "4.3 精神药物",
+      "canonical_question": "用药管理与给药操作 SOP中「4.3 精神药物」的要求是什么？",
+      "similar_questions": [
+        "精神药能自己加量吗？",
+        "吃精神药会跌倒吗？",
+        "锥体外系反应是啥？",
+        "夜间要加强巡视吗？",
+        "精神药记录要谁签字？"
+      ],
+      "keywords": [
+        "精神药物",
+        "医嘱剂量",
+        "跌倒风险",
+        "锥体外系反应",
+        "夜间巡视",
+        "双人签字"
+      ],
+      "snippet": "- 严格按医嘱，禁止自行调整剂量\n- 监测意识、跌倒风险、锥体外系反应\n- 镇静类药物夜间加强巡视\n- 用药记录双人签字",
+      "source": "medication > 用药管理与给药操作 SOP > 4.3 精神药物"
+    },
+    {
+      "id": "medication-09",
+      "tenant_id": "tenant_default",
+      "category": "medication",
+      "doc_title": "用药管理与给药操作 SOP",
+      "section_title": "5.1 漏服",
+      "canonical_question": "用药管理与给药操作 SOP中「5.1 漏服」的要求是什么？",
+      "similar_questions": [
+        "老人漏服药咋办？",
+        "快到下次吃药还补吗？",
+        "漏服要记原因吗？",
+        "老漏服药咋查原因？",
+        "发现漏服先评估啥？"
+      ],
+      "keywords": [
+        "漏服",
+        "补服",
+        "下次用药时间",
+        "漏服记录",
+        "给药流程"
+      ],
+      "snippet": "- 发现后立即评估，未到下次用药时间可补服\n- 接近下次用药时间不补服，记录漏服原因\n- 频繁漏服需评估给药流程问题",
+      "source": "medication > 用药管理与给药操作 SOP > 5.1 漏服"
+    },
+    {
+      "id": "medication-10",
+      "tenant_id": "tenant_default",
+      "category": "medication",
+      "doc_title": "用药管理与给药操作 SOP",
+      "section_title": "5.2 多服/错服",
+      "canonical_question": "用药管理与给药操作 SOP中「5.2 多服/错服」的要求是什么？",
+      "similar_questions": [
+        "老人吃多药咋办？",
+        "吃错药要先停药吗？",
+        "错服药品要保留吗？",
+        "多服要通知医生吗？",
+        "错服多久要上报？"
+      ],
+      "keywords": [
+        "多服",
+        "错服",
+        "停止给药",
+        "药品证据",
+        "生命体征",
+        "不良事件上报"
+      ],
+      "snippet": "1. 立即停止给药，保留药品证据\n2. 通知医生，监测生命体征\n3. 必要时催吐、洗胃、用药拮抗\n4. 24 小时内上报不良事件",
+      "source": "medication > 用药管理与给药操作 SOP > 5.2 多服/错服"
+    },
+    {
+      "id": "medication-11",
+      "tenant_id": "tenant_default",
+      "category": "medication",
+      "doc_title": "用药管理与给药操作 SOP",
+      "section_title": "5.3 不良反应",
+      "canonical_question": "用药管理与给药操作 SOP中「5.3 不良反应」的要求是什么？",
+      "similar_questions": [
+        "吃药起皮疹咋办？",
+        "恶心要通知医生吗？",
+        "过敏性休克咋处理？",
+        "肾上腺素啥时用？",
+        "严重不良反应上报吗？"
+      ],
+      "keywords": [
+        "皮疹",
+        "恶心",
+        "过敏性休克",
+        "肾上腺素",
+        "药监部门",
+        "不良反应上报"
+      ],
+      "snippet": "- 轻度：皮疹、恶心 → 通知医生调整\n- 重度：过敏性休克 → 立即停药 + 肾上腺素 + 急诊\n- 严重不良反应 24 小时内上报药监部门",
+      "source": "medication > 用药管理与给药操作 SOP > 5.3 不良反应"
+    },
+    {
+      "id": "medication-12",
+      "tenant_id": "tenant_default",
+      "category": "medication",
+      "doc_title": "用药管理与给药操作 SOP",
+      "section_title": "6.1 储存条件",
+      "canonical_question": "用药管理与给药操作 SOP中「6.1 储存条件」的要求是什么？",
+      "similar_questions": [
+        "常温药放多少度？",
+        "胰岛素冷藏几度？",
+        "哪些药需要避光？",
+        "泡腾片要防潮吗？",
+        "药放阴凉干燥处吗？"
+      ],
+      "keywords": [
+        "常温",
+        "冷藏",
+        "避光",
+        "防潮",
+        "储存条件"
+      ],
+      "snippet": "- 阴凉干燥处：常温药（15-25℃）\n- 冷藏：胰岛素、部分抗生素（2-8℃）\n- 避光：硝酸盐、肾上腺素\n- 防潮：泡腾片、散剂",
+      "source": "medication > 用药管理与给药操作 SOP > 6.1 储存条件"
+    },
+    {
+      "id": "medication-13",
+      "tenant_id": "tenant_default",
+      "category": "medication",
+      "doc_title": "用药管理与给药操作 SOP",
+      "section_title": "7. 健康教育",
+      "canonical_question": "用药管理与给药操作 SOP中「7. 健康教育」的要求是什么？",
+      "similar_questions": [
+        "咋跟家属讲药作用？",
+        "老人能自己停药吗？",
+        "慢病药咋长期坚持？",
+        "出院带药咋交代？",
+        "家属要了解副作用吗？"
+      ],
+      "keywords": [
+        "健康教育",
+        "药品名称",
+        "药物作用",
+        "副作用",
+        "用药依从性",
+        "出院带药"
+      ],
+      "snippet": "- 让老人/家属了解药品名称、作用、副作用\n- 强调不可自行停药/调量\n- 慢病用药建立长期依从性\n- 出院带药详细说明用法",
+      "source": "medication > 用药管理与给药操作 SOP > 7. 健康教育"
+    },
+    {
+      "id": "oral_care-00",
+      "tenant_id": "tenant_default",
+      "category": "oral_care",
+      "doc_title": "口腔护理 SOP",
+      "section_title": "1.1 评估内容",
+      "canonical_question": "口腔护理 SOP中「1.1 评估内容」的要求是什么？",
+      "similar_questions": [
+        "口腔黏膜都看啥呀？",
+        "假牙松动缺损看吗？",
+        "牙龈出血怎么评估？",
+        "舌苔厚薄怎么看？",
+        "嘴里有味算异常吗？"
+      ],
+      "keywords": [
+        "口腔黏膜",
+        "义齿",
+        "牙龈",
+        "舌苔",
+        "口气",
+        "唾液"
+      ],
+      "snippet": "- 口腔黏膜：颜色、完整性、有无溃疡\n- 牙齿/义齿：清洁度、松动、缺损\n- 牙龈：颜色、肿胀、出血\n- 舌苔：厚薄、颜色\n- 口气：有无异味\n- 唾液：分泌量、黏稠度",
+      "source": "oral_care > 口腔护理 SOP > 1.1 评估内容"
+    },
+    {
+      "id": "oral_care-01",
+      "tenant_id": "tenant_default",
+      "category": "oral_care",
+      "doc_title": "口腔护理 SOP",
+      "section_title": "1.3 高风险人群",
+      "canonical_question": "口腔护理 SOP中「1.3 高风险人群」的要求是什么？",
+      "similar_questions": [
+        "鼻饲胃管老人为啥口臭？",
+        "卧床老人唾液为啥少？",
+        "糖尿病老人易鹅口疮吗？",
+        "用抗生素口腔会咋样？",
+        "认知障碍不会说咋办？"
+      ],
+      "keywords": [
+        "鼻饲",
+        "长期卧床",
+        "糖尿病",
+        "抗生素",
+        "认知障碍",
+        "口腔自洁"
+      ],
+      "snippet": "- 鼻饲老人：缺乏口腔运动，自洁作用差\n- 长期卧床：唾液分泌减少\n- 糖尿病：易并发真菌感染\n- 使用抗生素：菌群失调\n- 认知障碍：不能主诉不适",
+      "source": "oral_care > 口腔护理 SOP > 1.3 高风险人群"
+    },
+    {
+      "id": "oral_care-02",
+      "tenant_id": "tenant_default",
+      "category": "oral_care",
+      "doc_title": "口腔护理 SOP",
+      "section_title": "2. 用物准备",
+      "canonical_question": "口腔护理 SOP中「2. 用物准备」的要求是什么？",
+      "similar_questions": [
+        "口腔护理要备啥东西？",
+        "海绵棒和牙刷选哪个？",
+        "漱口水能用含酒精吗？",
+        "手电筒压舌板要备吗？",
+        "围兜手套要戴吗？"
+      ],
+      "keywords": [
+        "棉签",
+        "海绵棒",
+        "软毛牙刷",
+        "生理盐水",
+        "漱口水",
+        "一次性手套"
+      ],
+      "snippet": "- 棉签/海绵棒（首选，避免损伤黏膜）\n- 软毛牙刷（有牙老人首选）\n- 生理盐水或漱口水（不含酒精）\n- 压舌板、手电筒\n- 润唇膏、甘油\n- 一次性手套、围兜",
+      "source": "oral_care > 口腔护理 SOP > 2. 用物准备"
+    },
+    {
+      "id": "oral_care-03",
+      "tenant_id": "tenant_default",
+      "category": "oral_care",
+      "doc_title": "口腔护理 SOP",
+      "section_title": "3.1 准备",
+      "canonical_question": "口腔护理 SOP中「3.1 准备」的要求是什么？",
+      "similar_questions": [
+        "做口腔护理前洗手吗？",
+        "戴手套是必须的吗？",
+        "老人头偏哪边安全？",
+        "围兜怎么给老人围？",
+        "先评估口腔再准备吗？"
+      ],
+      "keywords": [
+        "洗手",
+        "一次性手套",
+        "侧卧位",
+        "头偏一侧",
+        "围兜",
+        "口腔评估"
+      ],
+      "snippet": "1. 洗手、戴手套\n2. 老人侧卧或头偏一侧，围兜保护\n3. 评估口腔状况，准备合适用物",
+      "source": "oral_care > 口腔护理 SOP > 3.1 准备"
+    },
+    {
+      "id": "oral_care-04",
+      "tenant_id": "tenant_default",
+      "category": "oral_care",
+      "doc_title": "口腔护理 SOP",
+      "section_title": "3.2 清洁顺序",
+      "canonical_question": "口腔护理 SOP中「3.2 清洁顺序」的要求是什么？",
+      "similar_questions": [
+        "牙齿内外侧怎么刷？",
+        "咬合面怎么刷呀？",
+        "牙龈黏膜用啥擦？",
+        "擦舌头咋防恶心？",
+        "口唇干裂涂啥？",
+        "老人刷牙要注意什么",
+        "口腔清洁顺序是什么"
+      ],
+      "keywords": [
+        "牙外侧面",
+        "牙内侧面",
+        "咬合面",
+        "牙龈",
+        "舌面",
+        "口唇"
+      ],
+      "snippet": "1. 牙齿外侧面：从内向外，每个牙面 3-4 次\n2. 牙齿内侧面：同法清洁\n3. 咬合面：前后向刷动\n4. 牙龈、颊部黏膜：棉签轻擦\n5. 舌面：从内向外擦，避免引起恶心\n6. 口唇：涂润唇膏防干裂",
+      "source": "oral_care > 口腔护理 SOP > 3.2 清洁顺序"
+    },
+    {
+      "id": "oral_care-05",
+      "tenant_id": "tenant_default",
+      "category": "oral_care",
+      "doc_title": "口腔护理 SOP",
+      "section_title": "3.3 鼻饲老人特殊处理",
+      "canonical_question": "口腔护理 SOP中「3.3 鼻饲老人特殊处理」的要求是什么？",
+      "similar_questions": [
+        "鼻饲老人擦口咋防呛？",
+        "胃管老人头偏哪边？",
+        "操作前要夹胃管吗？",
+        "鼻饲老人几小时擦一次？",
+        "擦口怎么防液体流气道？"
+      ],
+      "keywords": [
+        "鼻饲",
+        "误吸",
+        "头偏一侧",
+        "鼻饲管夹闭",
+        "棉签",
+        "6小时"
+      ],
+      "snippet": "- 头偏一侧防误吸\n- 棉签为主，避免液体流入气道\n- 操作前确认鼻饲管夹闭\n- 每 6 小时一次，预防口腔细菌下行感染",
+      "source": "oral_care > 口腔护理 SOP > 3.3 鼻饲老人特殊处理"
+    },
+    {
+      "id": "oral_care-06",
+      "tenant_id": "tenant_default",
+      "category": "oral_care",
+      "doc_title": "口腔护理 SOP",
+      "section_title": "4.1 口腔溃疡",
+      "canonical_question": "口腔护理 SOP中「4.1 口腔溃疡」的要求是什么？",
+      "similar_questions": [
+        "口腔溃疡用啥洗？",
+        "溃疡涂啥药膏好？",
+        "溃疡老人要忌口吗？",
+        "严重溃疡改流食吗？",
+        "刺激食物能吃吗？"
+      ],
+      "keywords": [
+        "口腔溃疡",
+        "生理盐水",
+        "局部药物",
+        "重组人表皮生长因子凝胶",
+        "刺激性食物",
+        "流质饮食"
+      ],
+      "snippet": "- 生理盐水清洗 + 局部药物（如重组人表皮生长因子凝胶）\n- 避免刺激性食物\n- 严重者改流质饮食",
+      "source": "oral_care > 口腔护理 SOP > 4.1 口腔溃疡"
+    },
+    {
+      "id": "oral_care-07",
+      "tenant_id": "tenant_default",
+      "category": "oral_care",
+      "doc_title": "口腔护理 SOP",
+      "section_title": "4.2 口腔真菌感染",
+      "canonical_question": "口腔护理 SOP中「4.2 口腔真菌感染」的要求是什么？",
+      "similar_questions": [
+        "舌背白斑是啥感染？",
+        "颊部乳酪样白斑咋办？",
+        "真菌感染用啥清洁？",
+        "制霉菌素甘油咋用？",
+        "老不好要查免疫吗？"
+      ],
+      "keywords": [
+        "口腔真菌感染",
+        "白色斑片",
+        "乳酪样白斑",
+        "2%碳酸氢钠溶液",
+        "制霉菌素甘油",
+        "免疫状态"
+      ],
+      "snippet": "- 表现：舌背白色斑片、颊部乳酪样白斑\n- 用 2% 碳酸氢钠溶液清洁\n- 局部用制霉菌素甘油涂布\n- 持续不愈需评估全身免疫状态",
+      "source": "oral_care > 口腔护理 SOP > 4.2 口腔真菌感染"
+    },
+    {
+      "id": "oral_care-08",
+      "tenant_id": "tenant_default",
+      "category": "oral_care",
+      "doc_title": "口腔护理 SOP",
+      "section_title": "4.3 口腔出血",
+      "canonical_question": "口腔护理 SOP中「4.3 口腔出血」的要求是什么？",
+      "similar_questions": [
+        "牙龈出血怎么擦？",
+        "局部用云南白药行吗？",
+        "大量出血先通知谁？",
+        "吃抗凝药咋观察？",
+        "出血要查凝血吗？"
+      ],
+      "keywords": [
+        "牙龈出血",
+        "云南白药",
+        "大量出血",
+        "通知医生",
+        "凝血功能",
+        "抗凝药"
+      ],
+      "snippet": "- 牙龈出血：轻柔操作，局部用云南白药\n- 大量出血：止血 + 通知医生 + 评估凝血功能\n- 抗凝药使用者加强监测",
+      "source": "oral_care > 口腔护理 SOP > 4.3 口腔出血"
+    },
+    {
+      "id": "oral_care-09",
+      "tenant_id": "tenant_default",
+      "category": "oral_care",
+      "doc_title": "口腔护理 SOP",
+      "section_title": "4.4 口臭",
+      "canonical_question": "口腔护理 SOP中「4.4 口臭」的要求是什么？",
+      "similar_questions": [
+        "口臭先评估啥原因？",
+        "消化道会引起口臭吗？",
+        "呼吸道也会口臭吗？",
+        "口臭咋加强清洁？",
+        "能用复方氯己定吗？"
+      ],
+      "keywords": [
+        "口臭",
+        "口腔感染",
+        "消化道",
+        "呼吸道",
+        "复方氯己定",
+        "漱口液"
+      ],
+      "snippet": "- 评估原因：口腔感染、消化道、呼吸道\n- 加强清洁\n- 必要时漱口液（如复方氯己定）",
+      "source": "oral_care > 口腔护理 SOP > 4.4 口臭"
+    },
+    {
+      "id": "oral_care-10",
+      "tenant_id": "tenant_default",
+      "category": "oral_care",
+      "doc_title": "口腔护理 SOP",
+      "section_title": "6.1 频率",
+      "canonical_question": "口腔护理 SOP中「6.1 频率」的要求是什么？",
+      "similar_questions": [
+        "普通老人多久擦一次？",
+        "饭后睡前都要擦吗？",
+        "鼻饲卧床几小时一次？",
+        "糖尿病老人多久一次？",
+        "免疫低下也4小时吗？"
+      ],
+      "keywords": [
+        "口腔护理频率",
+        "每餐后",
+        "睡前",
+        "每6小时",
+        "每4小时",
+        "高风险"
+      ],
+      "snippet": "- 普通老人：每餐后 + 睡前\n- 鼻饲/卧床老人：每 6 小时\n- 高风险（糖尿病/免疫低下）：每 4 小时",
+      "source": "oral_care > 口腔护理 SOP > 6.1 频率"
+    },
+    {
+      "id": "positioning-00",
+      "tenant_id": "tenant_default",
+      "category": "positioning",
+      "doc_title": "定时翻身与体位摆放 SOP",
+      "section_title": "1.1 频率",
+      "canonical_question": "定时翻身与体位摆放 SOP中「1.1 频率」的要求是什么？",
+      "similar_questions": [
+        "普通老人多久翻一次身？",
+        "压疮高风险多久翻一次？",
+        "Braden 12分要每小时翻吗？",
+        "气垫床能三小时翻一次吗？",
+        "用减压床翻身时间能延长吗？",
+        "多久给老人翻一次身",
+        "翻身间隔是多久"
+      ],
+      "keywords": [
+        "翻身频率",
+        "压力性损伤",
+        "Braden评分",
+        "动态减压气垫床"
+      ],
+      "snippet": "- 普通老人：每 2 小时翻身一次\n- 高风险压疮（Braden ≤ 12）：每 1 小时\n- 使用动态减压气垫床：可延长至每 3 小时",
+      "source": "positioning > 定时翻身与体位摆放 SOP > 1.1 频率"
+    },
+    {
+      "id": "positioning-01",
+      "tenant_id": "tenant_default",
+      "category": "positioning",
+      "doc_title": "定时翻身与体位摆放 SOP",
+      "section_title": "1.2 体位选择",
+      "canonical_question": "定时翻身与体位摆放 SOP中「1.2 体位选择」的要求是什么？",
+      "similar_questions": [
+        "翻身可以选哪些体位？",
+        "为什么要30度侧卧？",
+        "能直接90度侧卧吗？",
+        "90度侧卧压哪里不好？",
+        "半坐位能久一点吗？",
+        "翻身时怎么摆体位",
+        "侧卧位怎么摆"
+      ],
+      "keywords": [
+        "体位摆放",
+        "仰卧位",
+        "30度侧卧位",
+        "股骨大转子",
+        "剪切力",
+        "骶尾部压力性损伤"
+      ],
+      "snippet": "- 仰卧位、左侧 30 度侧卧位、右侧 30 度侧卧位 轮换\n- 避免直接 90 度侧卧位（压迫股骨大转子）\n- 避免长时间半坐位（剪切力致骶尾部压疮）",
+      "source": "positioning > 定时翻身与体位摆放 SOP > 1.2 体位选择"
+    },
+    {
+      "id": "positioning-02",
+      "tenant_id": "tenant_default",
+      "category": "positioning",
+      "doc_title": "定时翻身与体位摆放 SOP",
+      "section_title": "2.1 准备",
+      "canonical_question": "定时翻身与体位摆放 SOP中「2.1 准备」的要求是什么？",
+      "similar_questions": [
+        "翻身前要先评估什么？",
+        "有胃管翻身要注意啥？",
+        "有尿管输液管怎么翻？",
+        "翻身前要跟老人解释吗？",
+        "颈椎不好要两人翻身吗？"
+      ],
+      "keywords": [
+        "护理评估",
+        "管路保护",
+        "鼻饲管",
+        "尿管",
+        "输液管",
+        "颈椎保护"
+      ],
+      "snippet": "1. 评估老人意识、配合度、管路（输液管/尿管/鼻饲管）\n2. 解释操作目的，取得配合\n3. 必要时二人协助，保护颈椎",
+      "source": "positioning > 定时翻身与体位摆放 SOP > 2.1 准备"
+    },
+    {
+      "id": "positioning-03",
+      "tenant_id": "tenant_default",
+      "category": "positioning",
+      "doc_title": "定时翻身与体位摆放 SOP",
+      "section_title": "2.2 仰卧位 → 右侧 30 度侧卧位",
+      "canonical_question": "定时翻身与体位摆放 SOP中「2.2 仰卧位 → 右侧 30 度侧卧位」的要求是什么？",
+      "similar_questions": [
+        "仰卧翻右侧30度咋翻？",
+        "翻右侧时手放哪里？",
+        "先翻上半身还是下半身？",
+        "背后三角枕和膝枕怎么垫？",
+        "枕头高度要调吗？"
+      ],
+      "keywords": [
+        "分段翻身",
+        "右侧30度侧卧位",
+        "三角枕",
+        "膝间软枕",
+        "颈椎生理曲度"
+      ],
+      "snippet": "1. 老人双手交叉放胸前，屈膝\n2. 操作者站右侧，扶住肩部和膝部\n3. 先移上半身，再移下半身（分段翻身）\n4. 用三角枕或软垫支撑背部 30 度\n5. 上腿屈曲，下腿伸直，两膝间放软枕\n6. 调整枕头高度，保持颈椎正常生理曲度",
+      "source": "positioning > 定时翻身与体位摆放 SOP > 2.2 仰卧位 → 右侧 30 度侧卧位"
+    },
+    {
+      "id": "positioning-04",
+      "tenant_id": "tenant_default",
+      "category": "positioning",
+      "doc_title": "定时翻身与体位摆放 SOP",
+      "section_title": "2.3 侧卧位 → 仰卧位",
+      "canonical_question": "定时翻身与体位摆放 SOP中「2.3 侧卧位 → 仰卧位」的要求是什么？",
+      "similar_questions": [
+        "侧卧翻回平躺怎么弄？",
+        "背后垫的枕头先撤吗？",
+        "扶肩和髋怎么翻？",
+        "翻回仰卧要快还是慢？",
+        "平躺后头手脚怎么放？"
+      ],
+      "keywords": [
+        "侧卧位",
+        "仰卧位",
+        "平移复位",
+        "头部中立位",
+        "肢体摆放"
+      ],
+      "snippet": "1. 撤除背部支撑枕\n2. 一手扶肩，一手扶髋\n3. 缓慢平移至仰卧位\n4. 头部居中，四肢伸直自然摆放",
+      "source": "positioning > 定时翻身与体位摆放 SOP > 2.3 侧卧位 → 仰卧位"
+    },
+    {
+      "id": "positioning-05",
+      "tenant_id": "tenant_default",
+      "category": "positioning",
+      "doc_title": "定时翻身与体位摆放 SOP",
+      "section_title": "3.1 偏瘫老人",
+      "canonical_question": "定时翻身与体位摆放 SOP中「3.1 偏瘫老人」的要求是什么？",
+      "similar_questions": [
+        "偏瘫老人翻哪边好？",
+        "患侧卧位有啥好处？",
+        "健侧卧会压到患侧吗？",
+        "偏瘫能老平躺吗？",
+        "平躺久了会痉挛吗？"
+      ],
+      "keywords": [
+        "偏瘫",
+        "患侧卧位",
+        "健侧卧位",
+        "本体感觉",
+        "痉挛",
+        "仰卧位"
+      ],
+      "snippet": "- 患侧卧位：增加患侧本体感觉输入，促进康复\n- 健侧卧位：避免压迫患侧\n- 仰卧位应尽量短，易引发痉挛",
+      "source": "positioning > 定时翻身与体位摆放 SOP > 3.1 偏瘫老人"
+    },
+    {
+      "id": "positioning-06",
+      "tenant_id": "tenant_default",
+      "category": "positioning",
+      "doc_title": "定时翻身与体位摆放 SOP",
+      "section_title": "3.2 脊髓损伤",
+      "canonical_question": "定时翻身与体位摆放 SOP中「3.2 脊髓损伤」的要求是什么？",
+      "similar_questions": [
+        "脊髓损伤能睡软床吗？",
+        "翻身为什么要圆木滚动？",
+        "轴线翻身是啥意思？",
+        "脊髓损伤要几个人翻？",
+        "三人轴线翻身是必须吗？"
+      ],
+      "keywords": [
+        "脊髓损伤",
+        "硬板床",
+        "轴线翻身",
+        "圆木滚动",
+        "脊柱畸形"
+      ],
+      "snippet": "- 床板必须硬板，避免软床加重畸形\n- 翻身时保持脊柱轴线一致（圆木滚动）\n- 必要时三人轴线翻身",
+      "source": "positioning > 定时翻身与体位摆放 SOP > 3.2 脊髓损伤"
+    },
+    {
+      "id": "positioning-07",
+      "tenant_id": "tenant_default",
+      "category": "positioning",
+      "doc_title": "定时翻身与体位摆放 SOP",
+      "section_title": "3.3 术后老人",
+      "canonical_question": "定时翻身与体位摆放 SOP中「3.3 术后老人」的要求是什么？",
+      "similar_questions": [
+        "髋关节置换后能往患侧翻吗？",
+        "换髋后腿能蜷起来吗？",
+        "脊柱术后翻身能扭吗？",
+        "脊柱术后怎么翻身？",
+        "胸部术后能半坐吗？"
+      ],
+      "keywords": [
+        "髋关节置换",
+        "过度屈曲内收",
+        "脊柱术后",
+        "轴线翻身",
+        "胸部术后",
+        "半坐位"
+      ],
+      "snippet": "- 髋关节置换术后：避免患侧卧位、过度屈曲内收\n- 脊柱术后：轴线翻身，禁止扭转\n- 胸部术后：半坐位利于呼吸",
+      "source": "positioning > 定时翻身与体位摆放 SOP > 3.3 术后老人"
+    },
+    {
+      "id": "positioning-08",
+      "tenant_id": "tenant_default",
+      "category": "positioning",
+      "doc_title": "定时翻身与体位摆放 SOP",
+      "section_title": "4.1 足跟",
+      "canonical_question": "定时翻身与体位摆放 SOP中「4.1 足跟」的要求是什么？",
+      "similar_questions": [
+        "足跟怎么垫起来？",
+        "足跟悬空架怎么用？",
+        "腘窝能垫枕头吗？",
+        "足背动脉要定期查吗？",
+        "脚后跟要查脉搏吗？"
+      ],
+      "keywords": [
+        "足跟减压",
+        "足跟悬空架",
+        "腘窝受压",
+        "足背动脉搏动",
+        "血液循环"
+      ],
+      "snippet": "- 用软枕或足跟悬空架抬起足跟\n- 避免腘窝直接受压影响循环\n- 定期检查足背动脉搏动",
+      "source": "positioning > 定时翻身与体位摆放 SOP > 4.1 足跟"
+    },
+    {
+      "id": "positioning-09",
+      "tenant_id": "tenant_default",
+      "category": "positioning",
+      "doc_title": "定时翻身与体位摆放 SOP",
+      "section_title": "4.2 骶尾部",
+      "canonical_question": "定时翻身与体位摆放 SOP中「4.2 骶尾部」的要求是什么？",
+      "similar_questions": [
+        "骶尾部怎么减压？",
+        "半坐位要垫什么垫？",
+        "床头能抬高超过30度吗？",
+        "床头抬高多久算久？",
+        "翻身要检查骶尾皮肤吗？"
+      ],
+      "keywords": [
+        "骶尾部",
+        "减压垫",
+        "床头抬高",
+        "剪切力",
+        "皮肤检查"
+      ],
+      "snippet": "- 半坐位时使用骶尾减压垫\n- 避免床头抬高 > 30 度过久\n- 每次翻身检查骶尾皮肤",
+      "source": "positioning > 定时翻身与体位摆放 SOP > 4.2 骶尾部"
+    },
+    {
+      "id": "positioning-10",
+      "tenant_id": "tenant_default",
+      "category": "positioning",
+      "doc_title": "定时翻身与体位摆放 SOP",
+      "section_title": "5.1 关节挛缩",
+      "canonical_question": "定时翻身与体位摆放 SOP中「5.1 关节挛缩」的要求是什么？",
+      "similar_questions": [
+        "关节挛缩每天活动几次？",
+        "踝关节要摆多少度？",
+        "膝盖要弯多少度？",
+        "什么时候用足托？",
+        "手部防挛缩支具要戴吗？"
+      ],
+      "keywords": [
+        "关节挛缩",
+        "被动活动",
+        "功能位",
+        "踝关节90度",
+        "膝关节屈曲",
+        "防挛缩支具"
+      ],
+      "snippet": "- 每日 2 次全关节被动活动\n- 保持功能位摆放：踝关节 90 度、膝关节 5-10 度屈曲\n- 必要时使用足托、手部防挛缩支具",
+      "source": "positioning > 定时翻身与体位摆放 SOP > 5.1 关节挛缩"
+    },
+    {
+      "id": "positioning-11",
+      "tenant_id": "tenant_default",
+      "category": "positioning",
+      "doc_title": "定时翻身与体位摆放 SOP",
+      "section_title": "5.2 坠积性肺炎",
+      "canonical_question": "定时翻身与体位摆放 SOP中「5.2 坠积性肺炎」的要求是什么？",
+      "similar_questions": [
+        "翻身要拍背排痰吗？",
+        "拍背怎么配合翻身？",
+        "怎么让老人有效咳嗽？",
+        "卧床老人多久换体位？",
+        "高龄卧床要做体位引流吗？"
+      ],
+      "keywords": [
+        "坠积性肺炎",
+        "拍背排痰",
+        "深呼吸",
+        "有效咳嗽",
+        "体位引流",
+        "变换体位"
+      ],
+      "snippet": "- 翻身时配合拍背排痰\n- 鼓励老人深呼吸、有效咳嗽\n- 高龄 + 卧床者每 2 小时变换体位 + 体位引流",
+      "source": "positioning > 定时翻身与体位摆放 SOP > 5.2 坠积性肺炎"
+    },
+    {
+      "id": "positioning-12",
+      "tenant_id": "tenant_default",
+      "category": "positioning",
+      "doc_title": "定时翻身与体位摆放 SOP",
+      "section_title": "5.3 体位性低血压",
+      "canonical_question": "定时翻身与体位摆放 SOP中「5.3 体位性低血压」的要求是什么？",
+      "similar_questions": [
+        "卧床老人第一次坐起咋坐？",
+        "床头抬到30度等多久？",
+        "30度再到60度要多久？",
+        "坐起要量血压心率吗？",
+        "坐起后要监测啥？",
+        "翻身时怎么摆体位",
+        "侧卧位怎么摆"
+      ],
+      "keywords": [
+        "体位性低血压",
+        "循序渐起",
+        "床头抬高",
+        "血压监测",
+        "心率监测",
+        "适应时间"
+      ],
+      "snippet": "- 长期卧床者首次坐起需循序渐进\n- 抬高床头 30 度 → 60 度 → 90 度，每阶段适应 5-10 分钟\n- 监测血压、心率变化",
+      "source": "positioning > 定时翻身与体位摆放 SOP > 5.3 体位性低血压"
+    },
+    {
+      "id": "positioning-13",
+      "tenant_id": "tenant_default",
+      "category": "positioning",
+      "doc_title": "定时翻身与体位摆放 SOP",
+      "section_title": "6. 记录",
+      "canonical_question": "定时翻身与体位摆放 SOP中「6. 记录」的要求是什么？",
+      "similar_questions": [
+        "翻身记录要写什么？",
+        "每班都要记皮肤吗？",
+        "皮肤发红要上报吗？",
+        "关节活动度变了咋办？",
+        "多久评价体位计划？"
+      ],
+      "keywords": [
+        "翻身记录",
+        "皮肤状态",
+        "每班次",
+        "异常上报",
+        "计划评价"
+      ],
+      "snippet": "- 翻身时间、体位、皮肤状态每班次记录\n- 异常情况（皮肤红斑、关节活动度改变）及时上报\n- 每周评价体位摆放计划有效性",
+      "source": "positioning > 定时翻身与体位摆放 SOP > 6. 记录"
+    },
+    {
+      "id": "pressure_ulcer-00",
+      "tenant_id": "tenant_default",
+      "category": "pressure_ulcer",
+      "doc_title": "压疮预防与分期护理 SOP",
+      "section_title": "1.1 评估工具",
+      "canonical_question": "压疮预防与分期护理 SOP中「1.1 评估工具」的要求是什么？",
+      "similar_questions": [
+        "Braden量表咋给老人打分？",
+        "压疮风险评估看哪几项？",
+        "感觉潮湿活动咋评估？",
+        "摩擦剪切力是啥意思？",
+        "营养不好算压疮风险吗？"
+      ],
+      "keywords": [
+        "Braden量表",
+        "压力性损伤",
+        "风险评估",
+        "感觉",
+        "潮湿",
+        "摩擦剪切力"
+      ],
+      "snippet": "使用 Braden 量表评估压疮风险，维度包括：感觉、潮湿、活动、移动、营养、摩擦剪切力。",
+      "source": "pressure_ulcer > 压疮预防与分期护理 SOP > 1.1 评估工具"
+    },
+    {
+      "id": "pressure_ulcer-01",
+      "tenant_id": "tenant_default",
+      "category": "pressure_ulcer",
+      "doc_title": "压疮预防与分期护理 SOP",
+      "section_title": "1.2 评估时机",
+      "canonical_question": "压疮预防与分期护理 SOP中「1.2 评估时机」的要求是什么？",
+      "similar_questions": [
+        "入院多久要做压疮评估？",
+        "高风险老人每班都评吗？",
+        "病情变化要重新评估吗？",
+        "出院前还要评估压疮吗？",
+        "压疮评估啥时候必须做？"
+      ],
+      "keywords": [
+        "评估时机",
+        "入院24小时内",
+        "每班次复评",
+        "病情变化",
+        "出院前终末评估"
+      ],
+      "snippet": "- 入院 24 小时内首次评估\n- 每班次复评（高风险老人）\n- 病情变化时随时评估\n- 出院前终末评估",
+      "source": "pressure_ulcer > 压疮预防与分期护理 SOP > 1.2 评估时机"
+    },
+    {
+      "id": "pressure_ulcer-02",
+      "tenant_id": "tenant_default",
+      "category": "pressure_ulcer",
+      "doc_title": "压疮预防与分期护理 SOP",
+      "section_title": "1.3 风险分级",
+      "canonical_question": "压疮预防与分期护理 SOP中「1.3 风险分级」的要求是什么？",
+      "similar_questions": [
+        "Braden多少分算高风险？",
+        "13到14分是啥风险？",
+        "15到18分要紧吗？",
+        "19分以上就没事吗？",
+        "压疮风险分几档？"
+      ],
+      "keywords": [
+        "Braden评分",
+        "风险分级",
+        "高度风险",
+        "中度风险",
+        "低度风险",
+        "无风险"
+      ],
+      "snippet": "- ≤12 分：高度风险\n- 13-14 分：中度风险\n- 15-18 分：低度风险\n- ≥19 分：无风险",
+      "source": "pressure_ulcer > 压疮预防与分期护理 SOP > 1.3 风险分级"
+    },
+    {
+      "id": "pressure_ulcer-03",
+      "tenant_id": "tenant_default",
+      "category": "pressure_ulcer",
+      "doc_title": "压疮预防与分期护理 SOP",
+      "section_title": "3.1 I 期压疮的特征与识别",
+      "canonical_question": "压疮预防与分期护理 SOP中「3.1 I 期压疮的特征与识别」的要求是什么？",
+      "similar_questions": [
+        "一期压疮长啥样？",
+        "皮肤红了按下去不褪咋回事？",
+        "红斑不退就是压疮吗？",
+        "深色皮肤咋看一期压疮？",
+        "一期压疮摸着会痛吗？"
+      ],
+      "keywords": [
+        "I期压力性损伤",
+        "持续性红斑",
+        "指压不褪色",
+        "温度改变",
+        "硬度改变",
+        "触诊"
+      ],
+      "snippet": "I 期压疮是压疮的最早期表现，皮肤外观完整但有持续性的红斑。关键识别要点：\n- 用手指按压红斑区，颜色不褪（与正常红斑区别）\n- 与周围组织相比，有温度、硬度、疼痛的改变\n- 深色皮肤老人可能难以观察，需结合触诊",
+      "source": "pressure_ulcer > 压疮预防与分期护理 SOP > 3.1 I 期压疮的特征与识别"
+    },
+    {
+      "id": "pressure_ulcer-04",
+      "tenant_id": "tenant_default",
+      "category": "pressure_ulcer",
+      "doc_title": "压疮预防与分期护理 SOP",
+      "section_title": "3.2 II 期压疮的特征与识别",
+      "canonical_question": "压疮预防与分期护理 SOP中「3.2 II 期压疮的特征与识别」的要求是什么？",
+      "similar_questions": [
+        "二期压疮是破皮了吗？",
+        "水疱破了算二期吗？",
+        "红粉色伤口没腐肉是几期？",
+        "会阴皮炎算二期压疮吗？",
+        "皮肤撕裂和二期咋区分？"
+      ],
+      "keywords": [
+        "II期压力性损伤",
+        "表皮或真皮缺损",
+        "浆液性水疱",
+        "红粉色伤口床",
+        "鉴别诊断"
+      ],
+      "snippet": "II 期压疮表现为表皮或真皮的部分缺损，常见形式：\n- 表浅开放性溃疡，呈红粉色伤口床，无腐肉\n- 浆液性水疱（完整或破裂）\n- 鉴别诊断：皮肤撕裂、烧伤、会阴皮炎不属于 II 期压疮",
+      "source": "pressure_ulcer > 压疮预防与分期护理 SOP > 3.2 II 期压疮的特征与识别"
+    },
+    {
+      "id": "pressure_ulcer-05",
+      "tenant_id": "tenant_default",
+      "category": "pressure_ulcer",
+      "doc_title": "压疮预防与分期护理 SOP",
+      "section_title": "3.3 III 期与 IV 期的鉴别",
+      "canonical_question": "压疮预防与分期护理 SOP中「3.3 III 期与 IV 期的鉴别」的要求是什么？",
+      "similar_questions": [
+        "三期四期压疮咋区分？",
+        "看到骨头是几期压疮？",
+        "脂肪露出来算三期吗？",
+        "有焦痂看不清深度算几期？",
+        "不可分期要先清创吗？"
+      ],
+      "keywords": [
+        "III期压力性损伤",
+        "IV期压力性损伤",
+        "组织损伤深度",
+        "骨暴露",
+        "不可分期",
+        "清创"
+      ],
+      "snippet": "III 期与 IV 期的核心区别在于组织损伤的深度：\n- III 期：脂肪可见，但肌肉、肌腱、骨未暴露\n- IV 期：可见肌肉、肌腱、骨暴露\n- 如创面被腐肉/焦痂覆盖无法判断深度，归类为\"不可分期\"，需先清创",
+      "source": "pressure_ulcer > 压疮预防与分期护理 SOP > 3.3 III 期与 IV 期的鉴别"
+    },
+    {
+      "id": "pressure_ulcer-06",
+      "tenant_id": "tenant_default",
+      "category": "pressure_ulcer",
+      "doc_title": "压疮预防与分期护理 SOP",
+      "section_title": "4.1 减压",
+      "canonical_question": "压疮预防与分期护理 SOP中「4.1 减压」的要求是什么？",
+      "similar_questions": [
+        "压疮老人多久翻一次身？",
+        "高风险要一小时翻身吗？",
+        "气垫床能代替翻身吗？",
+        "足跟咋样才不受压？",
+        "坐位多久换下体位？"
+      ],
+      "keywords": [
+        "减压",
+        "翻身",
+        "动态减压气垫床",
+        "足跟悬空",
+        "坐位体位改变"
+      ],
+      "snippet": "- 每 2 小时翻身一次（高风险者每 1 小时）\n- 使用动态减压气垫床\n- 足跟悬空，避免直接受压\n- 坐位每 15 分钟改变体位",
+      "source": "pressure_ulcer > 压疮预防与分期护理 SOP > 4.1 减压"
+    },
+    {
+      "id": "pressure_ulcer-07",
+      "tenant_id": "tenant_default",
+      "category": "pressure_ulcer",
+      "doc_title": "压疮预防与分期护理 SOP",
+      "section_title": "4.2 皮肤护理",
+      "canonical_question": "压疮预防与分期护理 SOP中「4.2 皮肤护理」的要求是什么？",
+      "similar_questions": [
+        "失禁老人皮肤咋保护？",
+        "氧化锌啥时候用？",
+        "骨突处发红能按摩吗？",
+        "每天要查哪些骨突处？",
+        "皮肤太湿会得压疮吗？"
+      ],
+      "keywords": [
+        "皮肤护理",
+        "皮肤保护膜",
+        "氧化锌",
+        "骨突部位",
+        "失禁"
+      ],
+      "snippet": "- 保持皮肤清洁干燥，避免过度湿润\n- 失禁老人使用皮肤保护膜（如氧化锌）\n- 禁用用力按摩骨突处发红部位\n- 每日检查全身骨突部位",
+      "source": "pressure_ulcer > 压疮预防与分期护理 SOP > 4.2 皮肤护理"
+    },
+    {
+      "id": "pressure_ulcer-08",
+      "tenant_id": "tenant_default",
+      "category": "pressure_ulcer",
+      "doc_title": "压疮预防与分期护理 SOP",
+      "section_title": "4.3 营养支持",
+      "canonical_question": "压疮预防与分期护理 SOP中「4.3 营养支持」的要求是什么？",
+      "similar_questions": [
+        "压疮老人每天吃多少蛋白？",
+        "要补维生素和锌吗？",
+        "吞咽不好能鼻饲吗？",
+        "吃不下能上胃管吗？",
+        "吃不下要静脉营养吗？"
+      ],
+      "keywords": [
+        "营养支持",
+        "蛋白质",
+        "维生素A/C/E",
+        "锌",
+        "精氨酸",
+        "鼻饲"
+      ],
+      "snippet": "- 高风险老人每日蛋白质 1.25-1.5g/kg\n- 补充维生素 A/C/E、锌、精氨酸\n- 评估吞咽功能，必要时鼻饲或静脉营养",
+      "source": "pressure_ulcer > 压疮预防与分期护理 SOP > 4.3 营养支持"
+    },
+    {
+      "id": "pressure_ulcer-09",
+      "tenant_id": "tenant_default",
+      "category": "pressure_ulcer",
+      "doc_title": "压疮预防与分期护理 SOP",
+      "section_title": "5.2 III/IV 期",
+      "canonical_question": "压疮预防与分期护理 SOP中「5.2 III/IV 期」的要求是什么？",
+      "similar_questions": [
+        "三期四期要清创吗？",
+        "负压引流是干啥的？",
+        "VAC能长肉芽吗？",
+        "严重压疮要皮瓣手术吗？",
+        "感染了咋抗感染？"
+      ],
+      "keywords": [
+        "外科清创",
+        "抗感染",
+        "负压封闭引流",
+        "VAC",
+        "肉芽生长",
+        "皮瓣转移手术"
+      ],
+      "snippet": "- 外科清创 + 抗感染\n- 负压封闭引流（VAC）促进肉芽生长\n- 必要时皮瓣转移手术",
+      "source": "pressure_ulcer > 压疮预防与分期护理 SOP > 5.2 III/IV 期"
+    },
+    {
+      "id": "pressure_ulcer-10",
+      "tenant_id": "tenant_default",
+      "category": "pressure_ulcer",
+      "doc_title": "压疮预防与分期护理 SOP",
+      "section_title": "6. 记录与上报",
+      "canonical_question": "压疮预防与分期护理 SOP中「6. 记录与上报」的要求是什么？",
+      "similar_questions": [
+        "换药要记创面大小吗？",
+        "压疮记录写哪些内容？",
+        "三期压疮多久要上报？",
+        "每周拍照有啥用？",
+        "渗液和周围皮肤咋记？"
+      ],
+      "keywords": [
+        "护理记录",
+        "创面大小",
+        "分期",
+        "渗液",
+        "上报护理质控",
+        "拍照对比"
+      ],
+      "snippet": "- 每次换药记录创面大小（长×宽×深）、分期、渗液、周围皮肤\n- III 期以上 24 小时内上报护理质控\n- 每周拍照对比，评价治疗有效性",
+      "source": "pressure_ulcer > 压疮预防与分期护理 SOP > 6. 记录与上报"
+    }
+  ],
+  "overlay_applied": 2
+}

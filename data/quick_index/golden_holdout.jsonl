@@ -1,0 +1,12 @@
+{"query": "卧床老人足跟怎么减压", "expect_mode": "quick", "expect_category": "positioning"}
+{"query": "Braden评分多少分算高风险", "expect_mode": "quick", "expect_category": "pressure_ulcer"}
+{"query": "口腔有白斑是不是真菌感染", "expect_mode": "quick", "expect_category": "oral_care"}
+{"query": "胃管多久换一次", "expect_mode": "quick", "expect_category": "feeding_tube"}
+{"query": "漏服一次药要不要补吃", "expect_mode": "quick", "expect_category": "medication"}
+{"query": "输液的老人跌倒风险高吗", "expect_mode": "quick", "expect_category": "fall_prevention"}
+{"query": "老人今天一直说要回家", "expect_mode": "rag"}
+{"query": "怎么跟家属解释他瘦了", "expect_mode": "rag"}
+{"query": "夜里睡不着要用药吗", "expect_mode": "rag"}
+{"query": "帮我排一下下周的班", "expect_mode": "rag"}
+{"query": "他血压 180 要不要马上送医院", "expect_mode": "rag"}
+{"query": "老人身上有味道是不是没洗干净", "expect_mode": "rag"}

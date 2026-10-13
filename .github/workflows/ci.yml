@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  backend:
+    name: 后端测试
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"        # 硬要求：LangGraph interrupt() 在 3.10 上不可用
+          cache: pip
+
+      # 测试配置：口令与 Key 都用占位值，仓库里不放任何真实凭据
+      - name: 准备测试配置
+        run: |
+          cat > .env.local <<'EOF'
+          DB_HOST=127.0.0.1
+          DB_PORT=5433
+          DB_NAME=careagent
+          DB_USER=careagent_user
+          DB_PASSWORD=ci-test-password
+          JWT_SECRET_KEY=ci-test-jwt-secret
+          DEEPSEEK_API_KEY=sk-your-key-here
+          QWEN_API_KEY=
+          DEFAULT_LLM_PROVIDER=deepseek
+          MILVUS_HOST=127.0.0.1
+          MILVUS_PORT=19531
+          REDIS_HOST=127.0.0.1
+          REDIS_PORT=6380
+          SEED_DEMO_USERS=true
+          MCP_ENABLED=false
+          CORS_ORIGINS=
+          EOF
+
+      - name: 起基础设施（postgres / redis / milvus + 依赖）
+        run: |
+          docker compose --env-file .env.local up -d postgres redis etcd minio milvus
+          # 等 postgres 就绪（compose 里已配 healthcheck，这里再兜一层）
+          for i in $(seq 1 30); do
+            docker compose exec -T postgres pg_isready -U careagent_user >/dev/null 2>&1 && break
+            sleep 2
+          done
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          # 全量安装：reranker.py / knowledge_base.py 在模块层 import torch 与 transformers，
+          # 缺了会直接 ImportError。**模型权重本身不下载**——用例已做到不依赖权重
+          # （需要权重的用例用 conftest 的 models_ready 夹具跳过）。
+          pip install -r requirements.txt
+          pip install -r requirements.txt
+
+      - name: 建 Milvus 集合
+        run: python scripts/init_milvus.py || echo "（Milvus 集合初始化失败，相关用例会自动跳过）"
+
+      - name: 跑测试
+        run: python -m pytest tests/ -q
+
+      - name: 依赖版本快照（排查用）
+        if: always()
+        run: pip freeze > /tmp/pip-freeze.txt && tail -20 /tmp/pip-freeze.txt
+
+  frontend:
+    name: 前端构建
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 类型检查与构建
+        run: npm run build
