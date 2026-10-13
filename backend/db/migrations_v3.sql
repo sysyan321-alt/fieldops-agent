@@ -8,7 +8,9 @@ CREATE TABLE IF NOT EXISTS device_readings (
   reading_unit  VARCHAR(20) DEFAULT '',
   is_abnormal   BOOLEAN DEFAULT FALSE,
   recorded_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  tenant_id     VARCHAR(64) NOT NULL DEFAULT 'tenant_default',
   FOREIGN KEY (device_id) REFERENCES devices(device_id),
   FOREIGN KEY (site_id) REFERENCES sites(site_id)
 );
 CREATE INDEX IF NOT EXISTS idx_dr_site_time ON device_readings(site_id, recorded_at DESC);
+CREATE INDEX IF NOT EXISTS idx_dr_tenant ON device_readings(tenant_id);

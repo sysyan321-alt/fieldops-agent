@@ -79,6 +79,15 @@
 
 ### 修复
 
+- **启动迁移的执行顺序**：`run_migrations()` 原先把 `migrations_v3.sql` 的建表语句追加在
+  ALTER 补丁**之后**执行。对空库直接启动应用时，`ALTER TABLE device_readings ADD COLUMN
+  tenant_id` 会先于建表执行、失败后只记一条 warning 被吞掉，结果首启建出来的
+  `device_readings` 缺 `tenant_id` 列，要等下一次启动才补上——这期间设备上报写
+  `tenant_id` 会直接报错。现改为 v3 建表语句排在补丁之前，并在 `migrations_v3.sql` 里
+  补上 `tenant_id` 与租户索引，让这张表的 DDL 自成完整。
+- `scripts/init_db.sql` 文件头显式 `\set ON_ERROR_STOP on`：任何一条 DDL 失败都立刻中止，
+  而不是继续跑完留下一半的表（docker 入口脚本本身已按 `ON_ERROR_STOP=1` 执行本文件，
+  这里是为了让手工 `psql -f` 的调用方行为一致）。
 - **CI 后端流水线只起真正被依赖的服务**。原先会拉起 Milvus / etcd / minio，
   但这几个服务不参与任何用例——测试的真实依赖只有 PostgreSQL（`db_ready` 夹具）
   与 Redis（缓存用例），两者连不上时用例本来就会自动 skip。原实现里 2GB+ 的镜像拉取

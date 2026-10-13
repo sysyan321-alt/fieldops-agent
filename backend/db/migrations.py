@@ -194,12 +194,17 @@ def _load_v3_sql() -> list[str]:
 
 
 async def run_migrations():
-    """启动时执行所有幂等迁移。单条失败只记日志，不阻断应用启动。"""
+    """启动时执行所有幂等迁移。单条失败只记日志，不阻断应用启动。
+
+    顺序要求：v3 的建表语句必须排在对这些表做 ALTER 的补丁之前。
+    否则全新库首启时 `ALTER TABLE device_readings ADD COLUMN tenant_id` 会因表还不存在
+    而失败（被下面的 try 吞掉只记一条 warning），首启建出来的 device_readings 就缺
+    tenant_id 列——要等下一次启动才补上，这期间设备上报写 tenant_id 会直接报错。
+    """
     applied, skipped = 0, 0
-    for stmt in _load_v3_sql():
-        _MIGRATIONS.append(stmt)
+    statements = _load_v3_sql() + _MIGRATIONS
     async with AsyncSessionLocal() as session:
-        for stmt in _MIGRATIONS:
+        for stmt in statements:
             try:
                 await session.execute(text(stmt))
                 applied += 1
