@@ -72,11 +72,11 @@ Authorization: Bearer <access_token>
 
 ## 三、评估 Agent
 
-### POST /api/v1/assessment/upload?elder_id={elder_id}
+### POST /api/v1/assessment/upload?site_id={site_id}
 
 上传点位评估表 PDF，同步触发评估流程（5 维度并行评分 → 汇总 → 服务计划建议），结果落库 `assessment_results`。
 
-**请求**：`multipart/form-data`，字段 `file`（仅 .pdf）；`elder_id` 为 query 参数。
+**请求**：`multipart/form-data`，字段 `file`（仅 .pdf）；`site_id` 为 query 参数。
 
 **响应 200**
 
@@ -120,7 +120,7 @@ curl -H "Authorization: Bearer <token>" \
 ```json
 {
   "query": "配电间巡检要注意什么？",
-  "elder_id": "",
+  "site_id": "",
   "session_id": "",
   "org_id": null
 }
@@ -149,9 +149,9 @@ curl -H "Authorization: Bearer <token>" \
 
 ```json
 {
-  "elder_id": "elder-001",
+  "site_id": "elder-001",
   "device_id": "device-hr-01",
-  "alert_type": "heart_rate_abnormal",
+  "alert_type": "current_abnormal",
   "alert_timestamp": ""
 }
 ```
@@ -173,7 +173,7 @@ curl -H "Authorization: Bearer <token>" \
 
 ### 1b. POST /api/v1/alert/ingest — 接收业务系统 的报警记录（下行接入）
 
-角色：caregiver / supervisor / admin。业务系统 才是报警的权威源：SaaS 的
+角色：caregiver / supervisor / admin。业务系统 才是报警的权威源：业务系统 的
 业务系统的报警记录接口下发一条报警，本服务 研判后把处置结果经
 发件箱回传（payload 带 `external_alert_id`），由业务系统回写处置结果，形成双向闭环。
 
@@ -183,9 +183,9 @@ curl -H "Authorization: Bearer <token>" \
 {
   "external_alert_id": "W-20261013-001",
   "device_id": "dev-001",
-  "elder_id": "e001",
+  "site_id": "e001",
   "device_type": "智能床垫",
-  "alert_content": "检测到心率偏高 138bpm",
+  "alert_content": "检测到电流过载 320A",
   "location": "3号楼201-2床",
   "alert_time": "2026-10-13 16:00:00",
   "alert_type": ""
@@ -201,7 +201,7 @@ curl -H "Authorization: Bearer <token>" \
 {
   "alert_id": "alert-xxxxxxxxxxxx",
   "external_alert_id": "W-20261013-001",
-  "alert_type": "heart_rate_abnormal",
+  "alert_type": "current_abnormal",
   "source": "saas",
   "status": "awaiting_review",
   "review_data": { "...": "风险评估 + 四轨 + device_profile + evidence_quality" }
@@ -219,10 +219,10 @@ curl -H "Authorization: Bearer <token>" \
 
 ```json
 {
-  "alert_id": "...", "elder_id": "...", "device_id": "...",
+  "alert_id": "...", "site_id": "...", "device_id": "...",
   "alert_type": "...", "status": "...", "risk_level": "high",
   "risk_assessment": {},
-  "device_readings": [], "care_records": [], "health_indicators": [],
+  "device_readings": [], "service_records": [], "health_indicators": [],
   "device_profile": { "type_code": "mattress", "type_name": "智能床垫", "trust_level": 4 },
   "evidence_quality": "partial", "evidence_gaps": ["设备读数", "健康指标"],
   "source": "saas", "external_alert_id": "W-20261013-001", "location": "3号楼201-2床",
@@ -233,7 +233,7 @@ curl -H "Authorization: Bearer <token>" \
 
 ### 3. POST /api/v1/alert/{alert_id}/confirm — 值班主管确认
 
-角色：仅 supervisor / admin。恢复 interrupt 的图执行并派发工单（落库 `dispatch_orders`）；派单后落一条**出站事件**（`action=approve/modify` → `alert.dispatched`，`action=dismiss` → `alert.dismissed`）交给投递器回调 SaaS，见第六章「出站通知」。
+角色：仅 supervisor / admin。恢复 interrupt 的图执行并派发工单（落库 `dispatch_orders`）；派单后落一条**出站事件**（`action=approve/modify` → `alert.dispatched`，`action=dismiss` → `alert.dismissed`）交给投递器回调 业务系统，见第六章「出站通知」。
 
 **请求体**
 
@@ -265,30 +265,30 @@ curl -H "Authorization: Bearer <token>" \
 
 ### POST /api/v1/work-flow/start
 
-启动作业流程会话（阶段：入住评估→日常服务→阶段复评→出院评估；异常处理为日常服务内子模式，由关键词触发切换）。
+启动作业流程会话（阶段：建档评估→日常巡检→阶段复评→退场评估；异常处置为日常巡检内子模式，由关键词触发切换）。
 
 **请求体**
 
 ```json
 {
-  "elder_id": "elder-001",
-  "care_plan_id": "",
-  "initial_stage": "admission_assessment",
+  "site_id": "elder-001",
+  "service_plan_id": "",
+  "initial_stage": "onboarding_assessment",
   "discharge_order": null
 }
 ```
 
-- `discharge_order`：可选，**退住工单**（dict）——业务系统（SaaS）下发的"该点位办理退住/出院"指令，即"该点位确定要出院"这一业务事件的信号载体；状态机只判"有无"，不读内容。示例：
+- `discharge_order`：可选，**退场工单**（dict）——业务系统（业务系统）下发的"该点位办理退住/退场"指令，即"该点位确定要退场"这一业务事件的信号载体；状态机只判"有无"，不读内容。示例：
 
   ```json
   { "order_id": "DO-20261010-001", "reason": "家属申请接回居家服务", "issued_by": "saas" }
   ```
 
-  入住时若已确定要出院，可一并下发，作为 state 字段贯穿整场会话；收到工单后进入"收敛模式"——当前阶段达到最少轮数即收敛到阶段复评 → 出院评估主干道（不再开日常服务新循环）。`null`/省略 = 续住。
+  建档时若已确定要退场，可一并下发，作为 state 字段贯穿整场会话；收到工单后进入"收敛模式"——当前阶段达到最少轮数即收敛到阶段复评 → 退场评估主干道（不再开日常巡检新循环）。`null`/省略 = 续住。
 
-**响应 200**：`{session_id, current_stage, ai_message, structured_output}`；同时在 `care_flow_sessions` 登记会话（业务侧权威记录，供"继续未完成流程"查询）。报告只在流程走到 `finished` 时才由 `save_report` 节点落库 `care_flow_reports`（阶段复评不会触发——续住回日常服务、走出院评估都要继续对话）。
+**响应 200**：`{session_id, current_stage, ai_message, structured_output}`；同时在 `work_flow_sessions` 登记会话（业务侧权威记录，供"继续未完成流程"查询）。报告只在流程走到 `finished` 时才由 `save_report` 节点落库 `work_flow_reports`（阶段复评不会触发——续住回日常巡检、走退场评估都要继续对话）。
 
-### GET /api/v1/work-flow/active/{elder_id}
+### GET /api/v1/work-flow/active/{site_id}
 
 按点位查最近一场**进行中**的作业流程会话（租户隔离，无则 `active=false`）。
 
@@ -302,7 +302,7 @@ curl -H "Authorization: Bearer <token>" \
 ```json
 {
   "session_id": "cf-xxxx",
-  "elder_id": "e001",
+  "site_id": "e001",
   "plan_missing": false,
   "plan_source": "merged",
   "care_level": "介助",
@@ -343,9 +343,9 @@ curl -H "Authorization: Bearer <token>" \
 - `missed` 会进入服务历史的异常记录，供后续对话与阶段复评参考。
 - 回写的是**执行结果**（谁在什么时候做了/没做）这类事实数据；服务项目与频次等业务规则
   仍由业务侧决定，本服务 不改——两种 Provider 的落点不同（本地写 本服务 自己的
-  `daily_care_plans`，SaaS 实现调主系统接口）。
+  `daily_inspection_plans`，业务系统 实现调主系统接口）。
 
-**响应 200**：`{active: true, session: {session_id, elder_id, staff_id, current_stage, total_turns, started_at, updated_at}}`。
+**响应 200**：`{active: true, session: {session_id, site_id, staff_id, current_stage, total_turns, started_at, updated_at}}`。
 
 用途：作业人员从点位详情页进入时，前端先调这里；有进行中的会话就提示"继续原流程"，拿回 session_id 进入对话页即可命中检查点续跑，不依赖浏览器记住 URL。
 
@@ -361,22 +361,22 @@ curl -H "Authorization: Bearer <token>" \
 }
 ```
 
-- `discharge_order`：可选，**退住工单**（dict，含义同 `/start` 处说明——SaaS 下发的"该点位确定要出院"业务事件信号），可**每轮重新下发**，模拟 SaaS 任何时点推送。一旦送入即落进 checkpointer 跨轮持久，收到后进入"收敛模式"：当前阶段达到最少轮数即收敛到 复评 → 出院评估 主干道（异常子模式内暂缓）。要撤销已下发的工单需开个新会话（同 elder 重新 start）。
+- `discharge_order`：可选，**退场工单**（dict，含义同 `/start` 处说明——业务系统 下发的"该点位确定要退场"业务事件信号），可**每轮重新下发**，模拟 业务系统 任何时点推送。一旦送入即落进 checkpointer 跨轮持久，收到后进入"收敛模式"：当前阶段达到最少轮数即收敛到 复评 → 退场评估 主干道（异常子模式内暂缓）。要撤销已下发的工单需开个新会话（同 elder 重新 start）。
 
-服务端先按 `session_id` 从 `care_flow_sessions` 找回 `elder_id` 再拼 thread_id（保证与 `/start` 写入的检查点键一致）；每轮结束后把 `current_stage` / `total_turns` 同步回登记表，走到 `finished` 自动把会话置为完成。
+服务端先按 `session_id` 从 `work_flow_sessions` 找回 `site_id` 再拼 thread_id（保证与 `/start` 写入的检查点键一致）；每轮结束后把 `current_stage` / `total_turns` 同步回登记表，走到 `finished` 自动把会话置为完成。
 
 **SSE 事件序列**：`session` → `message` →（`report`）→ `done`
 
 | 事件 | data 字段 |
 |---|---|
 | `session` | `{session_id}` |
-| `message` | `{content, current_stage, daily_care_mode, total_turn_count}` |
+| `message` | `{content, current_stage, daily_inspection_mode, total_turn_count}` |
 | `report` | 流程到 `finished` 阶段时推送完整服务报告 |
 | `error` / `done` | 同通用约定 |
 
 ### POST /api/v1/work-flow/sessions/{session_id}/discharge-order
 
-SaaS **主动下发**退住工单到指定会话（无需作业人员发言）。与 MCP 工具 `/mcp/本服务-flow` 的 `send_discharge_order` 共用同一段落地逻辑（`backend/agents/care_flow/discharge.py`）。
+业务系统 **主动下发**退场工单到指定会话（无需作业人员发言）。与 MCP 工具 `/mcp/本服务-flow` 的 `send_discharge_order` 共用同一段落地逻辑（`backend/agents/work_flow/discharge.py`）。
 
 **请求体**：
 
@@ -384,29 +384,29 @@ SaaS **主动下发**退住工单到指定会话（无需作业人员发言）�
 { "order": { "order_type": "discharge", "reason": "转院" } }
 ```
 
-只更新该会话检查点里的 `state.discharge_order`（**不推进对话、不耗 LLM、不生成 AI 回复**）：作业人员下一次 `/chat` 时由 `check_stage_node` 识别，当前阶段达 min 即收敛到 复评 → 出院评估。
+只更新该会话检查点里的 `state.discharge_order`（**不推进对话、不耗 LLM、不生成 AI 回复**）：作业人员下一次 `/chat` 时由 `check_stage_node` 识别，当前阶段达 min 即收敛到 复评 → 退场评估。
 
-**响应 200**：`{found, session_id, elder_id, current_stage, status: "delivered", message}`；会话不存在 / 跨租户 / 已结束 → `404`。
+**响应 200**：`{found, session_id, site_id, current_stage, status: "delivered", message}`；会话不存在 / 跨租户 / 已结束 → `404`。
 
-### 出站通知（Agent → SaaS）：回调配置与事件审计
+### 出站通知（Agent → 业务系统）：回调配置与事件审计
 
-这是全项目统一的**下行通道**：Agent 链路的终态结果主动 POST 回 SaaS，而不是让业务系统轮询。当前接入两个来源（共用一张发件箱表）：
+这是全项目统一的**下行通道**：Agent 链路的终态结果主动 POST 回 业务系统，而不是让业务系统轮询。当前接入两个来源（共用一张发件箱表）：
 
 | 来源 | 事件类型 | 幂等键 | 触发点 |
 |---|---|---|---|
-| 作业流程 | `care_flow.finished` | `session_id` | `save_report` 节点（报告落库后） |
+| 作业流程 | `work_flow.finished` | `session_id` | `save_report` 节点（报告落库后） |
 | 告警研判 | `alert.dispatched` / `alert.dismissed` | `order_id` | `dispatch_order` 节点（值班主管确认后） |
 
 投递走**发件箱模式**：事件先落 `outbound_events`，由后台投递器异步 POST，失败按指数退避重试。
 
-`care_flow.finished` 载荷示例：
+`work_flow.finished` 载荷示例：
 
 ```json
 {
-  "event": "care_flow.finished",
+  "event": "work_flow.finished",
   "session_id": "cf-xxxx",
-  "elder_id": "e001",
-  "care_plan_id": "plan-1",
+  "site_id": "e001",
+  "service_plan_id": "plan-1",
   "stage_reached": "finished",
   "total_turns": 18,
   "discharge_driven": true,
@@ -422,7 +422,7 @@ SaaS **主动下发**退住工单到指定会话（无需作业人员发言）�
 {
   "event": "alert.dispatched",
   "alert_id": "alert-xxxx",
-  "elder_id": "e001",
+  "site_id": "e001",
   "order_id": "order-xxxx",
   "device_id": "dev-001",
   "alert_type": "fall",
@@ -439,7 +439,7 @@ SaaS **主动下发**退住工单到指定会话（无需作业人员发言）�
 
 | 头 | 说明 |
 |---|---|
-| `X-CareAgent-Event` | 事件类型，如 `care_flow.finished` |
+| `X-CareAgent-Event` | 事件类型，如 `work_flow.finished` |
 | `X-CareAgent-Event-Id` | 事件 ID，**消费端用它做幂等去重**（投递语义是「至少一次」） |
 | `X-CareAgent-Delivery-Attempt` | 这是第几次投递 |
 | `X-CareAgent-Timestamp` | 发送时间（Unix 秒，供消费端防重放） |
@@ -471,7 +471,7 @@ SaaS **主动下发**退住工单到指定会话（无需作业人员发言）�
 
 ### GET /api/v1/work-flow/{session_id}/report
 
-查询服务评估报告（直读 `care_flow_reports`，租户隔离）。响应含 `report`（完整报告）、`stage_reached`、`total_turns` 等。
+查询服务评估报告（直读 `work_flow_reports`，租户隔离）。响应含 `report`（完整报告）、`stage_reached`、`total_turns` 等。
 
 ### GET /api/v1/work-flow/{session_id}/report/export
 
@@ -490,7 +490,7 @@ SaaS **主动下发**退住工单到指定会话（无需作业人员发言）�
 ```json
 {
   "query": "帮点位李四做一次跌倒风险评估",
-  "elder_id": "elder-001",
+  "site_id": "elder-001",
   "session_id": "",
   "agent_type": null,
   "mode": "single",
@@ -498,7 +498,7 @@ SaaS **主动下发**退住工单到指定会话（无需作业人员发言）�
 }
 ```
 
-- `agent_type`：`assessment` / `sop_qa` / `alert` / `care_flow`；`null` = LLM 意图识别自动路由
+- `agent_type`：`assessment` / `sop_qa` / `alert` / `work_flow`；`null` = LLM 意图识别自动路由
 - `mode`：`single`（单 Agent） / `pipeline`（需同时传 `pipeline`，如 `care_workflow`：评估→作业流程）
 
 **SSE 事件序列**：`session` → (`clarify` | `answer`) → `done`
@@ -508,7 +508,7 @@ SaaS **主动下发**退住工单到指定会话（无需作业人员发言）�
 | `clarify` | `{candidates[], message, reasoning, query}` — 意图跨域无法判定时返回候选，前端引导用户二选一 |
 | `answer` | `{content, agent_type, mode, structured_output, fallback_used}` |
 
-### DELETE /api/v1/chat/session/{elder_id}/{session_id}
+### DELETE /api/v1/chat/session/{site_id}/{session_id}
 
 删除整个会话线程的检查点：该 `thread_id` 下的 **所有** `checkpoints` / `checkpoint_blobs` / `checkpoint_writes`
 一次清空，包含各 Agent 命名空间与**暂停中的 interrupt 断点**（告警等待值班主管确认的状态也在内）。
@@ -520,7 +520,7 @@ SaaS **主动下发**退住工单到指定会话（无需作业人员发言）�
 
 | 项 | 说明 |
 |---|---|
-| 路径参数 | `elder_id`、`session_id`（会话标识，告警场景即 `alert_id`） |
+| 路径参数 | `site_id`、`session_id`（会话标识，告警场景即 `alert_id`） |
 | 成功响应 | `{thread_id, deleted, backend, message}` |
 | 没跑过的会话 | `deleted=false`，不报错（幂等） |
 | 典型错误码 | `401` 未带令牌 / `403` 非 admin / `404` 点位不存在或跨租户 |
@@ -613,13 +613,13 @@ curl -X POST http://localhost:8000/api/v1/knowledge/search \
 
 ```json
 {
-  "elder_id": "elder-001",
-  "device_type": "心率带",
+  "site_id": "elder-001",
+  "device_type": "配电监测",
   "readings": [
     {
-      "metric_name": "heart_rate",
-      "reading_value": "128",
-      "reading_unit": "bpm",
+      "metric_name": "current",
+      "reading_value": "320",
+      "reading_unit": "A",
       "is_abnormal": true,
       "recorded_at": "2026-09-18T10:30:00"
     }
@@ -629,7 +629,7 @@ curl -X POST http://localhost:8000/api/v1/knowledge/search \
 
 **响应 200**：`{"device_id": "...", "saved": 3}`；点位跨租户 → 403；点位/设备不存在时自动补占位行（归属当前租户）。
 
-### GET /api/v1/devices/elder/{elder_id}/readings?limit=10
+### GET /api/v1/devices/elder/{site_id}/readings?limit=10
 
 查询点位最近设备读数（租户隔离，跨租户返回空列表）。响应：`{"readings": [...]}`。
 
@@ -659,10 +659,10 @@ curl -N -X POST http://localhost:8000/api/v1/sop-qa/chat \
 # IoT 上报读数
 curl -X POST http://localhost:8000/api/v1/devices/device-hr-01/readings \
   -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
-  -d '{"elder_id":"elder-001","device_type":"心率带","readings":[{"metric_name":"heart_rate","reading_value":"128","reading_unit":"bpm","is_abnormal":true}]}'
+  -d '{"site_id":"elder-001","device_type":"配电监测","readings":[{"metric_name":"current","reading_value":"320","reading_unit":"A","is_abnormal":true}]}'
 
 # 触发告警（caregiver 可）
 curl -X POST http://localhost:8000/api/v1/alert/trigger \
   -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
-  -d '{"elder_id":"elder-001","device_id":"device-hr-01","alert_type":"heart_rate_abnormal"}'
+  -d '{"site_id":"elder-001","device_id":"device-hr-01","alert_type":"current_abnormal"}'
 ```

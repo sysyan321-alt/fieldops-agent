@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-13T18:13:07+08:00",
+  "generated_at": "2026-10-13T21:03:08+08:00",
   "base_url": "http://127.0.0.1:8099/mcp",
   "note": "由 scripts/dump_mcp_tools.py 自动生成；工具定义变更后请重新导出并提交。",
   "servers": {
@@ -118,19 +118,19 @@
         }
       ]
     },
-    "本服务-data": {
+    "service-data": {
       "cn_name": "服务数据查询",
-      "endpoint": "http://127.0.0.1:8099/mcp/本服务-data/mcp",
+      "endpoint": "http://127.0.0.1:8099/mcp/service-data/mcp",
       "auth": "无（只读）",
       "tool_count": 8,
       "tools": [
         {
-          "name": "get_elder_profile",
-          "description": "查询点位基本档案（含当前服务计划与绑定设备）。\n\n    Args:\n        elder_id:  点位 ID（如 e001）\n        tenant_id: 租户 ID，必填\n\n    Returns:\n        点位信息 + 服务计划 + 设备列表；点位不存在或跨租户时返回 {\"found\": false}\n    ",
+          "name": "get_site_profile",
+          "description": "查询点位基本档案（含当前服务计划与绑定设备）。\n\n    Args:\n        site_id:  点位 ID（如 s001）\n        tenant_id: 租户 ID，必填\n\n    Returns:\n        点位信息 + 服务计划 + 设备列表；点位不存在或跨租户时返回 {\"found\": false}\n    ",
           "inputSchema": {
             "properties": {
-              "elder_id": {
-                "title": "Elder Id",
+              "site_id": {
+                "title": "Site Id",
                 "type": "string"
               },
               "tenant_id": {
@@ -139,20 +139,20 @@
               }
             },
             "required": [
-              "elder_id",
+              "site_id",
               "tenant_id"
             ],
-            "title": "get_elder_profileArguments",
+            "title": "get_site_profileArguments",
             "type": "object"
           }
         },
         {
-          "name": "get_recent_care_records",
-          "description": "查询点位最近的服务记录（告警研判四轨中的第二轨）。\n\n    Args:\n        elder_id:  点位 ID\n        tenant_id: 租户 ID，必填\n        limit:     返回条数，默认 8\n    ",
+          "name": "get_recent_service_records",
+          "description": "查询点位最近的服务记录（告警研判四轨中的第二轨）。\n\n    Args:\n        site_id:  点位 ID\n        tenant_id: 租户 ID，必填\n        limit:     返回条数，默认 8\n    ",
           "inputSchema": {
             "properties": {
-              "elder_id": {
-                "title": "Elder Id",
+              "site_id": {
+                "title": "Site Id",
                 "type": "string"
               },
               "tenant_id": {
@@ -166,10 +166,10 @@
               }
             },
             "required": [
-              "elder_id",
+              "site_id",
               "tenant_id"
             ],
-            "title": "get_recent_care_recordsArguments",
+            "title": "get_recent_service_recordsArguments",
             "type": "object"
           },
           "outputSchema": {
@@ -186,17 +186,17 @@
             "required": [
               "result"
             ],
-            "title": "get_recent_care_recordsOutput",
+            "title": "get_recent_service_recordsOutput",
             "type": "object"
           }
         },
         {
           "name": "get_recent_health_indicators",
-          "description": "查询点位最近健康指标（告警研判四轨中的第三轨）。\n\n    Args:\n        elder_id:  点位 ID\n        tenant_id: 租户 ID，必填\n        limit:     返回条数，默认 8\n    ",
+          "description": "查询点位最近健康指标（告警研判四轨中的第三轨）。\n\n    Args:\n        site_id:  点位 ID\n        tenant_id: 租户 ID，必填\n        limit:     返回条数，默认 8\n    ",
           "inputSchema": {
             "properties": {
-              "elder_id": {
-                "title": "Elder Id",
+              "site_id": {
+                "title": "Site Id",
                 "type": "string"
               },
               "tenant_id": {
@@ -210,7 +210,7 @@
               }
             },
             "required": [
-              "elder_id",
+              "site_id",
               "tenant_id"
             ],
             "title": "get_recent_health_indicatorsArguments",
@@ -236,11 +236,11 @@
         },
         {
           "name": "get_recent_device_readings",
-          "description": "查询点位最近设备读数（告警研判四轨中的第一轨）。\n\n    Args:\n        elder_id:  点位 ID\n        tenant_id: 租户 ID，必填\n        limit:     返回条数，默认 10\n    ",
+          "description": "查询点位最近设备读数（告警研判四轨中的第一轨）。\n\n    Args:\n        site_id:  点位 ID\n        tenant_id: 租户 ID，必填\n        limit:     返回条数，默认 10\n    ",
           "inputSchema": {
             "properties": {
-              "elder_id": {
-                "title": "Elder Id",
+              "site_id": {
+                "title": "Site Id",
                 "type": "string"
               },
               "tenant_id": {
@@ -254,7 +254,7 @@
               }
             },
             "required": [
-              "elder_id",
+              "site_id",
               "tenant_id"
             ],
             "title": "get_recent_device_readingsArguments",
@@ -280,14 +280,14 @@
         },
         {
           "name": "list_alerts",
-          "description": "查询告警列表（按时间倒序），可按点位过滤。\n\n    Args:\n        tenant_id: 租户 ID，必填\n        elder_id:  可选，只看某位点位\n        limit:     返回条数，默认 10\n    ",
+          "description": "查询告警列表（按时间倒序），可按点位过滤。\n\n    Args:\n        tenant_id: 租户 ID，必填\n        site_id:  可选，只看某位点位\n        limit:     返回条数，默认 10\n    ",
           "inputSchema": {
             "properties": {
               "tenant_id": {
                 "title": "Tenant Id",
                 "type": "string"
               },
-              "elder_id": {
+              "site_id": {
                 "anyOf": [
                   {
                     "type": "string"
@@ -297,7 +297,7 @@
                   }
                 ],
                 "default": null,
-                "title": "Elder Id"
+                "title": "Site Id"
               },
               "limit": {
                 "default": 10,
@@ -330,12 +330,12 @@
           }
         },
         {
-          "name": "list_elder_service_items",
-          "description": "查询该点位当前生效的服务项（要做什么、多久做一次、作业时间窗、是否必选）。\n\n    Args:\n        elder_id:  点位 ID\n        tenant_id: 租户 ID，必填\n\n    Returns:\n        {\"found\": bool, \"items\": [...]}；没有登记过服务项时 items 为空数组\n        （表示\"该点位还没有服务计划\"，调用方应引导先做评估或登记服务项）\n    ",
+          "name": "list_site_service_items",
+          "description": "查询该点位当前生效的服务项（要做什么、多久做一次、作业时间窗、是否必选）。\n\n    Args:\n        site_id:  点位 ID\n        tenant_id: 租户 ID，必填\n\n    Returns:\n        {\"found\": bool, \"items\": [...]}；没有登记过服务项时 items 为空数组\n        （表示\"该点位还没有服务计划\"，调用方应引导先做评估或登记服务项）\n    ",
           "inputSchema": {
             "properties": {
-              "elder_id": {
-                "title": "Elder Id",
+              "site_id": {
+                "title": "Site Id",
                 "type": "string"
               },
               "tenant_id": {
@@ -344,20 +344,20 @@
               }
             },
             "required": [
-              "elder_id",
+              "site_id",
               "tenant_id"
             ],
-            "title": "list_elder_service_itemsArguments",
+            "title": "list_site_service_itemsArguments",
             "type": "object"
           }
         },
         {
-          "name": "list_care_level_configs",
-          "description": "按风险等级查询可用的服务项目（业务系统提供「该等级允许做什么」）。\n\n    用途：评估给出风险等级后，先看这个等级\"允许做哪些服务\"，再决定给点位挂哪些；\n    AI 可以在可选集合内推荐，但不能新增集合外的服务。\n\n    Args:\n        care_level:    风险等级，如 自理 / 介助 / 介护\n        tenant_id:     租户 ID，必填\n        required_only: True 只返回必选项\n    ",
+          "name": "list_service_tier_configs",
+          "description": "按风险等级查询可用的服务项目（业务系统提供「该等级允许做什么」）。\n\n    用途：评估给出风险等级后，先看这个等级\"允许做哪些服务\"，再决定给点位挂哪些；\n    AI 可以在可选集合内推荐，但不能新增集合外的服务。\n\n    Args:\n        risk_tier:    风险等级，如 三级 / 二级 / 一级\n        tenant_id:     租户 ID，必填\n        required_only: True 只返回必选项\n    ",
           "inputSchema": {
             "properties": {
-              "care_level": {
-                "title": "Care Level",
+              "risk_tier": {
+                "title": "Risk Tier",
                 "type": "string"
               },
               "tenant_id": {
@@ -371,10 +371,10 @@
               }
             },
             "required": [
-              "care_level",
+              "risk_tier",
               "tenant_id"
             ],
-            "title": "list_care_level_configsArguments",
+            "title": "list_service_tier_configsArguments",
             "type": "object"
           },
           "outputSchema": {
@@ -391,17 +391,17 @@
             "required": [
               "result"
             ],
-            "title": "list_care_level_configsOutput",
+            "title": "list_service_tier_configsOutput",
             "type": "object"
           }
         },
         {
-          "name": "get_today_care_plan",
-          "description": "查询点位**当天**的服务计划与执行进度（今天还剩哪几项没做）。\n\n    注意：生成规则属于业务侧。本地 Provider 下\n    该工具会按服务项展开当天条目（演示/离线用），SaaS Provider 下读主系统的当天计划。\n\n    Args:\n        elder_id:  点位 ID\n        tenant_id: 租户 ID，必填\n\n    Returns:\n        {\"elder_id\", \"plan\": [...含 status/done|missed|planned...], \"progress\": {...}}\n    ",
+          "name": "get_today_service_plan",
+          "description": "查询点位**当天**的服务计划与执行进度（今天还剩哪几项没做）。\n\n    注意：生成规则属于业务侧。本地 Provider 下\n    该工具会按服务项展开当天条目（演示/离线用），SaaS Provider 下读主系统的当天计划。\n\n    Args:\n        site_id:  点位 ID\n        tenant_id: 租户 ID，必填\n\n    Returns:\n        {\"site_id\", \"plan\": [...含 status/done|missed|planned...], \"progress\": {...}}\n    ",
           "inputSchema": {
             "properties": {
-              "elder_id": {
-                "title": "Elder Id",
+              "site_id": {
+                "title": "Site Id",
                 "type": "string"
               },
               "tenant_id": {
@@ -410,10 +410,10 @@
               }
             },
             "required": [
-              "elder_id",
+              "site_id",
               "tenant_id"
             ],
-            "title": "get_today_care_planArguments",
+            "title": "get_today_service_planArguments",
             "type": "object"
           }
         }
@@ -563,11 +563,11 @@
       "tools": [
         {
           "name": "trigger_alert",
-          "description": "触发告警研判（跑四轨采集 + 风险评估，图会在值班主管审核处暂停）。\n\n    对应 REST：POST /api/v1/alert/trigger\n\n    Args:\n        elder_id:        点位 ID\n        device_id:       触发告警的设备 ID\n        tenant_id:       租户 ID，必填且必须在 MCP_WRITE_TENANTS 白名单内\n        alert_type:      告警类型：heart_rate_abnormal / off_bed_timeout /\n                         fall_detected / room_temp_abnormal\n        alert_timestamp: 告警时间（可选，ISO 字符串）\n\n    Returns:\n        {alert_id, session_id, status=\"awaiting_review\", review_data}\n        review_data 内含风险评估与四轨采集结果，可直接展示给值班主管审核。\n    ",
+          "description": "触发告警研判（跑四轨采集 + 风险评估，图会在值班主管审核处暂停）。\n\n    对应 REST：POST /api/v1/alert/trigger\n\n    Args:\n        site_id:        点位 ID\n        device_id:       触发告警的设备 ID\n        tenant_id:       租户 ID，必填且必须在 MCP_WRITE_TENANTS 白名单内\n        alert_type:      告警类型：heart_rate_abnormal / off_bed_timeout /\n                         fall_detected / room_temp_abnormal\n        alert_timestamp: 告警时间（可选，ISO 字符串）\n\n    Returns:\n        {alert_id, session_id, status=\"awaiting_review\", review_data}\n        review_data 内含风险评估与四轨采集结果，可直接展示给值班主管审核。\n    ",
           "inputSchema": {
             "properties": {
-              "elder_id": {
-                "title": "Elder Id",
+              "site_id": {
+                "title": "Site Id",
                 "type": "string"
               },
               "device_id": {
@@ -590,7 +590,7 @@
               }
             },
             "required": [
-              "elder_id",
+              "site_id",
               "device_id",
               "tenant_id"
             ],
@@ -714,32 +714,32 @@
         }
       ]
     },
-    "本服务-flow": {
+    "work-flow": {
       "cn_name": "作业流程",
       "endpoint": "http://127.0.0.1:8099/mcp/work-flow/mcp",
       "auth": "Bearer Token",
       "tool_count": 5,
       "tools": [
         {
-          "name": "start_care_flow",
-          "description": "启动一场作业流程会话（入住评估 → 日常服务 → 阶段复评 → 出院评估）。\n\n    对应 REST：POST /api/v1/work-flow/start\n\n    Args:\n        elder_id:        点位 ID\n        tenant_id:       租户 ID，必填且必须在 MCP_WRITE_TENANTS 白名单内\n        care_plan_id:    服务计划 ID（可选）\n        initial_stage:   起始阶段，默认 admission_assessment\n        discharge_order: 可选退住工单（入住时已知要出院可一并下发）\n\n    Returns:\n        {session_id, current_stage, ai_message}\n    ",
+          "name": "start_work_flow",
+          "description": "启动一场作业流程会话（建档评估 → 日常巡检 → 阶段复评 → 退场评估）。\n\n    对应 REST：POST /api/v1/work-flow/start\n\n    Args:\n        site_id:        点位 ID\n        tenant_id:       租户 ID，必填且必须在 MCP_WRITE_TENANTS 白名单内\n        service_plan_id:    服务计划 ID（可选）\n        initial_stage:   起始阶段，默认 onboarding_assessment\n        discharge_order: 可选退住工单（入住时已知要出院可一并下发）\n\n    Returns:\n        {session_id, current_stage, ai_message}\n    ",
           "inputSchema": {
             "properties": {
-              "elder_id": {
-                "title": "Elder Id",
+              "site_id": {
+                "title": "Site Id",
                 "type": "string"
               },
               "tenant_id": {
                 "title": "Tenant Id",
                 "type": "string"
               },
-              "care_plan_id": {
+              "service_plan_id": {
                 "default": "",
-                "title": "Care Plan Id",
+                "title": "Service Plan Id",
                 "type": "string"
               },
               "initial_stage": {
-                "default": "admission_assessment",
+                "default": "onboarding_assessment",
                 "title": "Initial Stage",
                 "type": "string"
               },
@@ -758,16 +758,16 @@
               }
             },
             "required": [
-              "elder_id",
+              "site_id",
               "tenant_id"
             ],
-            "title": "start_care_flowArguments",
+            "title": "start_work_flowArguments",
             "type": "object"
           }
         },
         {
           "name": "send_discharge_order",
-          "description": "向进行中的作业流程会话下发退住工单（SaaS 主动通知）。\n\n    对应 REST：POST /api/v1/work-flow/sessions/{session_id}/discharge-order\n\n    只更新该会话检查点里的 state.discharge_order，**不推进对话**：作业人员下一次发言时，\n    check_stage_node 会识别工单并触发阶段收敛（当前阶段达 min 即并入 复评 → 出院评估）。\n\n    Args:\n        session_id: 作业流程会话 ID（由 start_care_flow 或 GET /active/{elder_id} 获得）\n        tenant_id:  租户 ID，必填且必须在白名单内\n        order:      退住工单 dict，如 {\"order_type\": \"discharge\", \"reason\": \"转院\"}\n\n    Returns:\n        {found, session_id, status, message}；found=False 表示会话不存在/跨租户/已结束。\n    ",
+          "description": "向进行中的作业流程会话下发退住工单（SaaS 主动通知）。\n\n    对应 REST：POST /api/v1/work-flow/sessions/{session_id}/discharge-order\n\n    只更新该会话检查点里的 state.discharge_order，**不推进对话**：作业人员下一次发言时，\n    check_stage_node 会识别工单并触发阶段收敛（当前阶段达 min 即并入 复评 → 退场评估）。\n\n    Args:\n        session_id: 作业流程会话 ID（由 start_work_flow 或 GET /active/{site_id} 获得）\n        tenant_id:  租户 ID，必填且必须在白名单内\n        order:      退住工单 dict，如 {\"order_type\": \"discharge\", \"reason\": \"转院\"}\n\n    Returns:\n        {found, session_id, status, message}；found=False 表示会话不存在/跨租户/已结束。\n    ",
           "inputSchema": {
             "properties": {
               "session_id": {
@@ -794,7 +794,7 @@
           }
         },
         {
-          "name": "get_care_flow_status",
+          "name": "get_work_flow_status",
           "description": "查询作业流程会话的当前状态（阶段 / 轮数 / 是否进行中）。\n\n    Args:\n        session_id: 作业流程会话 ID\n        tenant_id:  租户 ID，必填\n\n    Returns:\n        会话状态；会话不存在或跨租户时返回 {\"found\": false}\n    ",
           "inputSchema": {
             "properties": {
@@ -811,12 +811,12 @@
               "session_id",
               "tenant_id"
             ],
-            "title": "get_care_flow_statusArguments",
+            "title": "get_work_flow_statusArguments",
             "type": "object"
           }
         },
         {
-          "name": "get_care_flow_report",
+          "name": "get_work_flow_report",
           "description": "取出院/服务评估报告（流程走到 finished 时生成）。\n\n    对应 REST：GET /api/v1/work-flow/{session_id}/report\n\n    Args:\n        session_id: 作业流程会话 ID\n        tenant_id:  租户 ID，必填\n\n    Returns:\n        报告内容；未生成或跨租户时返回 {\"found\": false}\n    ",
           "inputSchema": {
             "properties": {
@@ -833,13 +833,13 @@
               "session_id",
               "tenant_id"
             ],
-            "title": "get_care_flow_reportArguments",
+            "title": "get_work_flow_reportArguments",
             "type": "object"
           }
         },
         {
-          "name": "confirm_care_plan_item",
-          "description": "护工确认某项服务任务执行完成（回写执行结果）。\n\n    对应 REST：POST /api/v1/work-flow/plan-items/{plan_item_id}/confirm\n    对齐业务系统侧的执行结果回写接口。\n\n    这里回写的是**执行结果**这类事实数据（谁在什么时候做了/没做），\n    不是业务规则——服务项目与频次仍由业务侧决定，本服务 不改。\n    漏做（status=missed）会进入服务历史的异常记录，供下一轮对话与复评参考。\n\n    Args:\n        plan_item_id:     计划条目 ID（来自 get_today_care_plan）\n        tenant_id:        租户 ID，必填且必须在白名单内\n        status:           done=已完成 / missed=该做没做\n        carer_name:       执行人姓名（便于审计，可空）\n        actual_work_time: 实际执行时间，如 \"08:05\"\n\n    Returns:\n        {confirmed, plan_item_id, status}；条目不存在或跨租户时 confirmed=False\n    ",
+          "name": "confirm_service_plan_item",
+          "description": "护工确认某项服务任务执行完成（回写执行结果）。\n\n    对应 REST：POST /api/v1/work-flow/plan-items/{plan_item_id}/confirm\n    对齐业务系统侧的执行结果回写接口。\n\n    这里回写的是**执行结果**这类事实数据（谁在什么时候做了/没做），\n    不是业务规则——服务项目与频次仍由业务侧决定，本服务 不改。\n    漏做（status=missed）会进入服务历史的异常记录，供下一轮对话与复评参考。\n\n    Args:\n        plan_item_id:     计划条目 ID（来自 get_today_service_plan）\n        tenant_id:        租户 ID，必填且必须在白名单内\n        status:           done=已完成 / missed=该做没做\n        worker_name:       执行人姓名（便于审计，可空）\n        actual_work_time: 实际执行时间，如 \"08:05\"\n\n    Returns:\n        {confirmed, plan_item_id, status}；条目不存在或跨租户时 confirmed=False\n    ",
           "inputSchema": {
             "properties": {
               "plan_item_id": {
@@ -855,14 +855,14 @@
                 "title": "Status",
                 "type": "string"
               },
-              "carer_name": {
+              "worker_name": {
                 "default": "",
-                "title": "Carer Name",
+                "title": "Worker Name",
                 "type": "string"
               },
               "actual_work_time": {
                 "default": "",
-                "title": "Actual Care Time",
+                "title": "Actual Work Time",
                 "type": "string"
               }
             },
@@ -870,7 +870,7 @@
               "plan_item_id",
               "tenant_id"
             ],
-            "title": "confirm_care_plan_itemArguments",
+            "title": "confirm_service_plan_itemArguments",
             "type": "object"
           }
         }

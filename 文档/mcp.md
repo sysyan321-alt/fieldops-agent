@@ -17,7 +17,7 @@
 | 联网搜索 | `/mcp/web-search` | 知识库覆盖不到时搜互联网（Tavily → DuckDuckGo 兜底） | 1（只读） | 无 | 8013 |
 | 知识库管理 | `/mcp/sop-kb-admin` | 导入/更新 SOP 文档、删除文档、重建集合 | 3（写） | Bearer Token | 8015 |
 | 告警触发与派单 | `/mcp/alert-ops` | 触发告警研判、读审核数据、值班主管确认派工单、列待审核告警 | 4（写） | Bearer Token | 8014 |
-| 作业流程 | `/mcp/本服务-flow` | 启动作业流程、下发退住工单、查会话状态、取报告 | 4（写） | Bearer Token | 8016 |
+| 作业流程 | `/mcp/本服务-flow` | 启动作业流程、下发退场工单、查会话状态、取报告 | 4（写） | Bearer Token | 8016 |
 
 独立运行（`python -m backend.mcp.sop_kb_server`）只建议在需要单独扩缩容时使用：BGE-M3 与 BGE-Reranker 是进程内单例，各约占 2-3GB，拆进程会各加载一份，内存翻倍。
 
@@ -40,11 +40,11 @@
 
 | 工具 | 参数 | 返回 | 包装的现有代码 |
 |---|---|---|---|
-| `get_elder_profile`（查点位档案） | `elder_id`、`tenant_id` | 点位信息 + 最近服务计划 + 绑定设备 | `elders` / `care_plans` / `devices` |
-| `get_recent_care_records`（查服务记录） | `elder_id`、`tenant_id`、`limit=8` | 最近服务记录（告警第二轨） | `backend/db/iot_repo.py` |
-| `get_recent_health_indicators`（查健康指标） | `elder_id`、`tenant_id`、`limit=8` | 最近健康指标（告警第四轨） | `backend/db/iot_repo.py` |
-| `get_recent_device_readings`（查设备读数） | `elder_id`、`tenant_id`、`limit=10` | 最近设备读数（告警第一轨） | `backend/db/iot_repo.py` |
-| `list_alerts`（查告警列表） | `tenant_id`、`elder_id?`、`limit=10` | 告警列表（时间倒序） | `alerts` 查询 |
+| `get_site_profile`（查点位档案） | `site_id`、`tenant_id` | 点位信息 + 最近服务计划 + 绑定设备 | `elders` / `service_plans` / `devices` |
+| `get_recent_service_records`（查服务记录） | `site_id`、`tenant_id`、`limit=8` | 最近服务记录（告警第二轨） | `backend/db/iot_repo.py` |
+| `get_recent_health_indicators`（查健康指标） | `site_id`、`tenant_id`、`limit=8` | 最近健康指标（告警第四轨） | `backend/db/iot_repo.py` |
+| `get_recent_device_readings`（查设备读数） | `site_id`、`tenant_id`、`limit=10` | 最近设备读数（告警第一轨） | `backend/db/iot_repo.py` |
+| `list_alerts`（查告警列表） | `tenant_id`、`site_id?`、`limit=10` | 告警列表（时间倒序） | `alerts` 查询 |
 
 ### 只读 · 联网搜索（`web-search`）
 
@@ -64,7 +64,7 @@
 
 | 工具 | 参数 | 对应 REST |
 |---|---|---|
-| `trigger_alert`（触发告警研判） | `elder_id`、`device_id`、`tenant_id`、`alert_type`、`alert_timestamp?` | `POST /api/v1/alert/trigger`：跑四轨采集 + 风险评估，在值班主管审核处暂停 |
+| `trigger_alert`（触发告警研判） | `site_id`、`device_id`、`tenant_id`、`alert_type`、`alert_timestamp?` | `POST /api/v1/alert/trigger`：跑四轨采集 + 风险评估，在值班主管审核处暂停 |
 | `get_alert_review_data`（读审核数据） | `alert_id`、`tenant_id` | `GET /api/v1/alert/{id}/review` |
 | `confirm_alert`（值班主管确认派单） | `alert_id`、`tenant_id`、`action`、`modified_actions?`、`comment?`、`supervisor_id?` | `POST /api/v1/alert/{id}/confirm`：恢复图执行并派发工单 |
 | `list_pending_alerts`（列待审核告警） | `tenant_id`、`limit=10` | 列出 `status=reviewing` 的告警（MCP 新增能力） |
@@ -73,12 +73,12 @@
 
 | 工具 | 参数 | 对应 REST |
 |---|---|---|
-| `start_care_flow`（启动作业流程） | `elder_id`、`tenant_id`、`care_plan_id?`、`initial_stage?`、`discharge_order?` | `POST /api/v1/work-flow/start` |
-| `send_discharge_order`（下发退住工单） | `session_id`、`tenant_id`、`order`（dict） | `POST /api/v1/work-flow/sessions/{sid}/discharge-order` |
-| `get_care_flow_status`（查会话状态） | `session_id`、`tenant_id` | `GET /api/v1/work-flow/active/{elder_id}` |
-| `get_care_flow_report`（取报告） | `session_id`、`tenant_id` | `GET /api/v1/work-flow/{sid}/report` |
+| `start_work_flow`（启动作业流程） | `site_id`、`tenant_id`、`service_plan_id?`、`initial_stage?`、`discharge_order?` | `POST /api/v1/work-flow/start` |
+| `send_discharge_order`（下发退场工单） | `session_id`、`tenant_id`、`order`（dict） | `POST /api/v1/work-flow/sessions/{sid}/discharge-order` |
+| `get_work_flow_status`（查会话状态） | `session_id`、`tenant_id` | `GET /api/v1/work-flow/active/{site_id}` |
+| `get_work_flow_report`（取报告） | `session_id`、`tenant_id` | `GET /api/v1/work-flow/{sid}/report` |
 
-> 与 `alert-ops` 的差异：告警是"无状态一次性触发"（`trigger_alert` 新建 `alert_id` 再跑图）；作业流程是"有状态多轮会话"，所以 `send_discharge_order` **只往已有 thread 的检查点写 `state.discharge_order`，不跑图、不耗 LLM**，等作业人员下一次对话时由 `check_stage_node` 识别并触发阶段收敛（复评 → 出院评估）。MCP 与 REST 两个入口共用 `backend/agents/care_flow/discharge.py:deliver_discharge_order`，落地逻辑只有一份。
+> 与 `alert-ops` 的差异：告警是"无状态一次性触发"（`trigger_alert` 新建 `alert_id` 再跑图）；作业流程是"有状态多轮会话"，所以 `send_discharge_order` **只往已有 thread 的检查点写 `state.discharge_order`，不跑图、不耗 LLM**，等作业人员下一次对话时由 `check_stage_node` 识别并触发阶段收敛（复评 → 退场评估）。MCP 与 REST 两个入口共用 `backend/agents/work_flow/discharge.py:deliver_discharge_order`，落地逻辑只有一份。
 
 ## 三、鉴权与安全
 
@@ -110,8 +110,8 @@ curl（原生 JSON-RPC，stateless 调用无需握手）：
 curl -s -X POST http://localhost:8000/mcp/本服务-data/mcp \
   -H 'Content-Type: application/json' -H 'Accept: application/json' \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{
-        "name":"get_elder_profile",
-        "arguments":{"elder_id":"e001","tenant_id":"tenant_default"}}}'
+        "name":"get_site_profile",
+        "arguments":{"site_id":"e001","tenant_id":"tenant_default"}}}'
 
 # 写：触发告警（需 Token）
 curl -s -X POST http://localhost:8000/mcp/alert-ops/mcp \
@@ -119,7 +119,7 @@ curl -s -X POST http://localhost:8000/mcp/alert-ops/mcp \
   -H "Authorization: Bearer $MCP_ADMIN_TOKEN" \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{
         "name":"trigger_alert",
-        "arguments":{"elder_id":"e001","device_id":"dev-001","tenant_id":"tenant_default"}}}'
+        "arguments":{"site_id":"e001","device_id":"dev-001","tenant_id":"tenant_default"}}}'
 ```
 
 Python 客户端（`backend/mcp/client.py`）：
@@ -128,11 +128,11 @@ Python 客户端（`backend/mcp/client.py`）：
 from backend.mcp.client import call_mcp_tool, list_mcp_tools
 
 profile = await call_mcp_tool("http://localhost:8000/mcp/本服务-data",
-                             "get_elder_profile",
-                             {"elder_id": "e001", "tenant_id": "tenant_default"})
+                             "get_site_profile",
+                             {"site_id": "e001", "tenant_id": "tenant_default"})
 
 alert = await call_mcp_tool("http://localhost:8000/mcp/alert-ops", "trigger_alert",
-                            {"elder_id": "e001", "device_id": "dev-001",
+                            {"site_id": "e001", "device_id": "dev-001",
                              "tenant_id": "tenant_default"},
                             timeout=240.0, token="<MCP_ADMIN_TOKEN>")
 ```
@@ -146,7 +146,7 @@ alert = await call_mcp_tool("http://localhost:8000/mcp/alert-ops", "trigger_aler
 | FastMCP 把 `list[dict]` 塞进多条 `TextContent` | 客户端遍历全部 `content` 解析，而不是只取 `content[0]` |
 | 工具内部异常走 `isError` 通道而非 JSON-RPC error | 客户端检测 `isError` 并显式抛错，避免错误文本被当成正常数据 |
 | 本机代理劫持 localhost 调用 | httpx 一律 `trust_env=False` |
-| 告警"确认了但没派单" | 恢复读档必须和暂停存档用同一个 thread_id（存档槽名）：确认工具已改为 `build_config(elder_id, alert_id)`，与触发时一致；REST 与 MCP 两条入口都已统一 |
+| 告警"确认了但没派单" | 恢复读档必须和暂停存档用同一个 thread_id（存档槽名）：确认工具已改为 `build_config(site_id, alert_id)`，与触发时一致；REST 与 MCP 两条入口都已统一 |
 | Milvus 写入/删除后查询看不到 | 管理工具在 ingest/delete 后调用底层连接 `flush`（pymilvus 2.4.9 的 `MilvusClient` 没有 `flush()`） |
 
 ## 六、Roadmap
@@ -154,7 +154,7 @@ alert = await call_mcp_tool("http://localhost:8000/mcp/alert-ops", "trigger_aler
 | 优先级 | 事项 | 说明 |
 |---|---|---|
 | P1 | 反向消费外部 MCP | 用 `langchain-mcp-adapters` 把医院 HIS、排班系统等外部 MCP 挂成 Agent 工具，公共层从"静态能力"变成"可插拔工具" |
-| P2 | `assessment` server | `compute_weighted_score`（五维 0.30/0.25/0.20/0.15/0.10）、`generate_care_plan_from_assessment` |
+| P2 | `assessment` server | `compute_weighted_score`（五维 0.30/0.25/0.20/0.15/0.10）、`generate_service_plan_from_assessment` |
 | P2 | MCP resources / prompts | 用 `sop://documents/{id}` 暴露 SOP 原文资源，用 `prompts` 固化作业问答模板 |
 | P3 | 写工具审计日志 | 记录 Token 使用者、目标租户、变更内容，便于事后追溯 |
 
