@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-13T21:03:08+08:00",
+  "generated_at": "2026-10-13T21:06:48+08:00",
   "base_url": "http://127.0.0.1:8099/mcp",
   "note": "由 scripts/dump_mcp_tools.py 自动生成；工具定义变更后请重新导出并提交。",
   "servers": {
@@ -11,7 +11,7 @@
       "tools": [
         {
           "name": "search_sop",
-          "description": "检索养老作业规范 知识库（Hybrid 召回 + BGE-Reranker 精排）。\n\n    适用场景：作业标准、操作规范、风险处置流程类问题（如\"配电间巡检步骤\"）。\n\n    Args:\n        query:     作业问题，中文或英文\n        tenant_id: 租户 ID，用于数据隔离，必填（如 tenant_default）\n        category:  可选，SOP 类别 ID（如 feeding_tube / fall_prevention），用于缩小检索范围\n        top_k:     精排后返回条数，默认 3\n\n    Returns:\n        按相关性降序的片段列表，每项含 content / source_name / category /\n        score / confidence / is_high_confidence（confidence >= 0.75 视为高置信）\n    ",
+          "description": "检索作业规范知识库（Hybrid 召回 + BGE-Reranker 精排）。\n\n    适用场景：作业标准、操作规范、风险处置流程类问题（如\"配电间巡检步骤\"）。\n\n    Args:\n        query:     作业问题，中文或英文\n        tenant_id: 租户 ID，用于数据隔离，必填（如 tenant_default）\n        category:  可选，规范类别 ID（如 power_room_inspection / confined_space），用于缩小检索范围\n        top_k:     精排后返回条数，默认 3\n\n    Returns:\n        按相关性降序的片段列表，每项含 content / source_name / category /\n        score / confidence / is_high_confidence（confidence >= 0.75 视为高置信）\n    ",
           "inputSchema": {
             "properties": {
               "query": {
@@ -474,7 +474,7 @@
       "tools": [
         {
           "name": "ingest_sop_document",
-          "description": "导入（或新增）一篇作业规范 文档到知识库。\n\n    对应脚本：scripts/build_knowledge_base.py\n    流程：读取 → 智能分块 →（可选）Contextual RAG 增强 → BGE-M3 嵌入 → 写入 Milvus。\n\n    Args:\n        file_path:   文档路径，必须在 data/ 目录下（如 data/sop/feeding_tube.md）\n        category:    SOP 类别 ID（如 feeding_tube），写入 course_id 字段供检索过滤\n        tenant_id:   租户 ID，必填且必须在 MCP_WRITE_TENANTS 白名单内\n        version:     文档版本号，默认 1.0\n        use_context: 是否启用 Contextual RAG 增强（需调 LLM，关闭可显著加快导入）\n\n    Returns:\n        {status, document_id, category, file_path, version, use_context}\n    ",
+          "description": "导入（或新增）一篇作业规范 文档到知识库。\n\n    对应脚本：scripts/build_knowledge_base.py\n    流程：读取 → 智能分块 →（可选）Contextual RAG 增强 → BGE-M3 嵌入 → 写入 Milvus。\n\n    Args:\n        file_path:   文档路径，必须在 data/ 目录下（如 data/sop/power_room_inspection.md）\n        category:    规范类别 ID（如 power_room_inspection），写入 course_id 字段供检索过滤\n        tenant_id:   租户 ID，必填且必须在 MCP_WRITE_TENANTS 白名单内\n        version:     文档版本号，默认 1.0\n        use_context: 是否启用 Contextual RAG 增强（需调 LLM，关闭可显著加快导入）\n\n    Returns:\n        {status, document_id, category, file_path, version, use_context}\n    ",
           "inputSchema": {
             "properties": {
               "file_path": {

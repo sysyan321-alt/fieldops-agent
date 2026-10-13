@@ -6,10 +6,10 @@
 
 | 文件名 | 界面 | 要体现什么 |
 |---|---|---|
-| `care-plan.png` | 照护计划页（`/care-flow/:sid/plan`） | **最重要的一张**：护理等级、服务项、今日执行进度、计划来源标签 |
-| `alert-review.png` | 告警审核页（`/alert-review`） | 四轨证据 + AI 风险等级 + 站长确认按钮（Human-in-the-Loop） |
-| `sop-qa.png` | SOP 问答页（`/sop-qa`） | 回答带来源章节（答案可追溯） |
-| `assessment.png` | 评估上传页（`/assessment`） | 五维度评分入口（闭环起点） |
+| `service-plan.png` | 服务计划页（`/work-flow/:sid/plan`） | **最重要的一张**：风险等级、服务项、今日执行进度、计划来源标签 |
+| `alert-review.png` | 告警审核页（`/alert-review`） | 四轨证据 + AI 风险等级 + 值班主管确认按钮（Human-in-the-Loop） |
+| `sop-qa.png` | 规范问答页（`/sop-qa`） | 回答带来源章节（答案可追溯） |
+| `assessment.png` | 点位评估上传页（`/assessment`） | 五维度评分入口（闭环起点） |
 
 ## 自动截图
 

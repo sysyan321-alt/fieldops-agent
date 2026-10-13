@@ -1,5 +1,5 @@
 -- scripts/init_db.sql
--- FieldOps 养老作业智能体数据库初始化脚本
+-- FieldOps 数据库初始化脚本
 -- 用法：psql -h localhost -p 5433 -U postgres -d fieldops -f scripts/init_db.sql
 
 -- ──────────────────────────────────────────────────────────────
@@ -150,7 +150,7 @@ CREATE TABLE IF NOT EXISTS service_tier_configs (
 CREATE TABLE IF NOT EXISTS service_records (
     record_id    VARCHAR(64) PRIMARY KEY,        -- 记录 ID
     site_id     VARCHAR(64) NOT NULL,            -- 点位 ID
-    service_type    VARCHAR(50) NOT NULL,            -- 服务类型：翻身/喂药/进食/如厕/巡视
+    service_type    VARCHAR(50) NOT NULL,            -- 服务类型：巡检/设备检查/环境检查/消防设施检查
     content      TEXT,                             -- 服务内容
     worker_id VARCHAR(64) NOT NULL,            -- 作业人员 ID
     tenant_id    VARCHAR(64) NOT NULL DEFAULT 'tenant_default',  -- 租户 ID

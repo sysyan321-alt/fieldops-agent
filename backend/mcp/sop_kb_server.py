@@ -39,14 +39,14 @@ async def search_sop(
     category: str | None = None,
     top_k: int = 3,
 ) -> list[dict]:
-    """检索养老作业规范 知识库（Hybrid 召回 + BGE-Reranker 精排）。
+    """检索作业规范知识库（Hybrid 召回 + BGE-Reranker 精排）。
 
     适用场景：作业标准、操作规范、风险处置流程类问题（如"配电间巡检步骤"）。
 
     Args:
         query:     作业问题，中文或英文
         tenant_id: 租户 ID，用于数据隔离，必填（如 tenant_default）
-        category:  可选，SOP 类别 ID（如 feeding_tube / fall_prevention），用于缩小检索范围
+        category:  可选，规范类别 ID（如 power_room_inspection / confined_space），用于缩小检索范围
         top_k:     精排后返回条数，默认 3
 
     Returns:

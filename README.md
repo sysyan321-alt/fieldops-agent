@@ -240,6 +240,7 @@ fieldops-agent/
 docker compose --env-file .env.local up -d
 python -m pytest tests/ -q          # 238 全绿
 cd frontend && npm run build        # 含 vue-tsc 类型检查
+./scripts/check_leaks.sh            # 推送前自查：密钥 / 口令 / 本机路径 / 残留词
 ```
 
 改动涉及工具或节点时，记得重跑 `python scripts/dump_mcp_tools.py` 更新工具 schema；

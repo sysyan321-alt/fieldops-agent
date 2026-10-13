@@ -1,6 +1,6 @@
-# CareAgent MCP 能力层
+# FieldOps MCP 能力层
 
-> MCP（Model Context Protocol）把作业能力变成标准工具：外部 Agent / 系统不用学我们的 REST 接口，按 MCP 协议即可调用；将来 care_agent 也能反向消费外部 MCP Server（医院 HIS、排班系统等）。
+> MCP（Model Context Protocol）把作业能力变成标准工具：外部 Agent / 系统不用学我们的 REST 接口，按 MCP 协议即可调用；将来 fieldops-agent 也能反向消费外部 MCP Server（医院 HIS、排班系统等）。
 >
 > 只读工具直接可用；写工具（改知识库、派工单）需要 `MCP_ADMIN_TOKEN`，并按租户白名单放行。
 

@@ -1,12 +1,20 @@
 # 关于本目录的数据
 
-## `sop/` — 护理 SOP 示例文档
+## `sop/` — 作业规范示例文档
 
-本目录下的 6 篇 SOP（跌倒预防、鼻饲、给药、口腔护理、体位管理、压疮）是**为本项目
-编写的示例内容**，用于演示检索链路与快通道门控，**不是临床护理规范**，
-不能作为实际操作依据。
+本目录下的 6 篇规范是**为本项目编写的示例内容**，用于演示检索链路与快通道门控，
+**不是现场作业标准**，不能作为实际操作依据：
 
-真实部署时请替换为机构自有的护理规范，并注意：
+| 文件 | 文档 |
+|---|---|
+| `work_at_height.md` | 高处作业安全规范 |
+| `power_room_inspection.md` | 配电间巡检规范 |
+| `fire_equipment_check.md` | 消防设施检查规范 |
+| `equipment_maintenance.md` | 设备保养与润滑规范 |
+| `confined_space.md` | 受限空间作业规范 |
+| `water_ingress.md` | 水浸与渗漏应急处置 |
+
+真实部署时请替换为组织自有的作业规范，并注意：
 
 - 若替换为第三方资料（教科书、行业标准、其他机构的文件），**请先确认授权**；
 - 替换后需要重建索引：`python scripts/init_milvus.py` + `python scripts/build_knowledge_base.py --batch-dir data/sop`；

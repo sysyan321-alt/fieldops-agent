@@ -1,4 +1,4 @@
-# CareAgent API 明细文档
+# FieldOps API 明细文档
 
 > Base URL：`http://localhost:8000`
 > 交互式文档：http://localhost:8000/docs（Swagger UI）
@@ -439,11 +439,11 @@ curl -H "Authorization: Bearer <token>" \
 
 | 头 | 说明 |
 |---|---|
-| `X-CareAgent-Event` | 事件类型，如 `work_flow.finished` |
-| `X-CareAgent-Event-Id` | 事件 ID，**消费端用它做幂等去重**（投递语义是「至少一次」） |
-| `X-CareAgent-Delivery-Attempt` | 这是第几次投递 |
-| `X-CareAgent-Timestamp` | 发送时间（Unix 秒，供消费端防重放） |
-| `X-CareAgent-Signature` | `sha256=<HMAC-SHA256(secret, body)>`，`secret` 未配置时不下发该头 |
+| `X-FieldOps-Event` | 事件类型，如 `work_flow.finished` |
+| `X-FieldOps-Event-Id` | 事件 ID，**消费端用它做幂等去重**（投递语义是「至少一次」） |
+| `X-FieldOps-Delivery-Attempt` | 这是第几次投递 |
+| `X-FieldOps-Timestamp` | 发送时间（Unix 秒，供消费端防重放） |
+| `X-FieldOps-Signature` | `sha256=<HMAC-SHA256(secret, body)>`，`secret` 未配置时不下发该头 |
 
 投递与重试语义：2xx 视为成功；失败按 30s → 120s → 600s → 1800s 退避重试，第 5 次仍失败置 `failed`（保留记录、可人工重投）。租户未配置回调地址或 `enabled=false` 时，事件保留 `pending` 且**不计尝试次数**，配置好后自动补投。闭环链路不阻塞业务：投递发生在流程之外的后台循环里。
 
@@ -639,7 +639,7 @@ curl -X POST http://localhost:8000/api/v1/knowledge/search \
 
 ### GET /health
 
-无需认证。响应：`{"status": "ok", "service": "CareAgent", "version": "1.0.0"}`
+无需认证。响应：`{"status": "ok", "service": "FieldOps", "version": "1.0.0"}`
 
 ---
 

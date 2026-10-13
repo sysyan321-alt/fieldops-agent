@@ -100,8 +100,8 @@ async def ingest_sop_document(
     流程：读取 → 智能分块 →（可选）Contextual RAG 增强 → BGE-M3 嵌入 → 写入 Milvus。
 
     Args:
-        file_path:   文档路径，必须在 data/ 目录下（如 data/sop/feeding_tube.md）
-        category:    SOP 类别 ID（如 feeding_tube），写入 course_id 字段供检索过滤
+        file_path:   文档路径，必须在 data/ 目录下（如 data/sop/power_room_inspection.md）
+        category:    规范类别 ID（如 power_room_inspection），写入 course_id 字段供检索过滤
         tenant_id:   租户 ID，必填且必须在 MCP_WRITE_TENANTS 白名单内
         version:     文档版本号，默认 1.0
         use_context: 是否启用 Contextual RAG 增强（需调 LLM，关闭可显著加快导入）

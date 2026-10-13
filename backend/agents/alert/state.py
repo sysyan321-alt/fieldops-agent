@@ -26,7 +26,7 @@ class ServiceRecord(BaseModel):
     """单条服务记录。"""
     record_id:    str = Field(description="记录 ID")
     site_id:     str = Field(description="点位 ID")
-    service_type:    str = Field(description="服务类型：翻身/喂药/进食/如厕/巡视")
+    service_type:    str = Field(description="服务类型：巡检/设备检查/环境检查/消防设施检查/用电检查")
     content:      str = Field(description="服务内容")
     worker_id: str = Field(description="作业人员 ID")
     timestamp:    str = Field(description="记录时间")

@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     # ── 数据库（PostgreSQL）──
     db_host: str = "localhost"   # 主机；写了默认值 = 可选项
     db_port: int = 5433          # 端口；本机 5432 已占用，隔离到 5433
-    db_name: str = "fieldops"   # 库名（养老作业智能体）
+    db_name: str = "fieldops"   # 库名
     db_user: str                 # 用户名；没有默认值 = 必填，.env.local 缺了会启动报错
     db_password: str             # 密码；同样必填
 
