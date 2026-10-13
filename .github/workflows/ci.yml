@@ -86,6 +86,12 @@ jobs:
           # （需要权重的用例用 conftest 的 models_ready 夹具跳过）。
           pip install -r requirements.txt
 
+      # 全新库冒烟：在空库上跑一遍建表脚本 + 启动迁移。
+      # 本机的数据卷早就初始化过，"建表脚本与启动迁移漂移"只会在新克隆的环境里炸
+      # （真实踩过：建表脚本给一张只存在于启动迁移里的表建索引 → postgres 容器 exit=3）。
+      - name: 全新库初始化冒烟检查
+        run: python scripts/check_fresh_db.py
+
       - name: 跑测试
         run: python -m pytest tests/ -q
 

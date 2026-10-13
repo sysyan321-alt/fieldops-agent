@@ -236,3 +236,7 @@ async def run_migrations():
     else:
         logger.info("migrations.demo_users_skipped",
                     message="未播种演示账号；用 scripts/create_user.py 创建用户")
+
+    # 返回统计值供调用方断言（scripts/check_fresh_db.py 用 skipped==0 守住
+    # "建表脚本与启动迁移不漂移"这条契约；原有调用点忽略返回值即可）
+    return applied, skipped

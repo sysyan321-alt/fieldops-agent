@@ -79,6 +79,11 @@
 
 ### 修复
 
+- **CI 新增"全新库初始化"冒烟检查**（`scripts/check_fresh_db.py`）：在临时空库上依次执行
+  `scripts/init_db.sql` 与启动迁移，建表脚本任何一条 DDL 报错、或迁移出现 `skipped > 0`
+  都当场失败。这条检查专门拦"本机数据卷早就初始化过、只有新克隆的环境才会炸"的漂移
+  ——也就是下面那条 `exit=3` 的问题。本地可单独跑（复用别的 compose 项目时加
+  `PG_CONTAINER=<容器名>`）。
 - **启动迁移的执行顺序**：`run_migrations()` 原先把 `migrations_v3.sql` 的建表语句追加在
   ALTER 补丁**之后**执行。对空库直接启动应用时，`ALTER TABLE device_readings ADD COLUMN
   tenant_id` 会先于建表执行、失败后只记一条 warning 被吞掉，结果首启建出来的
