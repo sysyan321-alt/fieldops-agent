@@ -1,7 +1,7 @@
 <template>
   <div class="sidebar">
     <div class="logo">
-      <span>🏥 FieldOps</span>
+      <span>🏢 FieldOps</span>
     </div>
     <nav class="nav-list">
       <RouterLink to="/dashboard" class="nav-item" :class="{ 'nav-item--active': isActive('/dashboard') }">

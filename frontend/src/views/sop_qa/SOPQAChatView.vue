@@ -25,7 +25,7 @@
     <div class="chat-panel">
       <div class="chat-messages" ref="messagesEl">
         <div v-if="messages.length === 0 && !isStreaming" class="empty-hint">
-          <p>🧑‍⚕️ 你好！我是作业规范 助手</p>
+          <p>📘 你好！我是作业规范助手</p>
           <p>高处作业、配电巡检、消防检查、设备保养、受限空间、水浸处置等问题，随时问我</p>
         </div>
 

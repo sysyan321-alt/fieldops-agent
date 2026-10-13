@@ -7,7 +7,7 @@
       </template>
       <el-form :inline="true" :model="form">
         <el-form-item label="点位 ID">
-          <el-input v-model="form.site_id" placeholder="site_001" style="width: 160px" />
+          <el-input v-model="form.site_id" placeholder="s001" style="width: 160px" />
         </el-form-item>
         <el-form-item label="设备 ID">
           <el-input v-model="form.device_id" placeholder="device_001" style="width: 160px" />

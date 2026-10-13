@@ -15,7 +15,7 @@
         style="max-width: 480px"
       >
         <el-form-item label="点位 ID" prop="site_id">
-          <el-input v-model="form.site_id" placeholder="例如：site_001" :prefix-icon="User" />
+          <el-input v-model="form.site_id" placeholder="例如：s001" :prefix-icon="User" />
         </el-form-item>
         <el-form-item label="评估表 PDF" prop="file">
           <el-upload

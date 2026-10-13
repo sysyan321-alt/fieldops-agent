@@ -2,7 +2,7 @@
   <div class="login-page">
     <el-card class="login-card">
       <div class="login-header">
-        <div class="login-logo">🏥</div>
+        <div class="login-logo">🏢</div>
         <h2>FieldOps</h2>
         <p>项目现场 AI 作业智能体系统</p>
       </div>
@@ -43,8 +43,8 @@
         </el-button>
       </el-form>
       <div class="login-hint">
-        <p>默认账号：worker / supervisor / admin</p>
-        <p>密码见项目 README（演示环境）</p>
+        <p>首次使用请先创建账号：python scripts/create_user.py</p>
+        <p>演示账号需在 .env.local 打开 SEED_DEMO_USERS=true</p>
       </div>
     </el-card>
   </div>

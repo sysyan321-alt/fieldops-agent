@@ -74,7 +74,7 @@
         empty-text="暂无出站事件"
       >
         <el-table-column prop="event_type" label="事件类型" width="170" />
-        <el-table-column prop="aggregate_id" label="主体 ID" width="140" show-overflow-tooltip />
+        <el-table-column prop="aggregate_id" label="业务主体 ID" width="140" show-overflow-tooltip />
         <el-table-column label="状态" width="90">
           <template #default="{ row }">
             <el-tag size="small" :type="statusType(row.status)">

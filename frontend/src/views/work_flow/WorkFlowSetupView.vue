@@ -17,7 +17,7 @@
         <el-form-item label="点位 ID" prop="site_id">
           <el-input
             v-model="form.site_id"
-            placeholder="例如：site_001"
+            placeholder="例如：s001"
             :prefix-icon="User"
           />
         </el-form-item>

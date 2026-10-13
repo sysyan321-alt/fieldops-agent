@@ -65,7 +65,7 @@ const featureCards = [
   {
     icon: '📋',
     title: '作业流程',
-    desc: '建档评估→日常巡检→异常处置→复评→出院 五阶段引导',
+    desc: '建档评估→日常巡检（含异常处置）→阶段复评→退场评估',
     action: '发起流程',
     route: '/work-flow',
   },
